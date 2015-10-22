@@ -18,6 +18,9 @@
 
 package thothbot.parallax.core.shared.core;
 
+import android.opengl.GLES20;
+
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import thothbot.parallax.core.client.gl2.WebGLRenderingContext;
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
 import thothbot.parallax.core.client.gl2.arrays.IndexTypeArray;
 import thothbot.parallax.core.client.gl2.arrays.Int32Array;
@@ -435,7 +437,7 @@ public class BufferGeometry extends AbstractGeometry
 
 			}
 
-			this.boundingSphere.setRadius( Math.sqrt( maxRadiusSq ) );
+			this.boundingSphere.setRadius(Math.sqrt(maxRadiusSq));
 
 		}
 
@@ -959,7 +961,7 @@ public class BufferGeometry extends AbstractGeometry
 
 	}
 	
-	public void setDirectBuffers( WebGLRenderingContext gl ) {
+	public void setDirectBuffers() {
 
 		for ( int i = 0, l = this.attributesKeys.size(); i < l; i ++ ) {
 
@@ -968,17 +970,22 @@ public class BufferGeometry extends AbstractGeometry
 
 			if ( attribute.getBuffer() == 0 ) {
 
-				attribute.setBuffer(gl.createBuffer());
+				int[] buffer = new int[1];
+				GLES20.glGenBuffers(1, buffer, 0);
+				attribute.setBuffer(buffer[0]);
 				attribute.setNeedsUpdate(true);
 
 			}
 
 			if ( attribute.isNeedsUpdate() == true ) {
 
-				BufferTarget bufferType = ( key == "index" ) ? BufferTarget.ELEMENT_ARRAY_BUFFER : BufferTarget.ARRAY_BUFFER;
-
-				gl.bindBuffer( bufferType, attribute.getBuffer() );
-				gl.bufferData( bufferType, attribute.getArray(), BufferUsage.STATIC_DRAW );
+				int bufferType = ( key == "index" ) ?
+						GLES20.GL_ELEMENT_ARRAY_BUFFER : GLES20.GL_ARRAY_BUFFER;
+				ByteBuffer buf = attribute.getArray().getBuffer();
+				buf.rewind();
+				GLES20.glBindBuffer(bufferType, attribute.getBuffer());
+				GLES20.glBufferData(bufferType, buf.limit(), buf,
+						GLES20.GL_STATIC_DRAW);
 
 				attribute.setNeedsUpdate(false);
 
