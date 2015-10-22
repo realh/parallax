@@ -13,227 +13,138 @@
  */
 package thothbot.parallax.core.client.gl2.arrays;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JsArrayInteger;
+import thothbot.parallax.core.client.gl2.enums.DataType;
 
 /**
- * The typed array that holds unsigned char (8-bit unsigned integer) as its element.
+ * The typed array that holds unsigned byte (8-bit unsigned integer) as its element.
  * 
- * @author hao1300@gmail.com
+ * @author h@realh.co.uk
  */
-public final class Uint8Array extends TypeArray {
-	public static final int BYTES_PER_ELEMENT = 1;
-	
-	protected Uint8Array() {
-		
-	}
-	
+public final class Uint8Array extends IndexTypeArray {
+	public static final int SIGN_OFFSET = 0x10000;
+	public static final int MAX_POSITIVE = 0x7fff;
+	public static final int MAX_NEGATIVE = 0xffff;
+
 	/**
-	 * Create a new {@link ArrayBuffer} with enough bytes to hold length elements 
-	 * of this typed array, then creates a typed array view referring to the full 
-	 * buffer.
+	 * @param capacity	In bytes.
+	 */
+	protected Uint8Array(int capacity) {
+		super(capacity);
+	}
+
+	@Override
+	protected void createTypedBuffer() {
+	}
+
+	@Override
+	public int getElementType() {
+		return DataType.UNSIGNED_BYTE.getValue();
+	}
+
+	@Override
+	public int getElementSize() {
+		return 1;
+	}
+
+	/**
+	 * Create a new {@link java.nio.ByteBuffer} with enough bytes to hold length
+	 * elements of this typed array.
 	 * 
 	 * @param length
 	 */
-	public static native Uint8Array create(int length) /*-{
-		return new $wnd.Uint8Array(length);
-	}-*/;
-	
-	/**
-	 * Create a new {@link ArrayBuffer} with enough bytes to hold array.length 
-	 * elements of this typed array, then creates a typed array view referring 
-	 * to the full buffer. The contents of the new view are initialized to the 
-	 * contents of the given typed array or sequence, with each element converted 
-	 * to the appropriate typed array type.
-	 * 
-	 * @param array
-	 */
-	public static native Uint8Array create(TypeArray array) /*-{
-		return new $wnd.Uint8Array(array);
-	}-*/;
-	
-	/**
-	 * Create a new {@link ArrayBuffer} with enough bytes to hold array.length 
-	 * elements of this typed array, then creates a typed array view referring 
-	 * to the full buffer. The contents of the new view are initialized to the 
-	 * contents of the given typed array or sequence, with each element converted 
-	 * to the appropriate typed array type.
-	 * 
-	 * @param array
-	 */
-	public static Uint8Array create(int... array) {
-		if (GWT.isScript()) {
-			return createCompiled(array);
-		}
-		return create(JsArrayUtil.toJsArrayInteger(array));
+	public static Uint8Array create(int length) {
+		return new Uint8Array(length);
 	}
 	
-	private static native Uint8Array createCompiled(int[] array) /*-{
-		return new $wnd.Uint8Array(array);
-	}-*/;
-	
 	/**
-	 * Create a new {@link ArrayBuffer} with enough bytes to hold array.length 
-	 * elements of this typed array, then creates a typed array view referring 
-	 * to the full buffer. The contents of the new view are initialized to the 
-	 * contents of the given typed array or sequence, with each element converted 
-	 * to the appropriate typed array type.
+	 * Create a copy of array.
 	 * 
 	 * @param array
 	 */
-	public static native Uint8Array create(JsArrayInteger array) /*-{
-		return new $wnd.Uint8Array(array);
-	}-*/;
-	
+	public static Uint8Array create(TypeArray array) {
+		Uint8Array result = create(array.getLength());
+		result.set(array);
+		return result;
+	}
+
+	private static byte coerce(int n) {
+		return (byte) (n > MAX_POSITIVE & n <= MAX_POSITIVE ?
+				(n - SIGN_OFFSET) : n);
+	}
+
 	/**
-	 * Create a new Uint8Array object using the passed {@link ArrayBuffer} for 
-	 * its storage. The Uint8Array spans the entire {@link ArrayBuffer} range. 
-	 * 
-	 * @param buffer
+	 * Create an array .
+	 *
+	 * @param array
 	 */
-	public static native Uint8Array create(ArrayBuffer buffer) /*-{
-		return new $wnd.Uint8Array(buffer);
-	}-*/;
-	
+	private static Uint8Array create(int[] array) {
+		byte[] bytes = new byte[array.length];
+		for (int i = 0; i < array.length; ++i) {
+            bytes[i] = coerce(array[i]);
+		}
+		return create(bytes);
+	}
+
 	/**
-	 * Create a new Uint8Array object using the passed {@link ArrayBuffer} for 
-	 * its storage. The Uint8Array extends from the given byteOffset until the 
-	 * end of the {@link ArrayBuffer}.
-	 * 
-	 * The given byteOffset must be a multiple of the element size of the 
-	 * specific type, otherwise an INDEX_SIZE_ERR exception is raised.
-	 * 
-	 * If a given byteOffset references an area beyond the end of the 
-	 * {@link ArrayBuffer} an INDEX_SIZE_ERR exception is raised.
-	 * 
-	 * The length of the {@link ArrayBuffer} minus the byteOffset must be a 
-	 * multiple of the element size of the specific type, or an INDEX_SIZE_ERR 
-	 * exception is raised.
-	 * 
-	 * @param buffer
-	 * @param byteOffset indicates the offset in bytes from the start of the 
-	 * 				{@link ArrayBuffer} 
+	 * Create an array .
+	 *
+	 * @param array
 	 */
-	public static native Uint8Array create(ArrayBuffer buffer, int byteOffset) /*-{
-		return new $wnd.Uint8Array(buffer, byteOffset);
-	}-*/;
-	
-	/**
-	 * Create a new Uint8Array object using the passed {@link ArrayBuffer} for 
-	 * its storage. 
-	 * 
-	 * The given byteOffset must be a multiple of the element size of the 
-	 * specific type, otherwise an INDEX_SIZE_ERR exception is raised.
-	 * 
-	 * If a given byteOffset and length references an area beyond the end of the 
-	 * {@link ArrayBuffer} an INDEX_SIZE_ERR exception is raised.
-	 * 
-	 * @param buffer
-	 * @param byteOffset indicates the offset in bytes from the start of the 
-	 * 				{@link ArrayBuffer} 
-	 * @param length the count of elements from the offset that this 
-	 * 				Uint8Array will reference
-	 */
-	public static native Uint8Array create(ArrayBuffer buffer, int byteOffset,
-			int length) /*-{
-		return new $wnd.Uint8Array(buffer, byteOffset, length);
-	}-*/;
-  
+	private static Uint8Array create(byte[] array) {
+		Uint8Array result = create(array.length);
+		result.getBuffer().put(array);
+		return result;
+	}
+
 	/**
 	 * Returns the element at the given numeric index.
-	 * 
+	 *
 	 * @param index
 	 */
-  public native int get(int index) /*-{
-  	return this[index];
-  }-*/;
-  
-  /**
-   * Sets the element at the given numeric index to the given value.
-   * 
-   * @param index
-   * @param value
-   */
-  public native void set(int index, int value) /*-{
-  	 this[index] = value;
-  }-*/;
-  
-  /**
-   * Set multiple values, reading input values from the array. 
-   */
-  public native void set(JsArrayInteger array) /*-{
-  	this.set(array);
-  }-*/;
-  
-  /**
-   * /**
-   * Set multiple values, reading input values from the array.
-   * 
-   * @param array
-   * @param offset indicates the index in the current array where values are 
-   * 				written.
-   */
-  public native void set(JsArrayInteger array, int offset) /*-{
-  	this.set(array, offset);
-  }-*/;
-  
-  /**
-   * Returns a new Uint8Array view of the {@link ArrayBuffer} store for this 
-   * Uint8Array, referencing the elements at begin, inclusive, up to end, 
-   * exclusive. If either begin or end is negative, it refers to an index from 
-   * the end of the array, as opposed to from the beginning.
-   * 
-   * The slice contains all elements from begin to the end of the Uint8Array.
-   * 
-   * The range specified by the begin and end values is clamped to the valid 
-   * index range for the current array. If the computed length of the new 
-   * Uint8Array would be negative, it is clamped to zero.
-   * 
-   * The returned Uint8Array will be of the same type as the array on which this 
-   * method is invoked.
-   * 
-   * @param begin
-   */
-  public native Uint8Array slice(int begin) /*-{
-		return this.slice(begin);
-	}-*/;
-  
-  /**
-   * Returns a new Uint8Array view of the {@link ArrayBuffer} store for this 
-   * Uint8Array, referencing the elements at begin, inclusive, up to end, 
-   * exclusive. If either begin or end is negative, it refers to an index from 
-   * the end of the array, as opposed to from the beginning.
-   * 
-   * The slice contains all elements from begin to the end of the Uint8Array.
-   * 
-   * The range specified by the begin and end values is clamped to the valid 
-   * index range for the current array. If the computed length of the new 
-   * Uint8Array would be negative, it is clamped to zero.
-   * 
-   * The returned Uint8Array will be of the same type as the array on which this 
-   * method is invoked.
-   * 
-   * @param begin
-   * @param end
-   */
-  public native Uint8Array slice(int begin, int end) /*-{
-  	// ArrayBuffer is supposed to support slice
-  	// which works in Chrome 18 but not Firefox 10 or 11. As for Firefox, you need to copy it manually.
-  	if (!Uint8Array.prototype.slice)
-  	{
-    	var that = new Uint8Array(this);
-//    	if (end == undefined) end = that.length;
-//    	var result = new ArrayBuffer(end - begin);
-    	var resultArray = new Uint8Array(end - begin);
-    	for (var i = 0; i < resultArray.length; i++)
-       		resultArray[i] = that[i + begin];
-    	return resultArray;
+	public int get(int index) {
+		return getBuffer().get(index);
+	}
 
-  	} else {
+	/**
+	 * Returns the element at the given numeric index.
+	 *
+	 * @param index
+	 */
+	@Override
+	public int getUnsigned(int index) {
+		int n = getBuffer().get(index);
+		return n < 0 ? (int) n + SIGN_OFFSET : (int) n;
+	}
 
-		return this.slice(begin, end);
-		
-  	}
+	/**
+	 * Sets the element at the given numeric index to the given value.
+	 *
+	 * @param index
+	 * @param value
+	 */
+	public void set(int index, byte value) {
+		getBuffer().put(index, value);
+	}
 
-  }-*/;
+	/**
+	 * Sets the element at the given numeric index to the given value.
+	 *
+	 * @param index
+	 * @param value
+	 */
+	public void set(int index, int value) {
+		getBuffer().put(index, coerce(value));
+	}
+
+	public void set(Uint8Array array) {
+        super.set(array);
+    }
+
+	public void set(Uint8Array array, int offset) {
+        super.set(array, offset);
+    }
+
+	/**
+	 * slice methods were not used.
+     */
 }

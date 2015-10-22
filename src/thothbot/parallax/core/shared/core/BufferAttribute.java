@@ -51,7 +51,7 @@ public class BufferAttribute {
 		return this.array;
 	}
 	
-	public void setArray(Float32Array array) {
+	public void setArray(TypeArray array) {
 		this.array = array;
 	}
 	
@@ -107,7 +107,7 @@ public class BufferAttribute {
 
 	}
 
-	public BufferAttribute set( Float32Array value ) {
+	public BufferAttribute set( TypeArray value ) {
 
 		this.array.set( value );
 
