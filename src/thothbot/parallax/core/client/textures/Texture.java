@@ -18,9 +18,10 @@
 
 package thothbot.parallax.core.client.textures;
 
+import android.opengl.GLES20;
+
+import thothbot.parallax.core.client.gl2.Image;
 import thothbot.parallax.core.client.gl2.WebGLConstants;
-import thothbot.parallax.core.client.gl2.WebGLRenderingContext;
-import thothbot.parallax.core.client.gl2.WebGLTexture;
 import thothbot.parallax.core.client.gl2.enums.DataType;
 import thothbot.parallax.core.client.gl2.enums.PixelFormat;
 import thothbot.parallax.core.client.gl2.enums.PixelType;
@@ -30,17 +31,7 @@ import thothbot.parallax.core.client.gl2.enums.TextureParameterName;
 import thothbot.parallax.core.client.gl2.enums.TextureTarget;
 import thothbot.parallax.core.client.gl2.enums.TextureWrapMode;
 import thothbot.parallax.core.client.renderers.WebGLRenderer;
-import thothbot.parallax.core.shared.Log;
 import thothbot.parallax.core.shared.math.Vector2;
-
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.ErrorEvent;
-import com.google.gwt.event.dom.client.ErrorHandler;
-import com.google.gwt.event.dom.client.LoadEvent;
-import com.google.gwt.event.dom.client.LoadHandler;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.RootPanel;
 
 /**
  * Basic implementation of texture.
@@ -52,17 +43,7 @@ import com.google.gwt.user.client.ui.RootPanel;
  */
 public class Texture
 {
-	/**
-	 * This callback will be called when the image has been loaded.
-	 */
-	public static interface ImageLoadHandler 
-	{
-		void onImageLoad(Texture texture);
-	}
-
-	private static int TextureCount = 0;
-	
-	public static enum OPERATIONS 
+	public static enum OPERATIONS
 	{
 		MULTIPLY(0), // MultiplyOperation
 		MIX(1); // MixOperation
@@ -86,9 +67,11 @@ public class Texture
 		SPHERICAL_REFRACTION // SphericalRefractionMapping = function () {};
 	};
 
-	private int id;
+	private static int TextureCount = 0;
 
-	private Element image;
+	private Image image;
+
+	private int id;
 
 	private Vector2 offset;
 	private Vector2 repeat;
@@ -107,11 +90,12 @@ public class Texture
 	private boolean isGenerateMipmaps = true;
 	private boolean isPremultiplyAlpha = false;
 	private boolean isFlipY = true;
-	private int unpackAlignment = 4; // valid values: 1, 2, 4, 8 (see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glPixelStorei.xml)
+	private int unpackAlignment = 4; // valid values: 1, 2, 4, 8
+									 // (see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glPixelStorei.xml)
 
 	private boolean isNeedsUpdate = false;
 	
-	private WebGLTexture webglTexture;
+	private int[] webglTexture = { 0 };
 	
 	private int anisotropy;
 	
@@ -120,49 +104,16 @@ public class Texture
 	/**
 	 * Default constructor will create new instance of texture.
 	 */
-	public Texture() 
+	public Texture()
 	{
-		this((Element)Element.createObject());
 	}
 	
-	public Texture(String url)
-	{
-		this(url, null);
-	}
-
-	public Texture(String url, final ImageLoadHandler imageLoadHandler)
-	{
-		this(new Image(url), imageLoadHandler);
-	}
-
-	/**
-	 * Constructor
-	 * 
-	 * @param image              the Image
-	 * @param imageLoadHandler   the {@link Texture.ImageLoadHandler}. Not necessary.
-	 */
-	public Texture(Image image, final ImageLoadHandler imageLoadHandler)
-	{
-		this(image.getElement());
-
-		loadImage(image, new Loader() {
-			
-			@Override
-			public void onLoad() {
-				
-				setNeedsUpdate(true);
-				if (imageLoadHandler != null)
-					imageLoadHandler.onImageLoad(Texture.this);
-			}
-		});
-	}
-
 	/**
 	 * Constructor will create a texture instance.
 	 *  
-	 * @param image the media element.
+	 * @param image the Image.
 	 */
-	public Texture(Element image) 
+	public Texture(Image image)
 	{
 		this(image, 
 				Texture.MAPPING_MODE.UV, 
@@ -188,7 +139,7 @@ public class Texture
 	 * @param type      the {@link DataType} value.
 	 * @param anisotropy the anisotropy value.
 	 */
-	public Texture(Element image, Texture.MAPPING_MODE mapping, TextureWrapMode wrapS,
+	public Texture(Image image, Texture.MAPPING_MODE mapping, TextureWrapMode wrapS,
 			TextureWrapMode wrapT, TextureMagFilter magFilter, TextureMinFilter minFilter,
 			PixelFormat format, PixelType type, int anisotropy) 
 	{	
@@ -317,14 +268,14 @@ public class Texture
 	 * 
 	 * @return the media element: image or canvas.
 	 */
-	public Element getImage() {
+	public Image getImage() {
 		return this.image;
 	}
 	
 	/**
 	 * Sets texture media element.
 	 */
-	public void setImage(Element image) {
+	public void setImage(Image image) {
 		this.image = image;
 	}
 
@@ -456,41 +407,53 @@ public class Texture
 		this.unpackAlignment = unpackAlignment;
 	}
 
-	public WebGLTexture getWebGlTexture() {
-		return webglTexture;
+	public int getWebGlTexture() {
+		return webglTexture[0];
 	}
 
-	public void setWebGlTexture(WebGLTexture webglTexture) {
-		this.webglTexture = webglTexture;
+	public void setWebGlTexture(int webglTexture) {
+		this.webglTexture[0] = webglTexture;
 	}
 
-	public void setTextureParameters (WebGLRenderingContext gl, TextureTarget textureType, boolean isImagePowerOfTwo )
+	public void setTextureParameters (TextureTarget textureType, boolean isImagePowerOfTwo )
 	{
-		setTextureParameters(gl, 0, textureType, isImagePowerOfTwo);
+		setTextureParameters(0, textureType.getValue(), isImagePowerOfTwo);
 	}
 
-	public void setTextureParameters (WebGLRenderingContext gl, int maxAnisotropy, TextureTarget textureType, boolean isImagePowerOfTwo ) 
+	public void setTextureParameters (int textureType, boolean isImagePowerOfTwo )
+	{
+		setTextureParameters(0, textureType, isImagePowerOfTwo);
+	}
+
+	public void setTextureParameters (int maxAnisotropy, TextureTarget textureType, boolean isImagePowerOfTwo )
+	{
+		setTextureParameters(maxAnisotropy, textureType.getValue(), isImagePowerOfTwo);
+	}
+
+	public void setTextureParameters (int maxAnisotropy, int textureType, boolean isImagePowerOfTwo )
 	{	
 		if ( isImagePowerOfTwo ) 
 		{
-			gl.texParameteri( textureType, TextureParameterName.TEXTURE_WRAP_S, this.wrapS.getValue() );
-			gl.texParameteri( textureType, TextureParameterName.TEXTURE_WRAP_T, this.wrapT.getValue() );
-			gl.texParameteri( textureType, TextureParameterName.TEXTURE_MAG_FILTER, this.magFilter.getValue() );
-			gl.texParameteri( textureType, TextureParameterName.TEXTURE_MIN_FILTER, this.minFilter.getValue() );
+			GLES20.glTexParameteri(textureType, GLES20.GL_TEXTURE_WRAP_S, this.wrapS.getValue());
+			GLES20.glTexParameteri(textureType, GLES20.GL_TEXTURE_WRAP_T, this.wrapT.getValue());
+			GLES20.glTexParameteri(textureType, GLES20.GL_TEXTURE_MAG_FILTER, this.magFilter.getValue());
+			GLES20.glTexParameteri(textureType, GLES20.GL_TEXTURE_MIN_FILTER, this.minFilter.getValue());
 		} 
 		else 
 		{
-			gl.texParameteri( textureType, TextureParameterName.TEXTURE_WRAP_S, WebGLConstants.CLAMP_TO_EDGE );
-			gl.texParameteri( textureType, TextureParameterName.TEXTURE_WRAP_T, WebGLConstants.CLAMP_TO_EDGE );
-			gl.texParameteri( textureType, TextureParameterName.TEXTURE_MAG_FILTER, filterFallback( this.magFilter.getValue() ) );
-			gl.texParameteri( textureType, TextureParameterName.TEXTURE_MIN_FILTER, filterFallback( this.minFilter.getValue() ) );
+			GLES20.glTexParameteri( textureType, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE );
+			GLES20.glTexParameteri( textureType, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE );
+			GLES20.glTexParameteri( textureType, GLES20.GL_TEXTURE_MAG_FILTER, filterFallback( this.magFilter.getValue() ) );
+			GLES20.glTexParameteri( textureType, GLES20.GL_TEXTURE_MIN_FILTER, filterFallback( this.minFilter.getValue() ) );
 		}
 		
 		if ( maxAnisotropy > 0 ) 
 		{
 			if ( this.anisotropy > 1 || this.cache_oldAnisotropy > 1 ) 
 			{
-				gl.texParameterf( textureType, TextureParameterName.TEXTURE_MAX_ANISOTROPY_EXT, Math.min( this.anisotropy, maxAnisotropy ) );
+				GLES20.glTexParameterf( textureType,
+						TextureParameterName.TEXTURE_MAX_ANISOTROPY_EXT.getValue(),
+						Math.min( this.anisotropy, maxAnisotropy ) );
 				this.cache_oldAnisotropy = this.anisotropy;
 			}
 		}
@@ -511,11 +474,11 @@ public class Texture
 	 * Releases a texture from the GL context.
 	 * texture � an instance of Texture
 	 */
-	public void deallocate( WebGLRenderer renderer ) 
+	public void deallocate( WebGLRenderer renderer )
 	{
-		if ( getWebGlTexture() == null ) return;
+		if ( webglTexture[0] == 0 ) return;
 
-		renderer.getGL().deleteTexture( getWebGlTexture() );
+		GLES20.glDeleteTextures(1, webglTexture, 0);
 
 		renderer.getInfo().getMemory().textures--;
 	}
@@ -540,46 +503,5 @@ public class Texture
 	{
 		return clone(new Texture(this.image, this.mapping, this.wrapS, this.wrapT,
 				this.magFilter, this.minFilter, this.format, this.type, this.anisotropy));
-	}
-	
-	private static FlowPanel loadingArea = new FlowPanel();
-	static {
-		loadingArea.getElement().getStyle().setProperty("visibility", "hidden");
-        loadingArea.getElement().getStyle().setProperty("position", "absolute");
-        loadingArea.getElement().getStyle().setProperty("width", "1px");
-        loadingArea.getElement().getStyle().setProperty("height", "1px");
-        loadingArea.getElement().getStyle().setProperty("overflow", "hidden");
-        RootPanel.get().add(loadingArea);
-	}
-	
-	protected interface Loader 
-	{
-		void onLoad();
-	}
-	
-	protected void loadImage(final Image image, final Loader loader)
-	{		
-		loadingArea.add(image);
-		
-	    // Hook up an error handler, so that we can be informed if the image fails
-	    // to load.
-		image.addErrorHandler(new ErrorHandler() {
-			
-			@Override
-			public void onError(ErrorEvent event)
-			{
-				Log.error("An error occurred while loading image: " + image.getUrl());
-			}
-		});
-
-		image.addLoadHandler(new LoadHandler() {
-
-			@Override
-			public void onLoad(LoadEvent event) 
-			{			
-				Log.info("Loaded image: " + image.getUrl());
-				loader.onLoad();
-			}
-		});
 	}
 }
