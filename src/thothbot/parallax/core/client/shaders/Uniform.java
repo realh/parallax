@@ -18,7 +18,6 @@
 
 package thothbot.parallax.core.client.shaders;
 
-import thothbot.parallax.core.client.gl2.WebGLUniformLocation;
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
 
 /**
@@ -50,7 +49,7 @@ public class Uniform
 	private Uniform.TYPE type;
 	private Object value;
 	private Float32Array cache_array;
-	private WebGLUniformLocation location;
+	private int location = -1;
 
 	public Uniform(Uniform.TYPE type) 
 	{
@@ -83,11 +82,11 @@ public class Uniform
 		this.cache_array = array;
 	}
 	
-	public WebGLUniformLocation getLocation() {
+	public int getLocation() {
 		return this.location;
 	}
 	
-	public void setLocation(WebGLUniformLocation location) {
+	public void setLocation(int location) {
 		this.location = location;
 	}
 	

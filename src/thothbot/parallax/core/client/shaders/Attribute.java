@@ -20,7 +20,6 @@ package thothbot.parallax.core.client.shaders;
 
 import java.util.List;
 
-import thothbot.parallax.core.client.gl2.WebGLBuffer;
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
 
 public class Attribute
@@ -39,7 +38,7 @@ public class Attribute
 		FACE_VERTICES
 	};
 
-	public WebGLBuffer buffer;
+	public int buffer;
 	public boolean createUniqueBuffers;
 	public Attribute.TYPE type;
 	// TODO: remove = change to type (initCustomAttributes)

@@ -18,25 +18,17 @@
 
 package thothbot.parallax.core.client.shaders;
 
+import android.opengl.GLES20;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import thothbot.parallax.core.client.gl2.WebGLConstants;
-import thothbot.parallax.core.client.gl2.WebGLProgram;
-import thothbot.parallax.core.client.gl2.WebGLRenderingContext;
-import thothbot.parallax.core.client.gl2.WebGLShader;
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
-import thothbot.parallax.core.client.gl2.enums.ProgramParameter;
 import thothbot.parallax.core.shared.Log;
-import thothbot.parallax.core.shared.core.FastMap;
 import thothbot.parallax.core.shared.math.Mathematics;
-
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.resources.client.ClientBundle;
-import com.google.gwt.resources.client.TextResource;
 
 /**
  * Basic abstract shader.
@@ -56,7 +48,7 @@ public abstract class Shader
 		LOWP
 	}
 	
-	public interface DefaultResources extends ClientBundle
+	public class DefaultResources
 	{
 		@Source("source/default.vs")
 		TextResource getVertexShader();
@@ -68,7 +60,7 @@ public abstract class Shader
 	// shader precision. Can be "highp", "mediump" or "lowp".
 	private PRECISION precision = PRECISION.HIGHP;
 
-	private WebGLProgram program;
+	private int program;
 
 	// Store uniforms and locations 
 	private Map<String, Uniform> uniforms;
@@ -86,6 +78,8 @@ public abstract class Shader
 
 	private static int shaderCounter;
 
+	private int[] tmpArray = {0};
+
 	/**
 	 * This constructor will create new Shader instance. 
 	 * 
@@ -93,7 +87,7 @@ public abstract class Shader
 	 */
 	public Shader(DefaultResources resource)
 	{
-		this(resource.getVertexShader().getText(), resource.getFragmentShader().getText());
+		this(resource.getVertexShader(), resource.getFragmentShader());
 	}
 
 	public Shader(String vertexShader, String fragmentShader)
@@ -103,11 +97,9 @@ public abstract class Shader
 		updateVertexSource(vertexShader);
 		updateFragmentSource(fragmentShader);
 
-		this.uniforms = GWT.isScript() ? 
-				new FastMap<Uniform>() : new HashMap<String, Uniform>();
+		this.uniforms = new HashMap<String, Uniform>();
 
-		this.attributesLocations = GWT.isScript() ? 
-				new FastMap<Integer>() : new HashMap<String, Integer>();
+		this.attributesLocations = new HashMap<String, Integer>();
 
 		initUniforms();
 	}
@@ -125,22 +117,22 @@ public abstract class Shader
 	/**
 	 * Gets the shader program.
 	 */
-	public WebGLProgram getProgram()
+	public int getProgram()
 	{
 		return this.program;
 	}
 	
 	// Called in renderer plugins
-	public Shader buildProgram(WebGLRenderingContext gl) 
+	public Shader buildProgram()
 	{
-		return buildProgram(gl, false, 0, 0);
+		return buildProgram(false, 0, 0);
 	}
 	
-	public Shader buildProgram(WebGLRenderingContext gl, boolean useVertexTexture, int maxMorphTargets, int maxMorphNormals) 
+	public Shader buildProgram(boolean useVertexTexture, int maxMorphTargets, int maxMorphNormals)
 	{
 		Log.debug("Building new program...");
 
-		initShaderProgram(gl);
+		initShaderProgram();
 
 		// Adds default uniforms
 		addUniform("viewMatrix",            new Uniform(Uniform.TYPE.FV1 ));
@@ -167,7 +159,7 @@ public abstract class Shader
 		// Cache location
 		Map<String, Uniform> uniforms = getUniforms();
 		for (String id : uniforms.keySet())
-			uniforms.get(id).setLocation( gl.getUniformLocation(this.program, id) );
+			uniforms.get(id).setLocation( GLES20.glGetUniformLocation(this.program, id) );
 
 		// cache attributes locations
 		List<String> attributesIds = new ArrayList<String>(Arrays.asList("position", "normal",
@@ -186,39 +178,32 @@ public abstract class Shader
 
 		Map<String, Integer> attributesLocations = getAttributesLocations();
 		for (String id : attributesIds)
-			attributesLocations.put(id, gl.getAttribLocation(this.program, id));
+			attributesLocations.put(id, GLES20.glGetAttribLocation(this.program, id));
 		
 		return this;
 	}
 	
 
-	/**
-	 * Initializes this shader with the given vertex shader source and fragment
-	 * shader source. This should be called within {@link #init(GL2)} to ensure
-	 * that the shader is correctly initialized.
-	 * 
-	 * @param vertexSource   the vertex shader source code
-	 * @param fragmentSource the fragment shader source code
-	 */
-	private void initShaderProgram(WebGLRenderingContext gl)
+	private void initShaderProgram()
 	{
 		Log.debug("Called initProgram()");
 
-		this.program = gl.createProgram();
+		this.program = GLES20.glCreateProgram();
 
 		String vertex = getShaderPrecisionDefinition() + "\n" + getVertexSource();
 		String fragment = getShaderPrecisionDefinition() + "\n" + getFragmentSource();
 		
-		WebGLShader glVertexShader = getShaderProgram(gl, ChunksVertexShader.class, vertex);
-		WebGLShader glFragmentShader = getShaderProgram(gl, ChunksFragmentShader.class, fragment); 
-		gl.attachShader(this.program, glVertexShader);
-		gl.attachShader(this.program, glFragmentShader);
+		int glVertexShader = getShaderProgram(ChunksVertexShader.class, vertex);
+		int glFragmentShader = getShaderProgram(ChunksFragmentShader.class, fragment);
+		GLES20.glAttachShader(this.program, glVertexShader);
+		GLES20.glAttachShader(this.program, glFragmentShader);
 
-		gl.linkProgram(this.program);
+		GLES20.glLinkProgram(this.program);
 
-		if (!gl.getProgramParameterb(this.program, ProgramParameter.LINK_STATUS))
+		GLES20.glGetProgramiv(this.program, GLES20.GL_LINK_STATUS, tmpArray, 0);
+		if (tmpArray[0] == GLES20.GL_FALSE)
 			Log.error("Could not initialise shader\n"
-					+ "GL error: " + gl.getProgramInfoLog(program)
+					+ "GL error: " + GLES20.glGetProgramInfoLog(program)
 					+ "Shader: " + this.getClass().getName()
 					+ "\n-----\nVERTEX:\n" + vertex
 					+ "\n-----\nFRAGMENT:\n" + fragment
@@ -228,8 +213,8 @@ public abstract class Shader
 			Log.info("initProgram(): shaders has been initialised");
 
 		// clean up
-		gl.deleteShader( glVertexShader );
-		gl.deleteShader( glFragmentShader );
+		GLES20.glDeleteShader(glVertexShader);
+		GLES20.glDeleteShader(glFragmentShader);
 	}
 	
 	public void setPrecision(Shader.PRECISION precision) {
@@ -243,24 +228,25 @@ public abstract class Shader
 	/**
 	 * Gets the shader.
 	 */
-	private WebGLShader getShaderProgram(WebGLRenderingContext gl, Class<?> type, String string)
+	private int getShaderProgram(Class<?> type, String string)
 	{
 		Log.debug("Called getShaderProgram() for type " + type.getName());
-		WebGLShader shader = null;
+		int shader = 0;
 
 		if (type == ChunksFragmentShader.class)
-			shader = gl.createShader(WebGLConstants.FRAGMENT_SHADER);
+			shader = GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER);
 
 		else if (type == ChunksVertexShader.class)
-			shader = gl.createShader(WebGLConstants.VERTEX_SHADER);
+			shader = GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER);
 
-		gl.shaderSource(shader, string);
-		gl.compileShader(shader);
+		GLES20.glShaderSource(shader, string);
+		GLES20.glCompileShader(shader);
 
-		if (!gl.getShaderParameterb(shader, WebGLConstants.COMPILE_STATUS)) 
+		GLES20.glGetProgramiv(shader, GLES20.GL_COMPILE_STATUS, tmpArray, 0);
+		if (tmpArray[0] == GLES20.GL_FALSE)
 		{
-			Log.error(gl.getShaderInfoLog(shader));
-			return null;
+			Log.error(GLES20.glGetShaderInfoLog(shader));
+			return 0;
 		}
 
 		return shader;
@@ -340,8 +326,7 @@ public abstract class Shader
 	{
 		if(this.attributes == null)
 		{
-			this.attributes = GWT.isScript() ? 
-					new FastMap<Attribute>() : new HashMap<String, Attribute>();
+			this.attributes = new HashMap<String, Attribute>();
 		}
 		this.attributes.put(id, attribute);
 	}
