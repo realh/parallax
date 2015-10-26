@@ -77,7 +77,7 @@ public final class Uint8Array extends IndexTypeArray {
 	 *
 	 * @param array
 	 */
-	private static Uint8Array create(int[] array) {
+	public static Uint8Array create(int[] array) {
 		byte[] bytes = new byte[array.length];
 		for (int i = 0; i < array.length; ++i) {
             bytes[i] = coerce(array[i]);
@@ -90,7 +90,7 @@ public final class Uint8Array extends IndexTypeArray {
 	 *
 	 * @param array
 	 */
-	private static Uint8Array create(byte[] array) {
+	public static Uint8Array create(byte[] array) {
 		Uint8Array result = create(array.length);
 		result.getBuffer().put(array);
 		return result;

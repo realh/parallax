@@ -76,7 +76,7 @@ public final class Int16Array extends TypeArray {
 	 *
 	 * @param array
 	 */
-	private static Int16Array create(short[] array) {
+	public static Int16Array create(short[] array) {
 		Int16Array result = create(array.length);
 		result.shortBuffer.put(array);
 		return result;

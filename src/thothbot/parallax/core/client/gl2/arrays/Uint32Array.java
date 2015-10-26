@@ -84,7 +84,7 @@ public final class Uint32Array extends TypeArray {
 	 *
 	 * @param array
 	 */
-	private static Uint32Array create(long[] array) {
+	public static Uint32Array create(long[] array) {
 		int[] ints = new int[array.length];
 		for (int i = 0; i < array.length; ++i) {
             ints[i] = coerce(array[i]);
@@ -97,7 +97,7 @@ public final class Uint32Array extends TypeArray {
 	 *
 	 * @param array
 	 */
-	private static Uint32Array create(int[] array) {
+	public static Uint32Array create(int[] array) {
 		Uint32Array result = create(array.length);
 		result.intBuffer.put(array);
 		return result;

@@ -76,7 +76,7 @@ public final class Int32Array extends TypeArray {
 	 *
 	 * @param array
 	 */
-	private static Int32Array create(int[] array) {
+	public static Int32Array create(int[] array) {
 		Int32Array result = create(array.length);
 		result.intBuffer.put(array);
 		return result;

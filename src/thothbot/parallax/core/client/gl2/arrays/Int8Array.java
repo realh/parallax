@@ -71,7 +71,7 @@ public final class Int8Array extends TypeArray {
 	 *
 	 * @param array
 	 */
-	private static Int8Array create(byte[] array) {
+	public static Int8Array create(byte[] array) {
 		Int8Array result = create(array.length);
 		result.getBuffer().put(array);
 		return result;

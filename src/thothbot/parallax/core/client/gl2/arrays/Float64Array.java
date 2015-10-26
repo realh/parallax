@@ -77,7 +77,7 @@ public final class Float64Array extends TypeArray {
 	 *
 	 * @param array
 	 */
-	private static Float64Array create(double[] array) {
+	public static Float64Array create(double[] array) {
 		Float64Array result = create(array.length);
 		result.doubleBuffer.put(array);
 		return result;

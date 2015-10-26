@@ -76,7 +76,7 @@ public final class Float32Array extends TypeArray {
 	 *
 	 * @param array
 	 */
-	private static Float32Array create(double[] array) {
+	public static Float32Array create(double[] array) {
 		float[] floats = new float[array.length];
 		for (int i = 0; i < array.length; ++i)
 			floats[i] = (float) array[i];
@@ -88,7 +88,7 @@ public final class Float32Array extends TypeArray {
 	 *
 	 * @param array
 	 */
-	private static Float32Array create(float[] array) {
+	public static Float32Array create(float[] array) {
 		Float32Array result = create(array.length);
 		result.floatBuffer.put(array);
 		return result;

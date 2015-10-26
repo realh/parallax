@@ -84,7 +84,7 @@ public final class Uint16Array extends IndexTypeArray {
 	 *
 	 * @param array
 	 */
-	private static Uint16Array create(int[] array) {
+	public static Uint16Array create(int[] array) {
 		short[] shorts = new short[array.length];
 		for (int i = 0; i < array.length; ++i) {
             shorts[i] = coerce(array[i]);
@@ -97,7 +97,7 @@ public final class Uint16Array extends IndexTypeArray {
 	 *
 	 * @param array
 	 */
-	private static Uint16Array create(short[] array) {
+	public static Uint16Array create(short[] array) {
 		Uint16Array result = create(array.length);
 		result.shortBuffer.put(array);
 		return result;
