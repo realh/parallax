@@ -1,6 +1,7 @@
 /*
  * Copyright 2012 Alex Usachev, thothbot@gmail.com
- * 
+ * Copyright 2015 Tony Houghton, h@realh.co.uk
+ *
  * This file is part of Parallax project.
  * 
  * Parallax is free software: you can redistribute it and/or modify it 
@@ -18,22 +19,19 @@
 
 package thothbot.parallax.core.client.textures;
 
+import android.opengl.GLES20;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import thothbot.parallax.core.client.gl2.WebGLFramebuffer;
-import thothbot.parallax.core.client.gl2.WebGLRenderbuffer;
-import thothbot.parallax.core.client.gl2.WebGLRenderingContext;
-import thothbot.parallax.core.client.gl2.enums.FramebufferSlot;
-import thothbot.parallax.core.client.gl2.enums.TextureTarget;
 import thothbot.parallax.core.shared.math.Mathematics;
 
 public class RenderTargetCubeTexture extends RenderTargetTexture
 {
 	private int activeCubeFace = 0;
 
-	private List<WebGLFramebuffer> webglFramebuffer;
-	private List<WebGLRenderbuffer> webglRenderbuffer;
+	private List<Integer> webglFramebuffer;
+	private List<Integer> webglRenderbuffer;
 
 	public RenderTargetCubeTexture(int width, int height ) 
 	{
@@ -48,19 +46,23 @@ public class RenderTargetCubeTexture extends RenderTargetTexture
 		this.activeCubeFace = activeCubeFace;
 	}
 
+	private int[] tmpArray = {0};
+
 	@Override
-	public void deallocate(WebGLRenderingContext gl)
+	public void deallocate()
 	{
-		if (this.getWebGlTexture() == null)
+		if (this.webglTexture[0] == 0)
 			return;
 	
-		gl.deleteTexture(this.getWebGlTexture());
-		this.setWebGlTexture(null);
+		GLES20.glDeleteTextures(1, this.webglTexture, 0);
+		this.webglTexture[0] = 0;
 		
 		for (int i = 0; i < 6; i++) 
 		{
-			gl.deleteFramebuffer(this.webglFramebuffer.get(i));
-			gl.deleteRenderbuffer(this.webglRenderbuffer.get(i));
+			tmpArray[0] = this.webglFramebuffer.get(i);
+			GLES20.glDeleteFramebuffers(1, tmpArray, 0);
+			tmpArray[0] = this.webglRenderbuffer.get(i);
+			GLES20.glDeleteRenderbuffers(1, tmpArray, 0);
 		}
 		
 		this.webglFramebuffer = null;
@@ -68,62 +70,66 @@ public class RenderTargetCubeTexture extends RenderTargetTexture
 	}
 	
 	@Override
-	public WebGLFramebuffer getWebGLFramebuffer() 
+	public int getWebGLFramebuffer()
 	{
 		return this.webglFramebuffer.get( getActiveCubeFace() );
 	}
 	
 	@Override
-	public void setRenderTarget(WebGLRenderingContext gl)
+	public void setRenderTarget()
 	{
 		if (this.webglFramebuffer != null)
 			return;
 
-		this.setWebGlTexture(gl.createTexture());
+		GLES20.glGenTextures(1, webglTexture, 0);
 
 		// Setup texture, create render and frame buffers
 		boolean isTargetPowerOfTwo = Mathematics.isPowerOfTwo(getWidth())
 				&& Mathematics.isPowerOfTwo(getHeight());
 
-		this.webglFramebuffer = new ArrayList<WebGLFramebuffer>();
-		this.webglRenderbuffer = new ArrayList<WebGLRenderbuffer>();
+		this.webglFramebuffer = new ArrayList<Integer>();
+		this.webglRenderbuffer = new ArrayList<Integer>();
 
-		gl.bindTexture( TextureTarget.TEXTURE_CUBE_MAP, this.getWebGlTexture() );
+		GLES20.glBindTexture( GLES20.GL_TEXTURE_CUBE_MAP, webglTexture[0] );
 
-		setTextureParameters( gl, TextureTarget.TEXTURE_CUBE_MAP, isTargetPowerOfTwo );
+		setTextureParameters( GLES20.GL_TEXTURE_CUBE_MAP, isTargetPowerOfTwo );
 
 		for ( int i = 0; i < 6; i ++ ) 
 		{
-			this.webglFramebuffer.add( gl.createFramebuffer() );
-			this.webglRenderbuffer.add( gl.createRenderbuffer() );
+			GLES20.glGenFramebuffers(1, tmpArray, 0);
+			this.webglFramebuffer.add( tmpArray[0] );
+			GLES20.glGenRenderbuffers(1, tmpArray, 0);
+			this.webglRenderbuffer.add( tmpArray[0] );
 
-			gl.texImage2D( TextureTarget.TEXTURE_CUBE_MAP_POSITIVE_X, i, 0, getWidth(), getHeight(), 0, 
-					getFormat(), getType(), null );
+			GLES20.glTexImage2D( GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X, i, 0, getWidth(), getHeight(), 0,
+					getFormat().getValue(), getType().getValue(), null );
 
-			this.setupFrameBuffer(gl, this.webglFramebuffer.get( i ), TextureTarget.TEXTURE_CUBE_MAP_POSITIVE_X, i);
-			this.setupRenderBuffer(gl, this.webglRenderbuffer.get( i ));
+			this.setupFrameBuffer(this.webglFramebuffer.get( i ),
+					GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X, i);
+			this.setupRenderBuffer(this.webglRenderbuffer.get( i ));
 		}
 
 		if ( isTargetPowerOfTwo ) 
-			gl.generateMipmap( TextureTarget.TEXTURE_CUBE_MAP );
+			GLES20.glGenerateMipmap( GLES20.GL_TEXTURE_CUBE_MAP );
 
 		// Release everything
-		gl.bindTexture( TextureTarget.TEXTURE_CUBE_MAP, null );
-		gl.bindRenderbuffer(null);
-		gl.bindFramebuffer(null);
+		GLES20.glBindTexture( GLES20.GL_TEXTURE_CUBE_MAP, 0 );
+		GLES20.glBindRenderbuffer(GLES20.GL_RENDERBUFFER, 0);
+		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 	}
 	
-	public void setupFrameBuffer(WebGLRenderingContext gl, WebGLFramebuffer framebuffer, TextureTarget textureTarget, int slot)
+	public void setupFrameBuffer(int framebuffer, int textureTarget, int slot)
 	{	
-		gl.bindFramebuffer(framebuffer);
-		gl.framebufferTexture2D(FramebufferSlot.COLOR_ATTACHMENT0, textureTarget, slot, this.getWebGlTexture(), 0);
+		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, framebuffer);
+		GLES20.glFramebufferTexture2D(GLES20.GL_COLOR_ATTACHMENT0, textureTarget,
+				slot, this.webglTexture[0], 0);
 	}
 	
 	@Override
-	public void updateRenderTargetMipmap(WebGLRenderingContext gl) 
+	public void updateRenderTargetMipmap()
 	{	
-		gl.bindTexture( TextureTarget.TEXTURE_CUBE_MAP, this.getWebGlTexture() );
-		gl.generateMipmap( TextureTarget.TEXTURE_CUBE_MAP );
-		gl.bindTexture( TextureTarget.TEXTURE_CUBE_MAP, null );
+		GLES20.glBindTexture( GLES20.GL_TEXTURE_CUBE_MAP, this.webglTexture[0] );
+		GLES20.glGenerateMipmap( GLES20.GL_TEXTURE_CUBE_MAP );
+		GLES20.glBindTexture( GLES20.GL_TEXTURE_CUBE_MAP, 0 );
 	}
 }
