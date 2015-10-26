@@ -96,7 +96,7 @@ public class Texture
 
 	private boolean isNeedsUpdate = false;
 	
-	private int[] webglTexture = { 0 };
+	protected int[] webglTexture = { 0 };
 	
 	private int anisotropy;
 	
@@ -473,7 +473,6 @@ public class Texture
 	
 	/**
 	 * Releases a texture from the GL context.
-	 * texture � an instance of Texture
 	 */
 	public void deallocate( WebGLRenderer renderer )
 	{
