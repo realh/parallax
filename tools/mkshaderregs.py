@@ -72,7 +72,10 @@ def make_jstring(dir_name, src_name):
     fp = open(src_name, 'r')
     source = fp.read()
     fp.close()
-    return '"' + source.strip().replace('\n', '\\n" +\n"') + '\\n"'
+    source = source.strip()
+    source = source.replace('\n', '\\n" +\n"')
+    source = source.replace('//"', '//')
+    return '"' + source + '\\n"'
 
 
 def glsl_to_java(src):

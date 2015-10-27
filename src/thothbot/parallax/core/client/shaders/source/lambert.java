@@ -44,8 +44,8 @@ public class lambert
 "			\n" +
 "#ifdef DOUBLE_SIDED\n" +
 "\n" +
-"	//"float isFront = float( gl_FrontFacing );\n" +
-"	//"gl_FragColor.xyz *= isFront * vLightFront + ( 1.0 - isFront ) * vLightBack;\n" +
+"	//float isFront = float( gl_FrontFacing );\n" +
+"	//gl_FragColor.xyz *= isFront * vLightFront + ( 1.0 - isFront ) * vLightBack;\n" +
 "\n" +
 "	if ( gl_FrontFacing )\n" +
 "		gl_FragColor.xyz *= vLightFront;\n" +

@@ -1,7 +1,8 @@
 /*
  * Copyright 2012 Alex Usachev, thothbot@gmail.com
+ * Copyright 2015 Tony Houghton, h@realh.co.uk
  * 
- * This file is part of Parallax project.
+ * This file is part of the realh fork of the Parallax project.
  * 
  * Parallax is free software: you can redistribute it and/or modify it 
  * under the terms of the Creative Commons Attribution 3.0 Unported License.
@@ -25,45 +26,45 @@ package thothbot.parallax.core.client.shaders;
 public class ChunksFragmentShader
 {
 	
-	public static String ALPHAMAP_PARS = Chunks.INSTANCE.getAlphamapParsFragment().getText();
-	public static String ALPHAMAP = Chunks.INSTANCE.getAlphamapFragment().getText();
+	public static String ALPHAMAP_PARS = Chunks.getAlphamapParsFragment();
+	public static String ALPHAMAP = Chunks.getAlphamapFragment();
 	
-	public static String ALPHA_TEST = Chunks.INSTANCE.getAlphatestFragment().getText();
+	public static String ALPHA_TEST = Chunks.getAlphatestFragment();
 
-	public static String BUMPMAP_PARS = Chunks.INSTANCE.getBumpmapParsFragment().getText();
+	public static String BUMPMAP_PARS = Chunks.getBumpmapParsFragment();
 	
-	public static String COLOR_PARS = Chunks.INSTANCE.getColorParsFragment().getText();
-	public static String COLOR = Chunks.INSTANCE.getColorFragment().getText();
+	public static String COLOR_PARS = Chunks.getColorParsFragment();
+	public static String COLOR = Chunks.getColorFragment();
 	
-	public static String ENVMAP_PARS = Chunks.INSTANCE.getEnvmapParsFragment().getText();
-	public static String ENVMAP = Chunks.INSTANCE.getEnvmapFragment().getText();
+	public static String ENVMAP_PARS = Chunks.getEnvmapParsFragment();
+	public static String ENVMAP = Chunks.getEnvmapFragment();
 	
-	public static String FOG_PARS = Chunks.INSTANCE.getFogParsFragment().getText();
-	public static String FOG = Chunks.INSTANCE.getFogFragment().getText();
+	public static String FOG_PARS = Chunks.getFogParsFragment();
+	public static String FOG = Chunks.getFogFragment();
 	
-	public static String LIGHTMAP_PARS = Chunks.INSTANCE.getLightmapParsFragment().getText();
-	public static String LIGHTMAP = Chunks.INSTANCE.getLightmapFragment().getText();
+	public static String LIGHTMAP_PARS = Chunks.getLightmapParsFragment();
+	public static String LIGHTMAP = Chunks.getLightmapFragment();
 	
-	public static String LIGHTS_PONG_PARS = Chunks.INSTANCE.getLightsPhongParsFragment().getText();
-	public static String LIGHTS_PONG = Chunks.INSTANCE.getLightsPhongFragment().getText();
+	public static String LIGHTS_PONG_PARS = Chunks.getLightsPhongParsFragment();
+	public static String LIGHTS_PONG = Chunks.getLightsPhongFragment();
 	
-	public static String LINEAR_TO_GAMMA = Chunks.INSTANCE.getLinearToGammaFragment().getText();
+	public static String LINEAR_TO_GAMMA = Chunks.getLinearToGammaFragment();
 	
-	public static String LOGDEPTHBUF_PAR = Chunks.INSTANCE.getLogdepthbufParFragment().getText();
-	public static String LOGDEPTHBUF = Chunks.INSTANCE.getLogdepthbufFragment().getText();
+	public static String LOGDEPTHBUF_PAR = Chunks.getLogdepthbufParFragment();
+	public static String LOGDEPTHBUF = Chunks.getLogdepthbufFragment();
 	
-	public static String MAP_PARS = Chunks.INSTANCE.getMapParsFragment().getText();
-	public static String MAP = Chunks.INSTANCE.getMapFragment().getText();
+	public static String MAP_PARS = Chunks.getMapParsFragment();
+	public static String MAP = Chunks.getMapFragment();
 	
-	public static String MAP_PARTICLE_PARS = Chunks.INSTANCE.getMapParticleParsFragment().getText();
-	public static String MAP_PARTICLE = Chunks.INSTANCE.getMapParticleFragment().getText();
+	public static String MAP_PARTICLE_PARS = Chunks.getMapParticleParsFragment();
+	public static String MAP_PARTICLE = Chunks.getMapParticleFragment();
 	
-	public static String NORMALMAP_PARS = Chunks.INSTANCE.getNormalmapParsFragment().getText();
+	public static String NORMALMAP_PARS = Chunks.getNormalmapParsFragment();
 	
-	public static String SHADOWMAP_PARS = Chunks.INSTANCE.getShadowmapParsFragment().getText();
-	public static String SHADOWMAP = Chunks.INSTANCE.getShadowmapFragment().getText();
+	public static String SHADOWMAP_PARS = Chunks.getShadowmapParsFragment();
+	public static String SHADOWMAP = Chunks.getShadowmapFragment();
 	
-	public static String SPECULARMAP_PARS = Chunks.INSTANCE.getSpecularmapParsFragment().getText();
-	public static String SPECULARMAP = Chunks.INSTANCE.getSpecularmapFragment().getText();
+	public static String SPECULARMAP_PARS = Chunks.getSpecularmapParsFragment();
+	public static String SPECULARMAP = Chunks.getSpecularmapFragment();
 	
 }

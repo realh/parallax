@@ -1,6 +1,7 @@
 /*
  * Copyright 2009-2011 Sönke Sothmann, Steffen Schäfer and others
- * 
+ * Copyright 2015 Tony Houghton, h@realh.co.uk
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
  * 
@@ -93,6 +94,15 @@ public final class Float32Array extends TypeArray {
 		result.floatBuffer.put(array);
 		return result;
 	}
+
+	/**
+	 * {@link thothbot.parallax.core.client.shaders.UniformsLib} needs to
+     * generate Float32Arrays of unknown size for FV and FV1 types, deal with
+     * this by returning null.
+	 */
+    public static Float32Array createArray() {
+        return null;
+    }
 
 	/**
 	 * Returns the element at the given numeric index.

@@ -1,7 +1,8 @@
 /*
  * Copyright 2012 Alex Usachev, thothbot@gmail.com
- * 
- * This file is part of Parallax project.
+ * Copyright 2015 Tony Houghton, h@realh.co.uk
+ *
+ * This file is part of the realh fork of the Parallax project.
  * 
  * Parallax is free software: you can redistribute it and/or modify it 
  * under the terms of the Creative Commons Attribution 3.0 Unported License.
@@ -21,8 +22,6 @@ package thothbot.parallax.core.client.shaders;
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.resources.client.TextResource;
 
 /**
  * Depth encoding into RGBA texture.
@@ -35,15 +34,19 @@ import com.google.gwt.resources.client.TextResource;
  */
 public final class DepthRGBAShader extends Shader
 {
-	interface Resources extends DefaultResources
+	static class Resources extends DefaultResources
 	{
-		Resources INSTANCE = GWT.create(Resources.class);
+		static Resources INSTANCE = new Resources();
 		
-		@Source("source/depthRGBA.vs")
-		TextResource getVertexShader();
+		String getVertexShader()
+		{
+		    return thothbot.parallax.core.client.shaders.source.depthRGBA.vertex;
+		}
 
-		@Source("source/depthRGBA.fs")
-		TextResource getFragmentShader();
+		String getFragmentShader()
+		{
+		    return thothbot.parallax.core.client.shaders.source.depthRGBA.fragment;
+		}
 	}
 
 	public DepthRGBAShader() 

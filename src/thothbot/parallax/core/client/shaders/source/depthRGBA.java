@@ -40,10 +40,10 @@ public class depthRGBA
 "\n" +
 "	#endif\n" +
 "\n" +
-"	//"gl_FragData[ 0 ] = pack_depth( gl_FragCoord.z / gl_FragCoord.w );\n" +
-"	//"float z = ( ( gl_FragCoord.z / gl_FragCoord.w ) - 3.0 ) / ( 4000.0 - 3.0 );\n" +
-"	//"gl_FragData[ 0 ] = pack_depth( z );\n" +
-"	//"gl_FragData[ 0 ] = vec4( z, z, z, 1.0 );\n" +
+"	//gl_FragData[ 0 ] = pack_depth( gl_FragCoord.z / gl_FragCoord.w );\n" +
+"	//float z = ( ( gl_FragCoord.z / gl_FragCoord.w ) - 3.0 ) / ( 4000.0 - 3.0 );\n" +
+"	//gl_FragData[ 0 ] = pack_depth( z );\n" +
+"	//gl_FragData[ 0 ] = vec4( z, z, z, 1.0 );\n" +
 "\n" +
 "}\n";
 }
