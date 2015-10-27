@@ -7,3 +7,5 @@
 /war/thothbot.*
 /www-test
 /gwt-unitCache
+/src/thothbot/parallax/core/client/shaders/chunk/
+/src/thothbot/parallax/core/client/shaders/source/
