@@ -19,9 +19,7 @@
 package thothbot.parallax.core.client;
 
 import thothbot.parallax.core.client.context.Canvas3d;
-import thothbot.parallax.core.client.renderers.Duration;
 import thothbot.parallax.core.client.renderers.WebGLRenderer;
-import thothbot.parallax.core.client.renderers.WebGlRendererInfo;
 import thothbot.parallax.core.shared.scenes.Scene;
 
 /**
