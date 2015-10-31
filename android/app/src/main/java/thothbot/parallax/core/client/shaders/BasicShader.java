@@ -38,12 +38,12 @@ public final class BasicShader extends Shader
 	{
 		static Resources INSTANCE = new Resources();
 
-		String getVertexShader()
+		public String getVertexShader()
 		{
 		    return thothbot.parallax.core.client.shaders.source.basic.vertex;
 		}
 
-		String getFragmentShader()
+		public String getFragmentShader()
 		{
 		    return thothbot.parallax.core.client.shaders.source.basic.fragment;
 		}

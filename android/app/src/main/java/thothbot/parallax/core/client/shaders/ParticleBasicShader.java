@@ -37,12 +37,12 @@ public final class ParticleBasicShader extends Shader
 	{
 		static Resources INSTANCE = new Resources();
 		
-		String getVertexShader()
+		public String getVertexShader()
 		{
 		    return thothbot.parallax.core.client.shaders.source.particle_basic.vertex;
 		}
 
-		String getFragmentShader()
+		public String getFragmentShader()
 		{
 		    return thothbot.parallax.core.client.shaders.source.particle_basic.fragment;
 		}

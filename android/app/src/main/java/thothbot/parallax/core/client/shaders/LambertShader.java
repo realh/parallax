@@ -44,12 +44,12 @@ public final class LambertShader extends Shader
 	{
 		static Resources INSTANCE = new Resources();
 		
-		String getVertexShader()
+		public String getVertexShader()
 		{
 		    return thothbot.parallax.core.client.shaders.source.lambert.vertex;
 		}
 
-		String getFragmentShader()
+		public String getFragmentShader()
 		{
 		    return thothbot.parallax.core.client.shaders.source.lambert.fragment;
 		}

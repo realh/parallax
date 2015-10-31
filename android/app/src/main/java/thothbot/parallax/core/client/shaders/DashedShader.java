@@ -30,12 +30,12 @@ public class DashedShader extends Shader
 	{
 		static Resources INSTANCE = new Resources();
 
-		String getVertexShader()
+		public String getVertexShader()
 		{
 		    return thothbot.parallax.core.client.shaders.source.dashed.vertex;
 		}
 
-		String getFragmentShader()
+		public String getFragmentShader()
 		{
 		    return thothbot.parallax.core.client.shaders.source.dashed.fragment;
 		}

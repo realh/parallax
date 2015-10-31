@@ -37,12 +37,12 @@ public final class CubeShader extends Shader
 	{
 		static Resources INSTANCE = new Resources();
 
-		String getVertexShader()
+		public String getVertexShader()
 		{
 		    return thothbot.parallax.core.client.shaders.source.cube.vertex;
 		}
 
-		String getFragmentShader()
+		public String getFragmentShader()
 		{
 		    return thothbot.parallax.core.client.shaders.source.cube.fragment;
 		}

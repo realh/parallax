@@ -1,6 +1,7 @@
 /*
  * Copyright 2012 Alex Usachev, thothbot@gmail.com
- * 
+ * Copyright 2015 Tony Houghton, h@realh.co.uk
+ *
  * This file is part of Parallax project.
  * 
  * Parallax is free software: you can redistribute it and/or modify it 
@@ -18,23 +19,20 @@
 
 package thothbot.parallax.core.shared.materials;
 
+import android.opengl.GLES20;
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import thothbot.parallax.core.client.gl2.WebGLProgram;
-import thothbot.parallax.core.client.gl2.WebGLRenderingContext;
-import thothbot.parallax.core.client.gl2.enums.BlendEquationMode;
-import thothbot.parallax.core.client.gl2.enums.BlendingFactorDest;
-import thothbot.parallax.core.client.gl2.enums.BlendingFactorSrc;
 import thothbot.parallax.core.client.renderers.WebGLRenderer;
 import thothbot.parallax.core.client.shaders.ProgramParameters;
 import thothbot.parallax.core.client.shaders.Shader;
 import thothbot.parallax.core.client.shaders.Uniform;
 import thothbot.parallax.core.client.textures.RenderTargetCubeTexture;
 import thothbot.parallax.core.client.textures.Texture;
-import thothbot.parallax.core.shared.Log;
 import thothbot.parallax.core.shared.cameras.Camera;
 import thothbot.parallax.core.shared.core.GeometryGroup;
 import thothbot.parallax.core.shared.core.GeometryObject;
@@ -49,6 +47,8 @@ import thothbot.parallax.core.shared.math.Vector4;
  */
 public abstract class Material
 {
+	private static final String TAG = "Material";
+
 	private static int MaterialCount;
 
 	/**
@@ -149,9 +149,9 @@ public abstract class Material
 	private boolean isTransparent;
 		
 	private Material.BLENDING blending;
-	private BlendingFactorSrc blendSrc;
-	private BlendingFactorDest blendDst;
-	private BlendEquationMode blendEquation;
+	private int blendSrc;
+	private int blendDst;
+	private int blendEquation;
 
 	private boolean isDepthTest;
 	private boolean isDepthWrite;
@@ -179,9 +179,9 @@ public abstract class Material
 		setTransparent(false);
 				
 		setBlending( Material.BLENDING.NORMAL );
-		setBlendSrc( BlendingFactorSrc.SRC_ALPHA );
-		setBlendDst( BlendingFactorDest.ONE_MINUS_SRC_ALPHA );
-		setBlendEquation( BlendEquationMode.FUNC_ADD );
+		setBlendSrc( GLES20.GL_SRC_ALPHA );
+		setBlendDst( GLES20.GL_ONE_MINUS_SRC_ALPHA );
+		setBlendEquation( GLES20.GL_FUNC_ADD );
 		
 		setDepthTest(true);
 		setDepthWrite(true);
@@ -294,49 +294,49 @@ public abstract class Material
 		this.blending = blending;
 	}
 	
-	public BlendingFactorSrc getBlendSrc() {
+	public int getBlendSrc() {
 		return blendSrc;
 	}
 
 	/**
-	 * Sets blending source. It's one of the {@link BlendingFactorSrc} constants. 
+	 * Sets blending source. It's one of the {@link int} constants.
 	 * <p>
-	 * Default is {@link BlendingFactorSrc#SRC_ALPHA}.
+	 * Default is {@link GLES20#GL_SRC_ALPHA}.
 	 * 
 	 * @param blendSrc
 	 */
-	public void setBlendSrc(BlendingFactorSrc blendSrc) {
+	public void setBlendSrc(int blendSrc) {
 		this.blendSrc = blendSrc;
 	}
 
-	public BlendingFactorDest getBlendDst() {
+	public int getBlendDst() {
 		return blendDst;
 	}
 
 	/**
-	 * Sets blending destination. It's one of the {@link BlendingFactorDest} constants. 
+	 * Sets blending destination. It's one of the {@link int} constants.
 	 * <p>
-	 * Default is {@link BlendingFactorDest#ONE_MINUS_SRC_ALPHA}.
+	 * Default is {@link GLES20#GL_ONE_MINUS_SRC_ALPHA}.
 	 * 
 	 * @param blendDst
 	 */
-	public void setBlendDst(BlendingFactorDest blendDst) {
+	public void setBlendDst(int blendDst) {
 		this.blendDst = blendDst;
 	}
 
-	public BlendEquationMode getBlendEquation() {
+	public int getBlendEquation() {
 		return blendEquation;
 	}
 
 	/**
 	 * Sets blending equation to use when applying blending. 
-	 * It's one of the {@link BlendEquationMode} constants.
+	 * It's one of the {@link int} constants.
 	 * <p>
-	 * Default is {@link BlendEquationMode#FUNC_ADD}.
+	 * Default is {@link GLES20#GL_FUNC_ADD}.
 	 * 
 	 * @param blendEquation
 	 */
-	public void setBlendEquation(BlendEquationMode blendEquation) {
+	public void setBlendEquation(int blendEquation) {
 		this.blendEquation = blendEquation;
 	}
 	
@@ -435,7 +435,7 @@ public abstract class Material
 	{
 		if(shader == null)
 		{
-			Log.debug("Called Material.setMaterialShaders()");
+			Log.d(TAG, "Called Material.setMaterialShaders()");
 
 			this.shader = getAssociatedShader();
 		}
@@ -512,21 +512,20 @@ public abstract class Material
 		parameters.flipSided = this.getSides() == Material.SIDE.BACK;
 	}
 
-	public Shader buildShader(WebGLRenderingContext gl, ProgramParameters parameters)
+	public Shader buildShader(ProgramParameters parameters)
 	{
 		Shader shader = getShader();
 
 		shader.setVertexSource(getPrefixVertex(parameters) + "\n" + shader.getVertexSource());
 		shader.setFragmentSource(getPrefixFragment(parameters) + "\n" + shader.getFragmentSource());
 
-		this.shader = shader.buildProgram(gl, parameters.useVertexTexture, parameters.maxMorphTargets, parameters.maxMorphNormals);
+		this.shader = shader.buildProgram( parameters.useVertexTexture, parameters.maxMorphTargets, parameters.maxMorphNormals);
 
 		return this.shader;
 	}
 
 	private String getPrefixVertex(ProgramParameters parameters)
 	{
-		Log.debug("Called getPrefixVertex()");
 		List<String> options = new ArrayList<String>();
 
 		options.add("");
@@ -902,8 +901,8 @@ public abstract class Material
 	
 	public void deallocate( WebGLRenderer renderer ) 
 	{
-		WebGLProgram program = getShader().getProgram();
-		if ( program == null ) return;
+		int program = getShader().getProgram();
+		if ( program == 0 ) return;
 		
 //		getShader().setPrecision(null);
 		
@@ -928,7 +927,7 @@ public abstract class Material
 		if ( deleteProgram == true ) 
 		{
 
-			renderer.getGL().deleteProgram( program );
+			GLES20.glDeleteProgram( program );
 
 			renderer.getInfo().getMemory().programs --;
 		}

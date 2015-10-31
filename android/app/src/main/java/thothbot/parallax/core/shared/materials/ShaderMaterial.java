@@ -68,7 +68,7 @@ public class ShaderMaterial extends Material
 	
 	public ShaderMaterial(Shader.DefaultResources resource) 
 	{
-		this(resource.getVertexShader().getText(), resource.getFragmentShader().getText());
+		this(resource.getVertexShader(), resource.getFragmentShader());
 	}
 
 	public ShaderMaterial(String vertexShader, String fragmentShader) 

@@ -51,12 +51,12 @@ public abstract class Shader
 	
 	public static class DefaultResources
 	{
-		String getVertexShader()
+		public String getVertexShader()
 		{
 		    return thothbot.parallax.core.client.shaders.source.default_shader.vertex;
 		}
 
-		String getFragmentShader()
+		public String getFragmentShader()
 		{
 		    return thothbot.parallax.core.client.shaders.source.default_shader.fragment;
 		}

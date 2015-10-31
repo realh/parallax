@@ -23,6 +23,7 @@ import android.opengl.GLES20;
 
 import thothbot.parallax.core.client.gl2.GLES20Ext;
 import thothbot.parallax.core.client.gl2.Image;
+import thothbot.parallax.core.client.renderers.WebGLRenderer;
 import thothbot.parallax.core.shared.math.Vector2;
 
 /**
@@ -455,15 +456,14 @@ public class Texture
 	
 	/**
 	 * Releases a texture from the GL context.
-     * FIXME: Use renderer
 	 */
-	public void deallocate( /* WebGLRenderer renderer */)
+	public void deallocate(WebGLRenderer renderer)
 	{
 		if ( webglTexture[0] == 0 ) return;
 
 		GLES20.glDeleteTextures(1, webglTexture, 0);
 
-		//renderer.getInfo().getMemory().textures--;
+		renderer.getInfo().getMemory().textures--;
 	}
 
 	public Texture clone(Texture texture)

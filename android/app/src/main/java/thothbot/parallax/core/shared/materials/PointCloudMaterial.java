@@ -1,6 +1,7 @@
 /*
  * Copyright 2012 Alex Usachev, thothbot@gmail.com
- * 
+ * Copyright 2015 Tony Houghton, h@realh.co.uk
+ *
  * This file is part of Parallax project.
  * 
  * Parallax is free software: you can redistribute it and/or modify it 
@@ -20,8 +21,6 @@ package thothbot.parallax.core.shared.materials;
 
 import java.util.Map;
 
-import thothbot.parallax.core.client.events.HasEventBus;
-import thothbot.parallax.core.client.events.ViewportResizeEvent;
 import thothbot.parallax.core.client.events.ViewportResizeHandler;
 import thothbot.parallax.core.client.shaders.ParticleBasicShader;
 import thothbot.parallax.core.client.shaders.Shader;
@@ -31,7 +30,7 @@ import thothbot.parallax.core.shared.cameras.Camera;
 import thothbot.parallax.core.shared.math.Color;
 
 public final class PointCloudMaterial extends Material implements HasFog,
-		HasColor, HasMap, HasVertexColors, HasEventBus {
+		HasColor, HasMap, HasVertexColors, ViewportResizeHandler {
 	private boolean isFog;
 
 	private Color color;
@@ -63,7 +62,6 @@ public final class PointCloudMaterial extends Material implements HasFog,
 
 	public void setSize(double size) {
 		this.size = size;
-		;
 	}
 
 	public boolean isSizeAttenuation() {
@@ -148,19 +146,17 @@ public final class PointCloudMaterial extends Material implements HasFog,
 		uniforms.get("opacity").setValue(getOpacity());
 		uniforms.get("size").setValue(getSize());
 
-		EVENT_BUS.addHandler(ViewportResizeEvent.TYPE,
-				new ViewportResizeHandler() {
-
-					@Override
-					public void onResize(ViewportResizeEvent event) {
-						uniforms.get("scale").setValue(
-								event.getRenderer().getAbsoluteHeight() / 2.0);
-					}
-				});
-
 		// Default
 		uniforms.get("scale").setValue(500 / 2.0);
 
 		uniforms.get("map").setValue(getMap());
+	}
+
+	@Override
+	public void onViewportResize(int newWidth, int newHeight) {
+		final Map<String, Uniform> uniforms = getShader().getUniforms();
+
+		uniforms.get("scale").setValue(newHeight / 2.0);
+
 	}
 }
