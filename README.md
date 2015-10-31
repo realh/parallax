@@ -1,44 +1,22 @@
 Parallax
 =============
 
-#### Google Web Toolkit 3D library ####
+#### Android 3D library ####
 
-<table border="0">
-   <tr>
-      <td>
+Parallax is a 3D library for Java. The [original version](http://parallax3d.org)
+uses [Google Web Toolkit](https://developers.google.com/web-toolkit/), the
+Java to JavaScript cross-compiler. GWT allows developers to write Java code
+and convert it to standard JavaScript during compilation.
 
-<img src="http://thothbot.github.com/parallax/static/logo.png" alt="Parallax" align="top"/>
+Parallax's API and shaders are based on [three.js](http://github.com/mrdoob/three.js).
 
-      </td>
-      <td>
+This fork is an attempt to port Parallax 3D to Android, and hopefully also for use
+with [LWJGL](http://www.lwjgl.org/) and/or [libGDX](https://libgdx.badlogicgames.com/).
+It's still at a very early stage and nowhere near usable.
 
-<p>
-Parallax is 3D library for the web. It is written on Java using <a href="https://developers.google.com/web-toolkit/">Google Web Toolkit</a>, 
-which is Java to JavaScript cross-compiler. GWT allows developers to write Java code and convert it to standard JavaScript during compilation.
-</p>
-
-      </td>
-   </tr>
-</table>
-
-Parallax based on [three.js](http://github.com/mrdoob/three.js) project. The most methods and objects are equivalent three.js for the back compatibility.
-
-The aim of the project is to use GWT which helps maintaining complex pieces of code, and provides better design-time support in IDEs like refactoring, validation, etc...<br/>
-
-Parallax includes:
-* WebGL renderer
-* Raytracing renderer.
-
-### Download - new Parallax v1.6 ###
-
-[Download JAR](http://github.com/thothbot/parallax/wiki/Download) | [Change log](https://github.com/thothbot/parallax/releases)
-
-### Examples ###
-
-![Demo](http://thothbot.github.com/parallax/static/examples_banner.jpg)
-
-[Latest demo](http://thothbot.github.com/parallax/demo/index.html) | [Dev demo](http://thothbot.github.com/parallax/demo/dev/)
-
+Unfortunately, mainly due to limitations of Java, and the specialist nature of
+GWT, it will probably never be possible to unify these versions without changing
+the original API, compromising efficiency and/or using JNI extensively.
 
 ### Documentation ###
 
