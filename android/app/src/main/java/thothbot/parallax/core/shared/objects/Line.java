@@ -1,6 +1,7 @@
 /*
  * Copyright 2012 Alex Usachev, thothbot@gmail.com
- * 
+ * Copyright 2015 Tony Houghton, h@realh.co.uk
+ *
  * This file is part of Parallax project.
  * 
  * Parallax is free software: you can redistribute it and/or modify it 
@@ -330,8 +331,8 @@ public class Line extends GeometryObject
 
 			}
 
-			GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, geometry.__webglLineDistanceBuffer );
-			GLES20.glBufferData( GLES20.GL_ARRAY_BUFFER, lineDistanceArray.getByteLength(),
+			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglLineDistanceBuffer);
+			GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, lineDistanceArray.getByteLength(),
 					lineDistanceArray.getBuffer(), bufferUsageHint);
 
 		}
