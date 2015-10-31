@@ -18,6 +18,7 @@
 
 package thothbot.parallax.core.shared.core;
 
+import thothbot.parallax.core.client.gl2.WebGLBuffer;
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
 import thothbot.parallax.core.client.gl2.arrays.TypeArray;
 
@@ -30,7 +31,7 @@ public class BufferAttribute {
 	private int numItems;
 	
 	private boolean needsUpdate = false;
-	private int buffer;
+	private WebGLBuffer buffer;
 	
 	public BufferAttribute(TypeArray array, int itemSize) {
 		this.array = array;
@@ -51,7 +52,7 @@ public class BufferAttribute {
 		return this.array;
 	}
 	
-	public void setArray(TypeArray array) {
+	public void setArray(Float32Array array) {
 		this.array = array;
 	}
 	
@@ -83,14 +84,14 @@ public class BufferAttribute {
 	/**
 	 * @return the buffer
 	 */
-	public int getBuffer() {
+	public WebGLBuffer getBuffer() {
 		return buffer;
 	}
 
 	/**
 	 * @param buffer the buffer to set
 	 */
-	public void setBuffer(int buffer) {
+	public void setBuffer(WebGLBuffer buffer) {
 		this.buffer = buffer;
 	}
 		
@@ -107,7 +108,7 @@ public class BufferAttribute {
 
 	}
 
-	public BufferAttribute set( TypeArray value ) {
+	public BufferAttribute set( Float32Array value ) {
 
 		this.array.set( value );
 

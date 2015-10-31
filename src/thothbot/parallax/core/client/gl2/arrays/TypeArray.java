@@ -13,91 +13,58 @@
  */
 package thothbot.parallax.core.client.gl2.arrays;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 /**
- * Wraps Java's ByteBuffer for Parallax3D's API.
- *
- * @author h@realh.co.uk
+ * The typed array view types represent a view of an {@link ArrayBuffer} that 
+ * allows for indexing and manipulation.
+ * 
+ * @author hao1300@gmail.com
  */
-public abstract class TypeArray  {
-
-    private ByteBuffer buffer;
+public abstract class TypeArray extends ArrayBufferView {
 	
-	protected TypeArray(int capacity) {
-		buffer = ByteBuffer.allocate(capacity).order(ByteOrder.nativeOrder());
+	protected TypeArray() {
+		
 	}
-
-    public ByteBuffer getBuffer() {
-        return buffer;
-    }
 	
 	/**
-     * Set multiple values, reading input values from the array.
-     *
-     * @param array
-    */
-    public final void set(TypeArray array) {
-        ByteBuffer b = array.buffer;
-        int l = b.limit();
-        b.rewind();
-        if (l > buffer.capacity()) {
-            buffer = ByteBuffer.allocate(l).order(ByteOrder.nativeOrder());
-            createTypedBuffer();
-        } else {
-            buffer.rewind();
-        }
-        buffer.put(b);
-	}
-
-    /**
-     * Set multiple values, reading input values from the array.
-     *
-     * @param array
-     * @param offset indicates the index in the current array where values are
-     * 				written, in subclass' element size.
-     */
-    public void set(TypeArray array, int offset) {
-        if (this.getClass() != array.getClass()) {
-            throw new Error("Type mismatch for array copy");
-        }
-        ByteBuffer b = array.buffer;
-        int l = b.limit() + offset;
-        b.rewind();
-        if (l > buffer.capacity()) {
-            ByteBuffer old = buffer;
-            buffer = ByteBuffer.allocate(l).order(ByteOrder.nativeOrder());
-            old.limit(offset);
-            buffer.put(old);
-            createTypedBuffer();
-        } else {
-            buffer.position(offset);
-        }
-        buffer.put(b);
-    }
-
-    /**
-     * Gets the length of this array in elements of subclass' type.
-     */
-    public int getLength() {
-        return buffer.limit();
-    }
-
-    /**
-     * Disused reverse() method elided.
-     */
-
-    protected abstract void createTypedBuffer();
-
-    /**
-     * @return  The type of each element as the value of one of
-     *          {@link thothbot.parallax.core.client.gl2.enums.DataType}
-     */
-    public abstract int getElementType();
-
-    /**
-     * @return  The size of each element in bytes.
-     */
-    public abstract int getElementSize();
+   * Set multiple values, reading input values from the array. 
+   * 
+   * The input array and this array may use the same underlying 
+   * {@link ArrayBuffer}. In this situation, setting the values takes place as 
+   * if all the data is first copied into a temporary buffer that does not 
+   * overlap either of the arrays, and then the data from the temporary buffer 
+   * is copied into the current array.
+   * 
+   * @param array
+   */
+  public final native void set(TypeArray array) /*-{
+		this.set(array);
+	}-*/;
+  
+  /**
+   * Set multiple values, reading input values from the array. 
+   * 
+   * The input array and this array may use the same underlying 
+   * {@link ArrayBuffer}. In this situation, setting the values takes place as 
+   * if all the data is first copied into a temporary buffer that does not 
+   * overlap either of the arrays, and then the data from the temporary buffer 
+   * is copied into the current array.
+   * 
+   * @param array
+   * @param offset indicates the index in the current array where values are 
+   * 				written.
+   */
+  public final native void set(TypeArray array, int offset) /*-{
+  	this.set(array, offset);
+  }-*/;
+  
+  /**
+   * Gets the length of this array in elements.
+   */
+  public final native int getLength() /*-{
+  	return this.length;
+  }-*/;
+  
+  public final native int reverse() /*-{
+	return this.reverse;
+  }-*/;
 }

@@ -1,8 +1,7 @@
 /*
  * Copyright 2012 Alex Usachev, thothbot@gmail.com
- * Copyright 2015 Tony Houghton, h@realh.co.uk
  * 
- * This file is part of the realh fork of the Parallax project.
+ * This file is part of Parallax project.
  * 
  * Parallax is free software: you can redistribute it and/or modify it 
  * under the terms of the Creative Commons Attribution 3.0 Unported License.
@@ -25,6 +24,8 @@ import java.util.List;
 import thothbot.parallax.core.shared.math.Color;
 import thothbot.parallax.core.shared.math.Vector3;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.resources.client.TextResource;
 
 /**
  * Lambert shader. This is the simplest model of light - a pure diffuse lighting. 
@@ -40,19 +41,15 @@ import thothbot.parallax.core.shared.math.Vector3;
 public final class LambertShader extends Shader
 {
 
-	static class Resources extends DefaultResources
+	interface Resources extends DefaultResources
 	{
-		static Resources INSTANCE = new Resources();
+		Resources INSTANCE = GWT.create(Resources.class);
 		
-		String getVertexShader()
-		{
-		    return thothbot.parallax.core.client.shaders.source.lambert.vertex;
-		}
+		@Source("source/lambert.vs")
+		TextResource getVertexShader();
 
-		String getFragmentShader()
-		{
-		    return thothbot.parallax.core.client.shaders.source.lambert.fragment;
-		}
+		@Source("source/lambert.fs")
+		TextResource getFragmentShader();
 	}
 
 	public LambertShader() 

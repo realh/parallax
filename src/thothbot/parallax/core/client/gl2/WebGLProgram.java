@@ -1,5 +1,5 @@
-/*
- * Copyright 2009-2011 Sönke Sothmann, Steffen Schäfer and others
+/**
+ * Copyright 2009-2010 Sönke Sothmann, Steffen Schäfer and others
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -11,22 +11,22 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package thothbot.parallax.core.client.gl2.arrays;
+package thothbot.parallax.core.client.gl2;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import com.google.gwt.core.client.JavaScriptObject;
 
 /**
- * A TypeArray suitable for use as indices in a
- * {@link thothbot.parallax.core.shared.core.BufferAttribute}
- *
- * @author h@realh.co.uk
+ * Represents a shader program that is called during render operations. A shader program can contain
+ * multiple shader which implement the functionality.
+ * 
  */
-public abstract class IndexTypeArray extends TypeArray {
+public final class WebGLProgram extends JavaScriptObject {
 
-	protected IndexTypeArray(int capacity) {
-        super(capacity);
-	}
+  /**
+   * Protected standard constructor as specified by
+   * {@link com.google.gwt.core.client.JavaScriptObject}.
+   */
+  protected WebGLProgram() {
+  }
 
-    public abstract int getUnsigned(int index);
 }

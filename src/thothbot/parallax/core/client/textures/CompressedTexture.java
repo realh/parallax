@@ -1,7 +1,6 @@
 /*
  * Copyright 2012 Alex Usachev, thothbot@gmail.com
- * Copyright 2015 Tony Houghton, h@realh.co.uk
- *
+ * 
  * This file is part of Parallax project.
  * 
  * Parallax is free software: you can redistribute it and/or modify it 
@@ -19,26 +18,62 @@
 
 package thothbot.parallax.core.client.textures;
 
-import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
-import thothbot.parallax.core.client.gl2.arrays.Uint8Array;
 import thothbot.parallax.core.client.gl2.extension.WebGLCompressedTextureS3tc;
 import thothbot.parallax.core.shared.Log;
 
-public class CompressedTexture extends Texture
+import com.google.gwt.typedarrays.client.Int32ArrayNative;
+import com.google.gwt.typedarrays.client.Uint8ArrayNative;
+import com.google.gwt.typedarrays.shared.ArrayBuffer;
+import com.google.gwt.typedarrays.shared.Int32Array;
+import com.google.gwt.typedarrays.shared.Uint8Array;
+import com.google.gwt.xhr.client.ReadyStateChangeHandler;
+import com.google.gwt.xhr.client.XMLHttpRequest;
+
+public class CompressedTexture extends Texture 
 {
 	private int compressedFormat;
 	private List<DataTexture> mipmaps;
-
-    public CompressedTexture()
-    {}
 	
-    public CompressedTexture ( ByteBuffer buffer, boolean loadMipmaps )
+	public CompressedTexture( String url )
 	{
-        parseDDS(buffer, loadMipmaps);
+		this(url, null);
 	}
 
+	public CompressedTexture( final String url, final ImageLoadHandler imageLoadHandler) 
+	{
+
+		this.mipmaps = new ArrayList<DataTexture>();
+
+		XMLHttpRequest binxhr = (XMLHttpRequest)XMLHttpRequest.create();
+		binxhr.open("GET", url);
+		binxhr.setResponseType("arraybuffer");
+		binxhr.send();
+		
+		binxhr.setOnReadyStateChange(new ReadyStateChangeHandler()
+		{
+		    @Override
+		     public void onReadyStateChange(XMLHttpRequest xhr)
+		     {
+		    	XMLHttpRequest binxhr = (XMLHttpRequest)xhr;
+		         if( binxhr.getReadyState() == XMLHttpRequest.DONE )
+		         {
+		             binxhr.clearOnReadyStateChange();
+		             ArrayBuffer buffer= binxhr.getResponseArrayBuffer();
+		             parseDDS( buffer, true );
+		             
+		             setGenerateMipmaps(false);
+		             setNeedsUpdate(true);
+
+		             if (imageLoadHandler != null)
+		            	 imageLoadHandler.onImageLoad(CompressedTexture.this);
+		         }
+		    }
+		});
+	}
+	
 	public int getCompressedFormat() {
 		return compressedFormat;
 	}
@@ -65,7 +100,7 @@ public class CompressedTexture extends Texture
 	 * @param buffer
 	 * @param loadMipmaps
 	 */
-	public void parseDDS( ByteBuffer buffer, boolean loadMipmaps )
+	private void parseDDS( ArrayBuffer buffer, boolean loadMipmaps ) 
 	{
 //		var dds = { mipmaps: [], width: 0, height: 0, format: null, mipmapCount: 1 };
 
@@ -121,17 +156,17 @@ public class CompressedTexture extends Texture
 		int off_pfFlags = 20;
 		int off_pfFourCC = 21;
 
-		buffer.rewind();
-
 		// Parse header
 
-        if ( buffer.getInt(off_magic) != DDS_MAGIC )
+		Int32Array header = Int32ArrayNative.create( buffer, 0, headerLengthInt );
+
+        if ( header.get( off_magic ) != DDS_MAGIC ) 
         {
             Log.error( "ImageUtils.parseDDS(): Invalid magic number in DDS header" );
             return;
         }
 
-        if ( (buffer.getInt(off_pfFlags) & DDPF_FOURCC) == 0 )
+        if ( (header.get( off_pfFlags ) & DDPF_FOURCC) == 0 ) 
         {
             Log.error( "ImageUtils.parseDDS(): Unsupported format, must contain a FourCC code" );
             return;
@@ -139,7 +174,7 @@ public class CompressedTexture extends Texture
 
 		int blockBytes;
 
-		int fourCC = buffer.getInt(off_pfFourCC);
+		int fourCC = header.get( off_pfFourCC );
 
 		if ( fourCC == FOURCC_DXT1)
 		{
@@ -164,34 +199,29 @@ public class CompressedTexture extends Texture
 
 		int mipmapCount = 1;
 
-        if ( ((buffer.getInt(off_flags) & DDSD_MIPMAPCOUNT) != 0) && loadMipmaps != false )
+        if ( ((header.get( off_flags ) & DDSD_MIPMAPCOUNT) != 0) && loadMipmaps != false ) 
         {
-        	mipmapCount = Math.max( 1, buffer.getInt(off_mipmapCount) );
+        	mipmapCount = Math.max( 1, header.get( off_mipmapCount ) );
         }
 
-//        setWidth( buffer.getInt( off_width ) );
-//        setHeight( buffer.getInt( off_height ) );
+//        setWidth( header.get( off_width ) );
+//        setHeight( header.get( off_height ) );
 
-        int dataOffset = buffer.getInt(off_size) + 4;
+        int dataOffset = header.get( off_size ) + 4;
 
 		// Extract mipmaps buffers
 
-		int width = buffer.getInt(off_width) ;
-		int height = buffer.getInt(off_height);
+		int width = header.get( off_width ) ;
+		int height = header.get( off_height );
 
 		for ( int i = 0; i < mipmapCount; i ++ ) 
 		{
 			int dataLength = Math.max( 4, width ) / 4 * Math.max( 4, height ) / 4 * blockBytes;
-
-			buffer.limit(dataOffset + dataLength);
-			buffer.position(dataOffset);
-
-			byte[] byteArray = new byte[dataLength];
-			buffer.get(byteArray);
+			Uint8Array byteArray = Uint8ArrayNative.create( buffer, dataOffset, dataLength );
 
 			DataTexture mipmap = new DataTexture(width, height);
-
-			mipmap.setData(Uint8Array.create(byteArray));
+			//TODO: change to google
+//			mipmap.setData(byteArray);
 			mipmaps.add( mipmap );
 
 			dataOffset += dataLength;

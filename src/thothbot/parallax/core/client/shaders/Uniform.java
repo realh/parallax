@@ -1,8 +1,7 @@
 /*
  * Copyright 2012 Alex Usachev, thothbot@gmail.com
- # Copyright 2015 Tony Houghton, h@realh.co.uk
  * 
- * This file is part of the realh fork of the Parallax project.
+ * This file is part of Parallax project.
  * 
  * Parallax is free software: you can redistribute it and/or modify it 
  * under the terms of the Creative Commons Attribution 3.0 Unported License.
@@ -19,6 +18,7 @@
 
 package thothbot.parallax.core.client.shaders;
 
+import thothbot.parallax.core.client.gl2.WebGLUniformLocation;
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
 
 /**
@@ -50,7 +50,7 @@ public class Uniform
 	private Uniform.TYPE type;
 	private Object value;
 	private Float32Array cache_array;
-	private int location = -1;
+	private WebGLUniformLocation location;
 
 	public Uniform(Uniform.TYPE type) 
 	{
@@ -83,11 +83,11 @@ public class Uniform
 		this.cache_array = array;
 	}
 	
-	public int getLocation() {
+	public WebGLUniformLocation getLocation() {
 		return this.location;
 	}
 	
-	public void setLocation(int location) {
+	public void setLocation(WebGLUniformLocation location) {
 		this.location = location;
 	}
 	

@@ -22,6 +22,8 @@ import thothbot.parallax.core.client.context.Canvas3d;
 import thothbot.parallax.core.client.renderers.WebGLRenderer;
 import thothbot.parallax.core.shared.scenes.Scene;
 
+import com.google.gwt.core.client.Duration;
+
 /**
  * The class to set up {@link Scene} for the {@link WebGLRenderer} 
  * in the {@link Canvas3d} context.
@@ -39,6 +41,9 @@ public abstract class AnimatedScene extends Animation
 	 */
 	public static interface AnimationUpdateHandler
 	{
+		/**
+		 * Called when {@link #onUpdate()} called.
+		 */
 		public void onUpdate(double duration);
 	}
 
@@ -90,7 +95,7 @@ public abstract class AnimatedScene extends Animation
 	@Override
 	protected void onRefresh(double duration)
 	{
-		getRenderer().getInfo().getTimer().render.reset();
+		getRenderer().getInfo().getTimer().render = new Duration();
 		onUpdate(duration);
 		
 		animationUpdateHandler.onUpdate(duration);

@@ -13,148 +13,210 @@
  */
 package thothbot.parallax.core.client.gl2.arrays;
 
-import java.nio.IntBuffer;
-
-import thothbot.parallax.core.client.gl2.enums.DataType;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JsArrayInteger;
 
 /**
  * The typed array that holds unsigned int (32-bit unsigned integer) as its element.
  * 
- * @author h@realh.co.uk
+ * @author hao1300@gmail.com
  */
 public final class Uint32Array extends TypeArray {
 	public static final int BYTES_PER_ELEMENT = 4;
-	public static final long SIGN_OFFSET = 0x100000000l;
-	public static final long MAX_POSITIVE = 0x7fffffffl;
-	public static final long MAX_NEGATIVE = 0xffffffffl;
-
-	private IntBuffer intBuffer;
-
-	/**
-	 * @param capacity	In bytes.
-	 */
-	protected Uint32Array(int capacity) {
-		super(capacity);
-		createTypedBuffer();
-	}
-
-	@Override
-	protected void createTypedBuffer() {
-		intBuffer = getBuffer().asIntBuffer();
-	}
-
-	@Override
-	public int getElementType() {
-		return DataType.UNSIGNED_INT.getValue();
-	}
-
-    @Override
-    public int getElementSize() {
-        return 4;
-    }
-
-    /**
-	 * Create a new {@link java.nio.ByteBuffer} with enough bytes to hold length
-	 * elements of this typed array.
-	 * 
-	 * @param length
-	 */
-	public static Uint32Array create(int length) {
-		return new Uint32Array(length * BYTES_PER_ELEMENT);
+	
+	protected Uint32Array() {
+		
 	}
 	
 	/**
-	 * Create a copy of array.
+	 * Create a new {@link ArrayBuffer} with enough bytes to hold length elements 
+	 * of this typed array, then creates a typed array view referring to the full 
+	 * buffer.
+	 * 
+	 * @param length
+	 */
+	public static native Uint32Array create(int length) /*-{
+		return new $wnd.Uint32Array(length);
+	}-*/;
+	
+	/**
+	 * Create a new {@link ArrayBuffer} with enough bytes to hold array.length 
+	 * elements of this typed array, then creates a typed array view referring 
+	 * to the full buffer. The contents of the new view are initialized to the 
+	 * contents of the given typed array or sequence, with each element converted 
+	 * to the appropriate typed array type.
 	 * 
 	 * @param array
 	 */
-	public static Uint32Array create(TypeArray array) {
-		Uint32Array result = create(array.getLength());
-		result.set(array);
-		return result;
-	}
-
-	private static int coerce(long n) {
-		return (int) (n > MAX_POSITIVE & n <= MAX_POSITIVE ?
-				(n - SIGN_OFFSET) : n);
-	}
-
+	public static native Uint32Array create(TypeArray array) /*-{
+		return new $wnd.Uint32Array(array);
+	}-*/;
+	
 	/**
-	 * Create an array .
-	 *
+	 * Create a new {@link ArrayBuffer} with enough bytes to hold array.length 
+	 * elements of this typed array, then creates a typed array view referring 
+	 * to the full buffer. The contents of the new view are initialized to the 
+	 * contents of the given typed array or sequence, with each element converted 
+	 * to the appropriate typed array type.
+	 * 
 	 * @param array
 	 */
-	public static Uint32Array create(long[] array) {
-		int[] ints = new int[array.length];
-		for (int i = 0; i < array.length; ++i) {
-            ints[i] = coerce(array[i]);
+	public static Uint32Array create(int... array) {
+		if (GWT.isScript()) {
+			return createCompiled(array);
 		}
-		return create(ints);
+		return create(JsArrayUtil.toJsArrayInteger(array));
 	}
-
+	
+	private static native Uint32Array createCompiled(int[] array) /*-{
+		return new $wnd.Uint32Array(array);
+	}-*/;
+	
 	/**
-	 * Create an array .
-	 *
+	 * Create a new {@link ArrayBuffer} with enough bytes to hold array.length 
+	 * elements of this typed array, then creates a typed array view referring 
+	 * to the full buffer. The contents of the new view are initialized to the 
+	 * contents of the given typed array or sequence, with each element converted 
+	 * to the appropriate typed array type.
+	 * 
 	 * @param array
 	 */
-	public static Uint32Array create(int[] array) {
-		Uint32Array result = create(array.length);
-		result.intBuffer.put(array);
-		return result;
-	}
-
+	public static native Uint32Array create(JsArrayInteger array) /*-{
+		return new $wnd.Uint32Array(array);
+	}-*/;
+	
+	/**
+	 * Create a new Uint32Array object using the passed {@link ArrayBuffer} for 
+	 * its storage. The Uint32Array spans the entire {@link ArrayBuffer} range. 
+	 * 
+	 * @param buffer
+	 */
+	public static native Uint32Array create(ArrayBuffer buffer) /*-{
+		return new $wnd.Uint32Array(buffer);
+	}-*/;
+	
+	/**
+	 * Create a new Uint32Array object using the passed {@link ArrayBuffer} for 
+	 * its storage. The Uint32Array extends from the given byteOffset until the 
+	 * end of the {@link ArrayBuffer}.
+	 * 
+	 * The given byteOffset must be a multiple of the element size of the 
+	 * specific type, otherwise an INDEX_SIZE_ERR exception is raised.
+	 * 
+	 * If a given byteOffset references an area beyond the end of the 
+	 * {@link ArrayBuffer} an INDEX_SIZE_ERR exception is raised.
+	 * 
+	 * The length of the {@link ArrayBuffer} minus the byteOffset must be a 
+	 * multiple of the element size of the specific type, or an INDEX_SIZE_ERR 
+	 * exception is raised.
+	 * 
+	 * @param buffer
+	 * @param byteOffset indicates the offset in bytes from the start of the 
+	 * 				{@link ArrayBuffer} 
+	 */
+	public static native Uint32Array create(ArrayBuffer buffer, int byteOffset) /*-{
+		return new $wnd.Uint32Array(buffer, byteOffset);
+	}-*/;
+	
+	/**
+	 * Create a new Uint32Array object using the passed {@link ArrayBuffer} for 
+	 * its storage. 
+	 * 
+	 * The given byteOffset must be a multiple of the element size of the 
+	 * specific type, otherwise an INDEX_SIZE_ERR exception is raised.
+	 * 
+	 * If a given byteOffset and length references an area beyond the end of the 
+	 * {@link ArrayBuffer} an INDEX_SIZE_ERR exception is raised.
+	 * 
+	 * @param buffer
+	 * @param byteOffset indicates the offset in bytes from the start of the 
+	 * 				{@link ArrayBuffer} 
+	 * @param length the count of elements from the offset that this 
+	 * 				Uint32Array will reference
+	 */
+	public static native Uint32Array create(ArrayBuffer buffer, int byteOffset,
+			int length) /*-{
+		return new $wnd.Uint32Array(buffer, byteOffset, length);
+	}-*/;
+  
 	/**
 	 * Returns the element at the given numeric index.
-	 *
+	 * 
 	 * @param index
 	 */
-	public int get(int index) {
-		return intBuffer.get(index);
-	}
-
-	/**
-	 * Returns the element at the given numeric index.
-	 *
-	 * @param index
-	 */
-	public long getUnsigned(int index) {
-		int n = intBuffer.get(index);
-		return n < 0 ? (long) n + SIGN_OFFSET : (long) n;
-	}
-
-	/**
-	 * Sets the element at the given numeric index to the given value.
-	 *
-	 * @param index
-	 * @param value
-	 */
-	public void set(int index, int value) {
-		intBuffer.put(index, value);
-	}
-
-	/**
-	 * Sets the element at the given numeric index to the given value.
-	 *
-	 * @param index
-	 * @param value
-	 */
-	public void set(int index, long value) {
-		intBuffer.put(index, coerce(value));
-	}
-
-	public void set(Uint32Array array) {
-        super.set(array);
-    }
-
-	public void set(Uint32Array array, int offset) {
-        super.set(array, offset * BYTES_PER_ELEMENT);
-    }
-
-    public void set(TypeArray array, int offset) {
-        super.set(array, offset * BYTES_PER_ELEMENT);
-    }
-
-	/**
-	 * slice methods were not used.
-     */
+  public native int get(int index) /*-{
+  	return this[index];
+  }-*/;
+  
+  /**
+   * Sets the element at the given numeric index to the given value.
+   * 
+   * @param index
+   * @param value
+   */
+  public native void set(int index, int value) /*-{
+  	 this[index] = value;
+  }-*/;
+  
+  /**
+   * Set multiple values, reading input values from the array. 
+   */
+  public native void set(JsArrayInteger array) /*-{
+  	this.set(array);
+  }-*/;
+  
+  /**
+   * /**
+   * Set multiple values, reading input values from the array.
+   * 
+   * @param array
+   * @param offset indicates the index in the current array where values are 
+   * 				written.
+   */
+  public native void set(JsArrayInteger array, int offset) /*-{
+  	this.set(array, offset);
+  }-*/;
+  
+  /**
+   * Returns a new Uint32Array view of the {@link ArrayBuffer} store for this 
+   * Uint32Array, referencing the elements at begin, inclusive, up to end, 
+   * exclusive. If either begin or end is negative, it refers to an index from 
+   * the end of the array, as opposed to from the beginning.
+   * 
+   * The slice contains all elements from begin to the end of the Uint32Array.
+   * 
+   * The range specified by the begin and end values is clamped to the valid 
+   * index range for the current array. If the computed length of the new 
+   * Uint32Array would be negative, it is clamped to zero.
+   * 
+   * The returned Uint32Array will be of the same type as the array on which this 
+   * method is invoked.
+   * 
+   * @param begin
+   */
+  public native Uint32Array slice(int begin) /*-{
+		return this.slice(begin);
+	}-*/;
+  
+  /**
+   * Returns a new Uint32Array view of the {@link ArrayBuffer} store for this 
+   * Uint32Array, referencing the elements at begin, inclusive, up to end, 
+   * exclusive. If either begin or end is negative, it refers to an index from 
+   * the end of the array, as opposed to from the beginning.
+   * 
+   * The slice contains all elements from begin to the end of the Uint32Array.
+   * 
+   * The range specified by the begin and end values is clamped to the valid 
+   * index range for the current array. If the computed length of the new 
+   * Uint32Array would be negative, it is clamped to zero.
+   * 
+   * The returned Uint32Array will be of the same type as the array on which this 
+   * method is invoked.
+   * 
+   * @param begin
+   * @param end
+   */
+  public native Uint32Array slice(int begin, int end) /*-{
+  	return this.slice(begin, end);
+  }-*/;
 }

@@ -1,6 +1,6 @@
 /*
  * Copyright 2012 Alex Usachev, thothbot@gmail.com
- *
+ * 
  * This file is part of Parallax project.
  * 
  * Parallax is free software: you can redistribute it and/or modify it 

@@ -1,8 +1,7 @@
 /*
  * Copyright 2012 Alex Usachev, thothbot@gmail.com
- * Copyright 2015 Tony Houghton, h@realh.co.uk
  * 
- * This file is part of the realh fork of the Parallax project.
+ * This file is part of Parallax project.
  * 
  * Parallax is free software: you can redistribute it and/or modify it 
  * under the terms of the Creative Commons Attribution 3.0 Unported License.
@@ -21,6 +20,7 @@ package thothbot.parallax.core.client.shaders;
 
 import java.util.List;
 
+import thothbot.parallax.core.client.gl2.WebGLBuffer;
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
 
 public class Attribute
@@ -39,7 +39,7 @@ public class Attribute
 		FACE_VERTICES
 	};
 
-	public int buffer;
+	public WebGLBuffer buffer;
 	public boolean createUniqueBuffers;
 	public Attribute.TYPE type;
 	// TODO: remove = change to type (initCustomAttributes)

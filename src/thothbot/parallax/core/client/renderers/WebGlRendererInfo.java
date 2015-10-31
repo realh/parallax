@@ -22,6 +22,8 @@ import thothbot.parallax.core.client.debugger.Debugger;
 import thothbot.parallax.core.shared.cameras.Camera;
 import thothbot.parallax.core.shared.scenes.Scene;
 
+import com.google.gwt.core.client.Duration;
+
 /**
  * Th class with a series of statistical information about the graphics board memory and 
  * the rendering process. Used id {@link Debugger}.

@@ -1,7 +1,6 @@
 /*
  * Copyright 2012 Alex Usachev, thothbot@gmail.com
- * Copyright 2015 Tony Houghton, h@realh.co.uk
- *
+ * 
  * This file is part of Parallax project.
  * 
  * Parallax is free software: you can redistribute it and/or modify it 
@@ -19,9 +18,11 @@
 
 package thothbot.parallax.core.client.textures;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import thothbot.parallax.core.client.gl2.Image;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.user.client.ui.Image;
 
 /**
  * Implementation of cubic texture.
@@ -31,9 +32,44 @@ import thothbot.parallax.core.client.gl2.Image;
  */
 public class CubeTexture extends Texture 
 {
-	private List<Image> images;
+	private List<Element> images;
 	
-	public CubeTexture(List<Image> images)
+	private int loadedCount;
+	public CubeTexture(String url)
+	{
+		this(url, null);
+	}
+
+	public CubeTexture(String url, ImageLoadHandler imageLoadHandler)
+	{
+		this(getImagesFromUrl(url), imageLoadHandler);
+	}
+
+	public CubeTexture(List<Image> images, final ImageLoadHandler imageLoadHandler)
+	{
+		this(new ArrayList<Element>());
+		setFlipY(false);
+	
+		loadedCount = 0;
+		for(Image image: images)
+		{
+			loadImage(image, new Loader() {
+				
+				@Override
+				public void onLoad() {
+					if(++loadedCount == 6)
+					{
+						setNeedsUpdate(true);
+						if (imageLoadHandler != null)
+							imageLoadHandler.onImageLoad(CubeTexture.this);
+					}
+				}
+			});
+			this.images.add(image.getElement());
+		}
+	}
+	
+	public CubeTexture(List<Element> images)
 	{
 		this.images = images;
 	}
@@ -47,14 +83,32 @@ public class CubeTexture extends Texture
 	}
 	
 	/**
-	 * Getting Image by its index
+	 * Getting Image Element by its index
 	 * 
-	 * @param index the index of Image in the Cubic texture
+	 * @param index the index of Image element in the Cubic texture
 	 * 
-	 * @return the image
+	 * @return the image Element
 	 */
-	public Image getImage(int index)
+	public Element getImage(int index)
 	{
 		return this.images.get(index);
+	}
+	
+	private static List<Image> getImagesFromUrl(String url)
+	{
+		List<Image> images = new ArrayList<Image>();
+		
+		String[] parts = {"px", "nx", "py", "ny", "pz", "nz"};
+		String urlStart = url.substring(0, url.indexOf("*"));
+		String urlEnd = url.substring(url.indexOf("*") + 1, url.length());
+		
+		for(String part: parts)
+		{
+			Image image = new Image();
+			image.setUrl(urlStart + part + urlEnd);
+			images.add(image);
+		}
+
+		return images;
 	}
 }

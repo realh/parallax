@@ -1,8 +1,7 @@
 /*
  * Copyright 2012 Alex Usachev, thothbot@gmail.com
- * Copyright 2015 Tony Houghton, h@realh.co.uk
  * 
- * This file is part of the realh fork of the Parallax project.
+ * This file is part of Parallax project.
  * 
  * Parallax is free software: you can redistribute it and/or modify it 
  * under the terms of the Creative Commons Attribution 3.0 Unported License.
@@ -19,6 +18,9 @@
 
 package thothbot.parallax.core.client.shaders;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.TextResource;
 
 /**
  * Source for all chunks.
@@ -26,265 +28,163 @@ package thothbot.parallax.core.client.shaders;
  * @author thothbot
  *
  */
-public class Chunks
+public interface Chunks extends ClientBundle
 {
-	static String getAlphamapFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.alphamap.fragment;
-	}
+	Chunks INSTANCE = GWT.create(Chunks.class);
+
+	@Source("chunk/alphamap_fragment.glsl")
+	TextResource getAlphamapFragment();
 	
-	static String getAlphamapParsFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.alphamap_pars.fragment;
-	}
+	@Source("chunk/alphamap_pars_fragment.glsl")
+	TextResource getAlphamapParsFragment();
 
-	static String getAlphatestFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.alphatest.fragment;
-	}
+	@Source("chunk/alphatest_fragment.glsl")
+	TextResource getAlphatestFragment();
 	
-	static String getBumpmapParsFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.bumpmap_pars.fragment;
-	}
+	@Source("chunk/bumpmap_pars_fragment.glsl")
+	TextResource getBumpmapParsFragment();
 
-	static String getColorFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.color.fragment;
-	}
+	@Source("chunk/color_fragment.glsl")
+	TextResource getColorFragment();
 
-	static String getColorParsFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.color_pars.fragment;
-	}
+	@Source("chunk/color_pars_fragment.glsl")
+	TextResource getColorParsFragment();
 
-	static String getColorParsVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.color_pars.vertex;
-	}
+	@Source("chunk/color_pars_vertex.glsl")
+	TextResource getColorParsVertex();
 
-	static String getColorVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.color.vertex;
-	}
+	@Source("chunk/color_vertex.glsl")
+	TextResource getColorVertex();
 
-	static String getDefaultNormalVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.defaultnormal.vertex;
-	}
+	@Source("chunk/defaultnormal_vertex.glsl")
+	TextResource getDefaultNormalVertex();
 		
-	static String getDefaultVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.default_shader.vertex;
-	}
+	@Source("chunk/default_vertex.glsl")
+	TextResource getDefaultVertex();
 
-	static String getEnvmapFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.envmap.fragment;
-	}
+	@Source("chunk/envmap_fragment.glsl")
+	TextResource getEnvmapFragment();
 
-	static String getEnvmapParsFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.envmap_pars.fragment;
-	}
+	@Source("chunk/envmap_pars_fragment.glsl")
+	TextResource getEnvmapParsFragment();
 
-	static String getEnvmapParsVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.envmap_pars.vertex;
-	}
+	@Source("chunk/envmap_pars_vertex.glsl")
+	TextResource getEnvmapParsVertex();
 
-	static String getEnvmapVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.envmap.vertex;
-	}
+	@Source("chunk/envmap_vertex.glsl")
+	TextResource getEnvmapVertex();
 
-	static String getFogFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.fog.fragment;
-	}
+	@Source("chunk/fog_fragment.glsl")
+	TextResource getFogFragment();
 
-	static String getFogParsFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.fog_pars.fragment;
-	}
+	@Source("chunk/fog_pars_fragment.glsl")
+	TextResource getFogParsFragment();
 
-	static String getLightmapFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.lightmap.fragment;
-	}
+	@Source("chunk/lightmap_fragment.glsl")
+	TextResource getLightmapFragment();
 
-	static String getLightmapParsFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.lightmap_pars.fragment;
-	}
+	@Source("chunk/lightmap_pars_fragment.glsl")
+	TextResource getLightmapParsFragment();
 
-	static String getLightmapParsVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.lightmap_pars.vertex;
-	}
+	@Source("chunk/lightmap_pars_vertex.glsl")
+	TextResource getLightmapParsVertex();
 
-	static String getLightmapVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.lightmap.vertex;
-	}
+	@Source("chunk/lightmap_vertex.glsl")
+	TextResource getLightmapVertex();
 
-	static String getLightsLambertParsVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.lights_lambert_pars.vertex;
-	}
+	@Source("chunk/lights_lambert_pars_vertex.glsl")
+	TextResource getLightsLambertParsVertex();
 
-	static String getLightsLambertVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.lights_lambert.vertex;
-	}
+	@Source("chunk/lights_lambert_vertex.glsl")
+	TextResource getLightsLambertVertex();
 
-	static String getLightsPhongFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.lights_phong.fragment;
-	}
+	@Source("chunk/lights_phong_fragment.glsl")
+	TextResource getLightsPhongFragment();
 
-	static String getLightsPhongParsFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.lights_phong_pars.fragment;
-	}
+	@Source("chunk/lights_phong_pars_fragment.glsl")
+	TextResource getLightsPhongParsFragment();
 
-	static String getLightsPhongParsVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.lights_phong_pars.vertex;
-	}
+	@Source("chunk/lights_phong_pars_vertex.glsl")
+	TextResource getLightsPhongParsVertex();
 
-	static String getLightsPhongVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.lights_phong.vertex;
-	}
+	@Source("chunk/lights_phong_vertex.glsl")
+	TextResource getLightsPhongVertex();
 
-	static String getLinearToGammaFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.linear_to_gamma.fragment;
-	}
+	@Source("chunk/linear_to_gamma_fragment.glsl")
+	TextResource getLinearToGammaFragment();
 	
-	static String getLogdepthbufFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.logdepthbuf.fragment;
-	}
+	@Source("chunk/logdepthbuf_fragment.glsl")
+	TextResource getLogdepthbufFragment();
 	
-	static String getLogdepthbufParFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.logdepthbuf_par.fragment;
-	}
+	@Source("chunk/logdepthbuf_par_fragment.glsl")
+	TextResource getLogdepthbufParFragment();
 	
-	static String getLogdepthbufParVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.logdepthbuf_par.vertex;
-	}
+	@Source("chunk/logdepthbuf_par_vertex.glsl")
+	TextResource getLogdepthbufParVertex();
 	
-	static String getLogdepthbufVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.logdepthbuf.vertex;
-	}
+	@Source("chunk/logdepthbuf_vertex.glsl")
+	TextResource getLogdepthbufVertex();
 
-	static String getMapFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.map.fragment;
-	}
+	@Source("chunk/map_fragment.glsl")
+	TextResource getMapFragment();
 
-	static String getMapParsFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.map_pars.fragment;
-	}
+	@Source("chunk/map_pars_fragment.glsl")
+	TextResource getMapParsFragment();
 
-	static String getMapParsVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.map_pars.vertex;
-	}
+	@Source("chunk/map_pars_vertex.glsl")
+	TextResource getMapParsVertex();
 
-	static String getMapParticleFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.map_particle.fragment;
-	}
+	@Source("chunk/map_particle_fragment.glsl")
+	TextResource getMapParticleFragment();
 
-	static String getMapParticleParsFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.map_particle_pars.fragment;
-	}
+	@Source("chunk/map_particle_pars_fragment.glsl")
+	TextResource getMapParticleParsFragment();
 
-	static String getMapVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.map.vertex;
-	}
+	@Source("chunk/map_vertex.glsl")
+	TextResource getMapVertex();
 
-	static String getMorphnormalVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.morphnormal.vertex;
-	}
+	@Source("chunk/morphnormal_vertex.glsl")
+	TextResource getMorphnormalVertex();
 
-	static String getMorphtargetParsVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.morphtarget_pars.vertex;
-	}
+	@Source("chunk/morphtarget_pars_vertex.glsl")
+	TextResource getMorphtargetParsVertex();
 
-	static String getMorphtargetVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.morphtarget.vertex;
-	}
+	@Source("chunk/morphtarget_vertex.glsl")
+	TextResource getMorphtargetVertex();
 	
-	static String getNormalmapParsFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.normalmap_pars.fragment;
-	}
+	@Source("chunk/normalmap_pars_fragment.glsl")
+	TextResource getNormalmapParsFragment();
 
-	static String getShadowmapFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.shadowmap.fragment;
-	}
+	@Source("chunk/shadowmap_fragment.glsl")
+	TextResource getShadowmapFragment();
 
-	static String getShadowmapParsFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.shadowmap_pars.fragment;
-	}
+	@Source("chunk/shadowmap_pars_fragment.glsl")
+	TextResource getShadowmapParsFragment();
 
-	static String getShadowmapParsVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.shadowmap_pars.vertex;
-	}
+	@Source("chunk/shadowmap_pars_vertex.glsl")
+	TextResource getShadowmapParsVertex();
 
-	static String getShadowmapVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.shadowmap.vertex;
-	}
+	@Source("chunk/shadowmap_vertex.glsl")
+	TextResource getShadowmapVertex();
 
-	static String getSkinningParsVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.skinning_pars.vertex;
-	}
+	@Source("chunk/skinning_pars_vertex.glsl")
+	TextResource getSkinningParsVertex();
 
-	static String getSkinningVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.skinning.vertex;
-	}
+	@Source("chunk/skinning_vertex.glsl")
+	TextResource getSkinningVertex();
 	
-	static String getSkinBaseVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.skinbase.vertex;
-	}
+	@Source("chunk/skinbase_vertex.glsl")
+	TextResource getSkinBaseVertex();
 	
-	static String getSkinNormalVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.skinnormal.vertex;
-	}
+	@Source("chunk/skinnormal_vertex.glsl")
+	TextResource getSkinNormalVertex();
 	
-	static String getSpecularmapFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.specularmap.fragment;
-	}
+	@Source("chunk/specularmap_fragment.glsl")
+	TextResource getSpecularmapFragment();
 	
-	static String getSpecularmapParsFragment()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.specularmap_pars.fragment;
-	}
+	@Source("chunk/specularmap_pars_fragment.glsl")
+	TextResource getSpecularmapParsFragment();
 	
-	static String getWorldposVertex()
-	{
-	    return thothbot.parallax.core.client.shaders.chunk.worldpos.vertex;
-	}
+	@Source("chunk/worldpos_vertex.glsl")
+	TextResource getWorldposVertex();
 }

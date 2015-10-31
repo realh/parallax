@@ -1,8 +1,7 @@
 /*
  * Copyright 2012 Alex Usachev, thothbot@gmail.com
- * Copyright 2015 Tony Houghton, h@realh.co.uk
  * 
- * This file is part of the realh fork of the Parallax project.
+ * This file is part of Parallax project.
  * 
  * Parallax is free software: you can redistribute it and/or modify it 
  * under the terms of the Creative Commons Attribution 3.0 Unported License.
@@ -22,6 +21,8 @@ package thothbot.parallax.core.client.shaders;
 import java.util.Arrays;
 import java.util.List;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.resources.client.TextResource;
 
 /**
  * Simple Particle shader.
@@ -33,19 +34,15 @@ import java.util.List;
  */
 public final class ParticleBasicShader extends Shader
 {
-	static class Resources extends DefaultResources
+	interface Resources extends DefaultResources
 	{
-		static Resources INSTANCE = new Resources();
+		Resources INSTANCE = GWT.create(Resources.class);
 		
-		String getVertexShader()
-		{
-		    return thothbot.parallax.core.client.shaders.source.particle_basic.vertex;
-		}
+		@Source("source/particle_basic.vs")
+		TextResource getVertexShader();
 
-		String getFragmentShader()
-		{
-		    return thothbot.parallax.core.client.shaders.source.particle_basic.fragment;
-		}
+		@Source("source/particle_basic.fs")
+		TextResource getFragmentShader();
 	}
 	
 	public ParticleBasicShader() 

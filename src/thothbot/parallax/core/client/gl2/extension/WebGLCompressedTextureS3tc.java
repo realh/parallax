@@ -18,7 +18,9 @@
 
 package thothbot.parallax.core.client.gl2.extension;
 
-public class WebGLCompressedTextureS3tc
+import thothbot.parallax.core.client.gl2.WebGLExtension;
+
+public class WebGLCompressedTextureS3tc extends WebGLExtension 
 {
 	public static final int COMPRESSED_RGB_S3TC_DXT1_EXT  = 0x83F0;
 	public static final int COMPRESSED_RGBA_S3TC_DXT1_EXT = 0x83F1;

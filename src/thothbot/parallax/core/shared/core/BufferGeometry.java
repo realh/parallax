@@ -18,9 +18,6 @@
 
 package thothbot.parallax.core.shared.core;
 
-import android.opengl.GLES20;
-
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,8 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import thothbot.parallax.core.client.gl2.WebGLRenderingContext;
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
-import thothbot.parallax.core.client.gl2.arrays.IndexTypeArray;
 import thothbot.parallax.core.client.gl2.arrays.Int32Array;
 import thothbot.parallax.core.client.gl2.arrays.Uint16Array;
 import thothbot.parallax.core.client.gl2.enums.BufferTarget;
@@ -43,6 +40,8 @@ import thothbot.parallax.core.shared.math.Matrix4;
 import thothbot.parallax.core.shared.math.Sphere;
 import thothbot.parallax.core.shared.math.Vector2;
 import thothbot.parallax.core.shared.math.Vector3;
+
+import com.google.gwt.core.client.GWT;
 
 /**
  * This class is an efficient alternative to {@link Geometry}, because it stores all data, including vertex positions, 
@@ -95,7 +94,8 @@ public class BufferGeometry extends AbstractGeometry
 	{
 		super();
 		
-		this.attributes = new HashMap<String, BufferAttribute>();
+		this.attributes  = GWT.isScript() ? 
+				new FastMap<BufferAttribute>() : new HashMap<String, BufferAttribute>();
 					
 		this.setDrawcalls(new ArrayList<BufferGeometry.DrawCall>());
 
@@ -386,8 +386,8 @@ public class BufferGeometry extends AbstractGeometry
 
 		if ( positions == null || positions.getLength() == 0 ) {
 
-			this.boundingBox.getMin().set(0, 0, 0);
-			this.boundingBox.getMax().set(0, 0, 0);
+			this.boundingBox.getMin().set( 0, 0, 0 );
+			this.boundingBox.getMax().set( 0, 0, 0 );
 
 		}
 		
@@ -437,7 +437,7 @@ public class BufferGeometry extends AbstractGeometry
 
 			}
 
-			this.boundingSphere.setRadius(Math.sqrt(maxRadiusSq));
+			this.boundingSphere.setRadius( Math.sqrt( maxRadiusSq ) );
 
 		}
 
@@ -589,7 +589,7 @@ public class BufferGeometry extends AbstractGeometry
 
 		}
 
-		IndexTypeArray indices = (IndexTypeArray) getAttribute("index").getArray();
+		Uint16Array indices = (Uint16Array)getAttribute("index").getArray();
 		Float32Array positions = (Float32Array)getAttribute("position").getArray();
 		Float32Array normals = (Float32Array)getAttribute("normal").getArray();
 		Float32Array uvs = (Float32Array)getAttribute("uv").getArray();
@@ -629,9 +629,9 @@ public class BufferGeometry extends AbstractGeometry
 
 			for ( int i = start, il = start + count; i < il; i += 3 ) {
 
-				int iA = index + indices.getUnsigned(i);
-				int iB = index + indices.getUnsigned(i + 1);
-				int iC = index + indices.getUnsigned(i + 2);
+				int iA = index + (int)indices.get( i );
+				int iB = index + (int)indices.get( i + 1 );
+				int iC = index + (int)indices.get( i + 2 );
 
 				handleTriangle( tan1, tan2, positions, uvs, iA, iB, iC );
 
@@ -647,9 +647,9 @@ public class BufferGeometry extends AbstractGeometry
 
 			for ( int i = start, il = start + count; i < il; i += 3 ) {
 
-				int iA = index + indices.getUnsigned(i);
-				int iB = index + indices.getUnsigned(i + 1);
-				int iC = index + indices.getUnsigned(i + 2);
+				int iA = index + (int)indices.get( i );
+				int iB = index + (int)indices.get( i + 1 );
+				int iC = index + (int)indices.get( i + 2 );
 
 				handleVertex( tan1, tan2, normals, tangents, iA );
 				handleVertex( tan1, tan2, normals, tangents, iB );
@@ -805,8 +805,8 @@ public class BufferGeometry extends AbstractGeometry
 	public void reorderBuffers( Float32Array indexBuffer, Int32Array indexMap, int vertexCount ) {
 
 		/* Create a copy of all attributes for reordering. */
-		Map <String, Float32Array> sortedAttributes  =
-				new HashMap<String, Float32Array>();
+		Map <String, Float32Array> sortedAttributes  = GWT.isScript() ? 
+				new FastMap<Float32Array>() : new HashMap<String, Float32Array>();
 				
 		for(String attr : this.attributes.keySet()) { 
 			if ( attr.equals("index" ) )
@@ -961,31 +961,26 @@ public class BufferGeometry extends AbstractGeometry
 
 	}
 	
-	public void setDirectBuffers() {
+	public void setDirectBuffers( WebGLRenderingContext gl ) {
 
 		for ( int i = 0, l = this.attributesKeys.size(); i < l; i ++ ) {
 
 			String key = (String) this.attributesKeys.toArray()[ i ];
 			BufferAttribute attribute = this.attributes.get( key );
 
-			if ( attribute.getBuffer() == 0 ) {
+			if ( attribute.getBuffer() == null ) {
 
-				int[] buffer = new int[1];
-				GLES20.glGenBuffers(1, buffer, 0);
-				attribute.setBuffer(buffer[0]);
+				attribute.setBuffer(gl.createBuffer());
 				attribute.setNeedsUpdate(true);
 
 			}
 
 			if ( attribute.isNeedsUpdate() == true ) {
 
-				int bufferType = ( key == "index" ) ?
-						GLES20.GL_ELEMENT_ARRAY_BUFFER : GLES20.GL_ARRAY_BUFFER;
-				ByteBuffer buf = attribute.getArray().getBuffer();
-				buf.rewind();
-				GLES20.glBindBuffer(bufferType, attribute.getBuffer());
-				GLES20.glBufferData(bufferType, buf.limit(), buf,
-						GLES20.GL_STATIC_DRAW);
+				BufferTarget bufferType = ( key == "index" ) ? BufferTarget.ELEMENT_ARRAY_BUFFER : BufferTarget.ARRAY_BUFFER;
+
+				gl.bindBuffer( bufferType, attribute.getBuffer() );
+				gl.bufferData( bufferType, attribute.getArray(), BufferUsage.STATIC_DRAW );
 
 				attribute.setNeedsUpdate(false);
 
