@@ -78,10 +78,17 @@ public abstract class TypeArray  {
     }
 
     /**
+     * Gets the length of this array in bytes.
+     */
+    public int getByteLength() {
+        return buffer.limit();
+    }
+
+    /**
      * Gets the length of this array in elements of subclass' type.
      */
     public int getLength() {
-        return buffer.limit();
+        return buffer.limit() * getElementSize();
     }
 
     /**

@@ -18,13 +18,11 @@
 
 package thothbot.parallax.core.shared.objects;
 
+import android.opengl.GLES20;
+
 import java.util.List;
 
-import thothbot.parallax.core.client.gl2.WebGLRenderingContext;
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
-import thothbot.parallax.core.client.gl2.enums.BeginMode;
-import thothbot.parallax.core.client.gl2.enums.BufferTarget;
-import thothbot.parallax.core.client.gl2.enums.BufferUsage;
 import thothbot.parallax.core.client.renderers.WebGLGeometry;
 import thothbot.parallax.core.client.renderers.WebGLRenderer;
 import thothbot.parallax.core.client.renderers.WebGlRendererInfo;
@@ -70,6 +68,8 @@ public class Line extends GeometryObject
 	};
 
 	private MODE mode;
+
+	private int[] tmpBufArray = {0};
 	
 	private static LineBasicMaterial defaultMaterial = new LineBasicMaterial();
 	static {
@@ -187,16 +187,15 @@ public class Line extends GeometryObject
 	@Override
 	public void renderBuffer(WebGLRenderer renderer, WebGLGeometry geometryBuffer, boolean updateBuffers)
 	{
-		WebGLRenderingContext gl = renderer.getGL();
 		WebGlRendererInfo info = renderer.getInfo();
 		
-		BeginMode primitives = ( this.getType() == Line.MODE.STRIPS) 
-				? BeginMode.LINE_STRIP 
-				: BeginMode.LINES;
+		int primitives = ( this.getType() == Line.MODE.STRIPS)
+				? GLES20.GL_LINE_STRIP
+				: GLES20.GL_LINES;
 
-		setLineWidth( gl, ((LineBasicMaterial)getMaterial()).getLinewidth() );
+		setLineWidth( ((LineBasicMaterial)getMaterial()).getLinewidth() );
 
-		gl.drawArrays( primitives, 0, geometryBuffer.__webglLineCount );
+		GLES20.glDrawArrays(primitives, 0, geometryBuffer.__webglLineCount);
 
 		info.getRender().calls ++;
 	}
@@ -220,17 +219,19 @@ public class Line extends GeometryObject
 	{
 		Geometry geometry = (Geometry)getGeometry();
 		
-		WebGLRenderingContext gl = renderer.getGL();
 		WebGlRendererInfo info = renderer.getInfo();
-		
-		geometry.__webglVertexBuffer = gl.createBuffer();
-		geometry.__webglColorBuffer = gl.createBuffer();
-		geometry.__webglLineDistanceBuffer = gl.createBuffer();
+
+		GLES20.glGenBuffers(1, tmpBufArray, 0);
+		geometry.__webglVertexBuffer = tmpBufArray[0];
+		GLES20.glGenBuffers(1, tmpBufArray, 0);
+		geometry.__webglColorBuffer = tmpBufArray[0];
+		GLES20.glGenBuffers(1, tmpBufArray, 0);
+		geometry.__webglLineDistanceBuffer = tmpBufArray[0];
 
 		info.getMemory().geometries ++;
 	}
 
-	public void initBuffers (WebGLRenderingContext gl) 
+	public void initBuffers ()
 	{
 		Geometry geometry = (Geometry)getGeometry();
 		
@@ -242,7 +243,7 @@ public class Line extends GeometryObject
 
 		geometry.__webglLineCount = nvertices;
 
-		initCustomAttributes ( gl, geometry );
+		initCustomAttributes ( geometry );
 	}
 
 //	@Override
@@ -267,7 +268,7 @@ public class Line extends GeometryObject
 //	}
 
 	// setLineBuffers
-	public void setBuffers(WebGLRenderingContext gl, BufferUsage hint)
+	public void setBuffers(int bufferUsageHint)
 	{		
 		Geometry geometry = (Geometry)this.getGeometry();
 		
@@ -300,8 +301,8 @@ public class Line extends GeometryObject
 				vertexArray.set(offset + 2, vertex.getZ());
 			}
 
-			gl.bindBuffer(BufferTarget.ARRAY_BUFFER, geometry.__webglVertexBuffer);
-			gl.bufferData(BufferTarget.ARRAY_BUFFER, vertexArray, hint);
+			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglVertexBuffer);
+			GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertexArray, bufferUsageHint);
 		}
 
 		if (dirtyColors) 
@@ -316,8 +317,9 @@ public class Line extends GeometryObject
 				colorArray.set(offset + 2, color.getB());
 			}
 
-			gl.bindBuffer(BufferTarget.ARRAY_BUFFER, geometry.__webglColorBuffer);
-			gl.bufferData(BufferTarget.ARRAY_BUFFER, colorArray, hint);
+			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglColorBuffer);
+			GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, colorArray.getByteLength(),
+					colorArray.getBuffer(), bufferUsageHint);
 		}
 		
 		if ( dirtyLineDistances ) {
@@ -328,8 +330,9 @@ public class Line extends GeometryObject
 
 			}
 
-			gl.bindBuffer( BufferTarget.ARRAY_BUFFER, geometry.__webglLineDistanceBuffer );
-			gl.bufferData( BufferTarget.ARRAY_BUFFER, lineDistanceArray, hint );
+			GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, geometry.__webglLineDistanceBuffer );
+			GLES20.glBufferData( GLES20.GL_ARRAY_BUFFER, lineDistanceArray.getByteLength(),
+					lineDistanceArray.getBuffer(), bufferUsageHint);
 
 		}
 
@@ -413,8 +416,9 @@ public class Line extends GeometryObject
 						}
 					}
 
-					gl.bindBuffer(BufferTarget.ARRAY_BUFFER, customAttribute.buffer);
-					gl.bufferData(BufferTarget.ARRAY_BUFFER, customAttribute.array, hint);
+					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, customAttribute.buffer);
+					GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, customAttribute.array.getByteLength(),
+							customAttribute.array.getBuffer(), bufferUsageHint);
 				}
 			}
 		}

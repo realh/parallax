@@ -18,11 +18,12 @@
 
 package thothbot.parallax.core.shared.core;
 
+import android.opengl.GLES20;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import thothbot.parallax.core.client.gl2.WebGLRenderingContext;
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
 import thothbot.parallax.core.client.renderers.WebGLGeometry;
 import thothbot.parallax.core.client.renderers.WebGLRenderer;
@@ -37,7 +38,9 @@ public abstract class GeometryObject extends Object3D
 	protected AbstractGeometry geometry;
 	protected Material material;
 	
-	private double _oldLineWidth = -1;
+	private float _oldLineWidth = -1;
+
+	private int[] tmpBufArray = {0};
 	
 	public GeometryObject(AbstractGeometry geometry, Material material) {
 		this.geometry = geometry;
@@ -98,22 +101,24 @@ public abstract class GeometryObject extends Object3D
 	
 	public void deleteBuffers(WebGLRenderer renderer) 
 	{
-		renderer.getGL().deleteBuffer( geometry.__webglVertexBuffer );
-		renderer.getGL().deleteBuffer( geometry.__webglColorBuffer );
+		tmpBufArray[0] = geometry.__webglVertexBuffer;
+		GLES20.glDeleteBuffers(1, tmpBufArray, 0);
+		tmpBufArray[0] = geometry.__webglColorBuffer ;
+		GLES20.glDeleteBuffers(1, tmpBufArray, 0);
 
 		renderer.getInfo().getMemory().geometries --;
 	}
 
-	public void setLineWidth (WebGLRenderingContext gl, double width ) 
+	public void setLineWidth ( float width )
 	{
 		if ( width != this._oldLineWidth ) 
 		{
-			gl.lineWidth( width );
+			GLES20.glLineWidth(width);
 			this._oldLineWidth = width;
 		}
 	}
 		
-	protected void initCustomAttributes (WebGLRenderingContext gl, Geometry geometry ) 
+	protected void initCustomAttributes (Geometry geometry )
 	{		
 		int nvertices = geometry.getVertices().size();
 		Material material = this.getMaterial();
@@ -143,7 +148,8 @@ public abstract class GeometryObject extends Object3D
 
 					attribute.array = Float32Array.create( nvertices * size );
 
-					attribute.buffer = gl.createBuffer();
+					GLES20.glGenBuffers(1, tmpBufArray, 0);
+					attribute.buffer = tmpBufArray[0];
 					attribute.belongsToAttribute = a;
 
 					attribute.needsUpdate = true;

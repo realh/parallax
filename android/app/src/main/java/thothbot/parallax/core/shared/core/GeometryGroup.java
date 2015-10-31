@@ -27,12 +27,9 @@ import thothbot.parallax.core.client.gl2.arrays.Float32Array;
 import thothbot.parallax.core.client.gl2.arrays.Uint16Array;
 import thothbot.parallax.core.client.renderers.WebGLGeometry;
 
-import com.google.gwt.core.client.GWT;
-
 public class GeometryGroup extends WebGLGeometry
 {
-	public static Map<String, List<GeometryGroup>> geometryGroups = GWT.isScript() ? 
-			new FastMap<List<GeometryGroup>>() : new HashMap<String, List<GeometryGroup>>(); 
+	public static Map<String, List<GeometryGroup>> geometryGroups = new HashMap<String, List<GeometryGroup>>();
 	
 	private static int Counter = 0;
 	

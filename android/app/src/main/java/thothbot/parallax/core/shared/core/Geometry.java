@@ -39,8 +39,6 @@ import thothbot.parallax.core.shared.objects.Line;
 import thothbot.parallax.core.shared.objects.Mesh;
 import thothbot.parallax.core.shared.objects.PointCloud;
 
-import com.google.gwt.core.client.GWT;
-
 /**
  * Base class for geometries. A geometry holds all data necessary to describe a 3D model.
  * 
@@ -243,7 +241,7 @@ public class Geometry extends AbstractGeometry
 	}
 	
 	/**
-	 * Gets the List of face {@link UV} layers.
+	 * Gets the List of face UV layers.
 	 * Each UV layer is an array of UVs matching the order and number of vertices in faces.
 	 * To signal an update in this array, Geometry.uvsNeedUpdate needs to be set to true.
 	 */
@@ -645,7 +643,7 @@ public class Geometry extends AbstractGeometry
 	 * Computes vertex tangents.<br>
 	 * Based on <a href="http://www.terathon.com/code/tangent.html">terathon.com</a>
 	 * <p>
-	 * Geometry must have vertex {@link UV}s (layer 0 will be used).
+	 * Geometry must have vertex UVs (layer 0 will be used).
 	 */
 	@Override
 	public void computeTangents()
@@ -883,8 +881,7 @@ public class Geometry extends AbstractGeometry
 	public int mergeVertices() 
 	{
 		// Hashmap for looking up vertice by position coordinates (and making sure they are unique)
-		Map<String, Integer> verticesMap = GWT.isScript() ? 
-				new FastMap<Integer>() : new HashMap<String, Integer>();
+		Map<String, Integer> verticesMap = new HashMap<String, Integer>();
 		List<Vector3> unique = new ArrayList<Vector3>();
 		List<Integer> changes = new ArrayList<Integer>();
 
