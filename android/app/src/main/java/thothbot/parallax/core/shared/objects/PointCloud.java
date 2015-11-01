@@ -18,14 +18,12 @@
 
 package thothbot.parallax.core.shared.objects;
 
+import android.opengl.GLES20;
+
 import java.util.List;
 
-import thothbot.parallax.core.client.gl2.WebGLRenderingContext;
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
 import thothbot.parallax.core.client.gl2.arrays.Uint16Array;
-import thothbot.parallax.core.client.gl2.enums.BeginMode;
-import thothbot.parallax.core.client.gl2.enums.BufferTarget;
-import thothbot.parallax.core.client.gl2.enums.BufferUsage;
 import thothbot.parallax.core.client.renderers.WebGLGeometry;
 import thothbot.parallax.core.client.renderers.WebGLRenderer;
 import thothbot.parallax.core.client.renderers.WebGlRendererInfo;
@@ -53,6 +51,8 @@ public class PointCloud extends GeometryObject
 	public static double RAYCASTER_THRESHOLD = 1.0;
 	
 	private boolean sortParticles = false;
+
+	private int[] workBufArray = { 0, 0 };
 	
 	private static PointCloudMaterial defaultMaterial = new PointCloudMaterial();
 	static {
@@ -208,16 +208,15 @@ public class PointCloud extends GeometryObject
 	@Override
 	public void renderBuffer(WebGLRenderer renderer, WebGLGeometry geometryBuffer, boolean updateBuffers)
 	{
-		WebGLRenderingContext gl = renderer.getGL();
 		WebGlRendererInfo info = renderer.getInfo();
 
-		gl.drawArrays( BeginMode.POINTS, 0, geometryBuffer.__webglParticleCount );
+		GLES20.glDrawArrays(GLES20.GL_POINTS, 0, geometryBuffer.__webglParticleCount);
 
 		info.getRender().calls ++;
 		info.getRender().points += geometryBuffer.__webglParticleCount;
 	}
 	
-	public void initBuffers (WebGLRenderingContext gl) 
+	public void initBuffers ()
 	{
 		Geometry geometry = (Geometry)getGeometry();
 		int nvertices = geometry.getVertices().size();
@@ -227,26 +226,23 @@ public class PointCloud extends GeometryObject
 	
 		geometry.__webglParticleCount = nvertices;
 
-		initCustomAttributes ( gl, geometry );
+		initCustomAttributes ( geometry );
 	}
 	
 	public void createBuffers ( WebGLRenderer renderer) 
 	{
 		Geometry geometry = (Geometry)getGeometry();
-		WebGLRenderingContext gl = renderer.getGL();
 		WebGlRendererInfo info = renderer.getInfo();
-		
-		geometry.__webglVertexBuffer = gl.createBuffer();
-		geometry.__webglColorBuffer = gl.createBuffer();
+
+		GLES20.glGenBuffers(2, workBufArray, 0);
+		geometry.__webglVertexBuffer = workBufArray[0];
+		geometry.__webglColorBuffer = workBufArray[1];
 
 		info.getMemory().geometries ++;
 	}
 	
-	public void setBuffers(WebGLRenderer renderer, BufferUsage hint) 
+	public void setBuffers(WebGLRenderer renderer, int bufferUsageHint)
 	{
-
-		WebGLRenderingContext gl = renderer.getGL();
-
 		Geometry geometry = (Geometry)getGeometry();
 		
 		List<Vector3> vertices = geometry.getVertices();
@@ -539,15 +535,17 @@ public class PointCloud extends GeometryObject
 
 		if ( dirtyVertices || this.sortParticles ) {
 
-			gl.bindBuffer( BufferTarget.ARRAY_BUFFER, geometry.__webglVertexBuffer );
-			gl.bufferData( BufferTarget.ARRAY_BUFFER, vertexArray, hint );
+			GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, geometry.__webglVertexBuffer );
+			GLES20.glBufferData( GLES20.GL_ARRAY_BUFFER, vertexArray.getByteLength(),
+					vertexArray.getBuffer(), bufferUsageHint);
 
 		}
 
 		if ( dirtyColors || this.sortParticles ) {
 
-			gl.bindBuffer( BufferTarget.ARRAY_BUFFER, geometry.__webglColorBuffer );
-			gl.bufferData( BufferTarget.ARRAY_BUFFER, colorArray, hint );
+			GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, geometry.__webglColorBuffer );
+			GLES20.glBufferData( GLES20.GL_ARRAY_BUFFER, colorArray.getByteLength(),
+					colorArray.getBuffer(), bufferUsageHint);
 
 		}
 
@@ -559,8 +557,9 @@ public class PointCloud extends GeometryObject
 
 				if ( customAttribute.needsUpdate || this.sortParticles ) {
 
-					gl.bindBuffer( BufferTarget.ARRAY_BUFFER, customAttribute.buffer );
-					gl.bufferData( BufferTarget.ARRAY_BUFFER, customAttribute.array, hint );
+					GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, customAttribute.buffer );
+					GLES20.glBufferData( GLES20.GL_ARRAY_BUFFER, customAttribute.array.getByteLength(),
+							customAttribute.array.getBuffer(), bufferUsageHint);
 
 				}
 

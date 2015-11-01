@@ -18,24 +18,24 @@
 
 package thothbot.parallax.core.shared.objects;
 
+import android.util.Log;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import thothbot.parallax.core.shared.Log;
-import thothbot.parallax.core.shared.core.FastMap;
 import thothbot.parallax.core.shared.core.Geometry;
 import thothbot.parallax.core.shared.core.Geometry.MorphTarget;
 import thothbot.parallax.core.shared.materials.Material;
 import thothbot.parallax.core.shared.math.Mathematics;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.regexp.shared.MatchResult;
-import com.google.gwt.regexp.shared.RegExp;
-
 public class MorphAnimMesh extends Mesh
 {
-	public class Animation {
+    private static final String TAG = "Parallax";
+
+    public class Animation {
 		public int start;
 		public int end;
 	}
@@ -105,22 +105,22 @@ public class MorphAnimMesh extends Mesh
 		Geometry geometry = (Geometry) this.getGeometry();
 
 		if ( this.animations == null) {
-			this.animations = GWT.isScript() ? 
-				new FastMap<Animation>() : new HashMap<String, Animation>();
+			this.animations = new HashMap<String, Animation>();
 		}
 
 		String firstAnimation = null;
 
-		RegExp pattern = RegExp.compile("([a-z]+)(\\d+)");
+		Pattern pattern = Pattern.compile("([a-z]+)(\\d+)");
 		
 		for ( int i = 0, il = geometry.getMorphTargets().size(); i < il; i ++ ) 
 		{
 			MorphTarget morph = geometry.getMorphTargets().get(i);
-			
-			for (MatchResult result = pattern.exec(morph.name); result != null; result = pattern.exec(morph.name)) 
+			Matcher result = pattern.matcher(morph.name);
+
+			while (result.find())
 			{
-			    String label = result.getGroup(1);
-			    String num = result.getGroup(2);
+			    String label = result.group(1);
+			    String num = result.group(2);
 
 				if ( ! this.animations.containsKey( label ) ) {
 					Animation animation = new Animation();
@@ -146,8 +146,7 @@ public class MorphAnimMesh extends Mesh
 	public void setAnimationLabel( String label, int start, int end ) 
 	{
 		if ( this.animations == null) {
-			this.animations = GWT.isScript() ? 
-					new FastMap<Animation>() : new HashMap<String, Animation>();
+			this.animations = new HashMap<String, Animation>();
 		}
 		
 		Animation animation = new Animation();
@@ -170,7 +169,7 @@ public class MorphAnimMesh extends Mesh
 		} 
 		else 
 		{
-			Log.error( "animation[" + label + "] undefined" );
+			Log.e(TAG, "animation[" + label + "] undefined");
 		}
 	}
 

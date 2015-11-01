@@ -19,6 +19,8 @@
 
 package thothbot.parallax.core.client.renderers;
 
+import android.opengl.GLES20;
+
 import java.util.List;
 
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
@@ -72,4 +74,7 @@ public abstract class WebGLGeometry {
 		__uv2Array = null;
 		__vertexArray = null;
 	}
+
+	// static would be better for GC efficiency but worse for thread safety
+	private final int[] tmpBufArray = { 0 };
 }
