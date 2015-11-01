@@ -29,7 +29,7 @@ import thothbot.parallax.core.client.gl2.arrays.Uint8Array;
 
 public class CompressedTexture extends Texture
 {
-	private static final String TAG = "CompressedTexture";
+	private static final String TAG = "Parallax";
 
 	private int compressedFormat;
 	private List<DataTexture> mipmaps;

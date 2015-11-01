@@ -20,7 +20,6 @@
 package thothbot.parallax.core.shared.materials;
 
 import android.opengl.GLES20;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +46,7 @@ import thothbot.parallax.core.shared.math.Vector4;
  */
 public abstract class Material
 {
-	private static final String TAG = "Material";
+	private static final String TAG = "Parallax";
 
 	private static int MaterialCount;
 
@@ -435,8 +434,6 @@ public abstract class Material
 	{
 		if(shader == null)
 		{
-			Log.d(TAG, "Called Material.setMaterialShaders()");
-
 			this.shader = getAssociatedShader();
 		}
 
@@ -664,7 +661,6 @@ public abstract class Material
 
 	private String getPrefixFragment(ProgramParameters parameters)
 	{
-		Log.debug("Called getPrefixFragment()");
 		List<String> options = new ArrayList<String>();
 
 		options.add("");

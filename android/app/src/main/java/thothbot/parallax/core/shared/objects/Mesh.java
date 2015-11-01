@@ -26,8 +26,8 @@ import java.util.Map;
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
 import thothbot.parallax.core.client.gl2.arrays.Uint16Array;
 import thothbot.parallax.core.client.renderers.WebGLGeometry;
-//import thothbot.parallax.core.client.renderers.WebGLRenderer;
-//import thothbot.parallax.core.client.renderers.WebGlRendererInfo;
+import thothbot.parallax.core.client.renderers.WebGLRenderer;
+import thothbot.parallax.core.client.renderers.WebGlRendererInfo;
 import thothbot.parallax.core.client.shaders.Attribute;
 import thothbot.parallax.core.shared.core.AbstractGeometry;
 import thothbot.parallax.core.shared.core.BufferGeometry;
@@ -53,8 +53,6 @@ import thothbot.parallax.core.shared.math.Triangle;
 import thothbot.parallax.core.shared.math.Vector2;
 import thothbot.parallax.core.shared.math.Vector3;
 import thothbot.parallax.core.shared.math.Vector4;
-
-import com.google.gwt.core.client.GWT;
 
 /**
  * Base class for Mesh objects.

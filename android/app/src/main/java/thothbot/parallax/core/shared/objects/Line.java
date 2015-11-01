@@ -303,7 +303,8 @@ public class Line extends GeometryObject
 			}
 
 			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglVertexBuffer);
-			GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertexArray, bufferUsageHint);
+			GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertexArray.getByteLength(),
+					vertexArray.getBuffer(), bufferUsageHint);
 		}
 
 		if (dirtyColors) 
