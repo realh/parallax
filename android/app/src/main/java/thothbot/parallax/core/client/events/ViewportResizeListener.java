@@ -18,6 +18,11 @@
 
 package thothbot.parallax.core.client.events;
 
+/**
+ * Classes which implement this interface should add themselves to the
+ * @link{ViewportResizeBus} when created and remove themselves when no longer
+ * in use.
+ */
 public interface ViewportResizeListener
 {
     public void onViewportResize(int newWidth, int newHeight);

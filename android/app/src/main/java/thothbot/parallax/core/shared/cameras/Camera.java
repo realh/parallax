@@ -18,6 +18,7 @@
 
 package thothbot.parallax.core.shared.cameras;
 
+import thothbot.parallax.core.client.events.ViewportResizeBus;
 import thothbot.parallax.core.client.events.ViewportResizeListener;
 import thothbot.parallax.core.shared.core.Object3D;
 import thothbot.parallax.core.shared.math.Matrix4;
@@ -41,6 +42,8 @@ public class Camera extends Object3D implements ViewportResizeListener
 	public Camera() 
 	{
 		super();
+
+		ViewportResizeBus.addViewportResizeListener(this);
 
 		this.matrixWorldInverse = new Matrix4();
 		this.projectionMatrix = new Matrix4();
@@ -86,7 +89,7 @@ public class Camera extends Object3D implements ViewportResizeListener
 
 		this.getWorldQuaternion( quaternion );
 
-		return optionalTarget.set( 0, 0, - 1 ).apply( quaternion );
+		return optionalTarget.set( 0, 0, - 1 ).apply(quaternion);
 
 	}
 	
@@ -103,7 +106,7 @@ public class Camera extends Object3D implements ViewportResizeListener
 
 		m1.lookAt( this.position, vector, this.up );
 
-		this.quaternion.setFromRotationMatrix( m1 );
+		this.quaternion.setFromRotationMatrix(m1);
 	}
 	
 	public Camera clone() {
@@ -123,5 +126,10 @@ public class Camera extends Object3D implements ViewportResizeListener
 	@Override
 	public void onViewportResize(int newWidth, int newHeight) {
 
+	}
+
+	@Override
+	public void finalize() {
+		ViewportResizeBus.removeViewportResizeListener(this);
 	}
 }

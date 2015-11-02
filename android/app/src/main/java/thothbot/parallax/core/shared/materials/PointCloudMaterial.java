@@ -21,6 +21,7 @@ package thothbot.parallax.core.shared.materials;
 
 import java.util.Map;
 
+import thothbot.parallax.core.client.events.ViewportResizeBus;
 import thothbot.parallax.core.client.events.ViewportResizeListener;
 import thothbot.parallax.core.client.shaders.ParticleBasicShader;
 import thothbot.parallax.core.client.shaders.Shader;
@@ -54,6 +55,8 @@ public final class PointCloudMaterial extends Material implements HasFog,
 		setSizeAttenuation(true);
 
 		setVertexColors(Material.COLORS.NO);
+
+		ViewportResizeBus.addViewportResizeListener(this);
 
 	}
 
@@ -160,4 +163,9 @@ public final class PointCloudMaterial extends Material implements HasFog,
 		uniforms.get("scale").setValue(newHeight / 2.0);
 
 	}
+
+    @Override
+    public void finalize() {
+        ViewportResizeBus.removeViewportResizeListener(this);
+    }
 }

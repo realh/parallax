@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import thothbot.parallax.core.client.events.ViewportResizeListener;
+import thothbot.parallax.core.client.events.ViewportResizeBus;
 import thothbot.parallax.core.client.gl2.GLES20Ext;
 import thothbot.parallax.core.client.gl2.Image;
 import thothbot.parallax.core.client.gl2.WebGLShaderPrecisionFormat;
@@ -94,7 +94,7 @@ import thothbot.parallax.core.shared.scenes.Scene;
 /**
  * The WebGL renderer displays your beautifully crafted {@link Scene}s using WebGL, if your device supports it.
  */
-public class WebGLRenderer extends AbstractRenderer implements ViewportResizeListener
+public class WebGLRenderer extends AbstractRenderer
 {
 	private static final String TAG = "Parallax";
 
@@ -541,8 +541,7 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeLis
 
 	/**
 	 * Sets the sizes and also sets {@link #setViewport(int, int, int, int)} size.
-     * Also fires ViewportResize event.
-	 * 
+	 *
 	 * @param width  the canvas width.
 	 * @param height the canvas height.
 	 */
@@ -552,13 +551,12 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeLis
 		super.setSize(width, height);
 
 		setViewport(0, 0, width, height);
-
-        fireViewportResizeEvent(width, height);
 	}
 
     /**
 	 * Sets the viewport to render from (X, Y) to (X + absoluteWidth, Y + absoluteHeight).
 	 * By default X and Y = 0.
+	 * Also fires ViewportResize event.
 	 */
 	public void setViewport(int x, int y, int width, int height)
 	{
@@ -569,9 +567,9 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeLis
 		this._viewportHeight = height;
 
 		GLES20.glViewport(this._viewportX, this._viewportY,
-                this._viewportWidth, this._viewportHeight);
+				this._viewportWidth, this._viewportHeight);
 
-        fireViewportResizeEvent(width, height);
+		fireViewportResizeEvent(width, height);
 	}
 	
 	/**
@@ -3052,7 +3050,7 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeLis
 		if ( imgWidth <= maxSize && imgHeight <= maxSize )
 			return image;
 
-		int maxDimension = Math.max( imgWidth, imgHeight );
+		int maxDimension = Math.max(imgWidth, imgHeight);
 		int newWidth = (int) Math.floor( imgWidth * maxSize / maxDimension );
 		int newHeight = (int) Math.floor( imgHeight * maxSize / maxDimension );
 
@@ -3270,12 +3268,20 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeLis
 		return maxShadows;
 	}
 
-    private void fireViewportResizeEvent(int width, int height) {
-        // FIXME: Dispatch to ViewportResizeHandlers
-    }
-
-	@Override
+	/**
+	 * This should be called from Android's onSurfaceChanged() or equivalent
+	 * unless you call one of the @link{#setViewport} methods.
+	 * @param newWidth
+	 * @param newHeight
+	 */
 	public void onViewportResize(int newWidth, int newHeight) {
-        fireViewportResizeEvent(newWidth, newHeight);
+		_viewportWidth = newWidth;
+		_viewportHeight = newHeight;
+		fireViewportResizeEvent(newWidth, newHeight);
+	}
+
+	private void fireViewportResizeEvent(int width, int height)
+	{
+		ViewportResizeBus.onViewportResize(width, height);
 	}
 }
