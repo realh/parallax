@@ -539,6 +539,7 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 
 	/**
 	 * Sets the sizes and also sets {@link #setViewport(int, int, int, int)} size.
+     * Also fires ViewportResize event.
 	 * 
 	 * @param width  the canvas width.
 	 * @param height the canvas height.
@@ -549,6 +550,8 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 		super.setSize(width, height);
 
 		setViewport(0, 0, width, height);
+
+        fireViewportResizeEvent(width, height);
 	}
 
     /**
@@ -2384,7 +2387,7 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 		
 		if(material.isNeedsUpdate()) 
 		{
-			if(material.getShader() == null || material.getShader().getProgram() == null)
+			if(material.getShader() == null || material.getShader().getProgram() == 0)
 				material.deallocate(this);
 			
 			initMaterial( material, lights, fog, object );
@@ -2407,7 +2410,7 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 		int program = shader.getProgram();
 		Map<String, Uniform> m_uniforms = shader.getUniforms();
 
-		if ( !program.equals(_currentProgram) )
+		if ( program != _currentProgram )
 		{
 			GLES20.glUseProgram(program);
 			this._currentProgram = program;
@@ -2428,12 +2431,13 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 		if ( refreshProgram || !camera.equals( this._currentCamera) ) 
 		{
 			GLES20.glUniformMatrix4fv(m_uniforms.get("projectionMatrix").getLocation(),
-                    false, camera.getProjectionMatrix().getArray());
+                    1, false, camera.getProjectionMatrix().getArray().getFloatBuffer());
 
 			if ( _logarithmicDepthBuffer ) {
 
-				gl.uniform1f( m_uniforms.get("logDepthBufFC").getLocation(), 2.0 /
-                        ( Math.log( ((HasNearFar)camera).getFar() + 1.0 ) / 0.6931471805599453 /*Math.LN2*/ ) );
+				GLES20.glUniform1f(m_uniforms.get("logDepthBufFC").getLocation(),
+                        (float) (2.0 / ( Math.log( ((HasNearFar)camera).getFar() + 1.0 ) /
+                                0.6931471805599453 /*Math.LN2*/ )));
 
 			}
 
@@ -2447,11 +2451,12 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 				 material instanceof HasEnvMap && ((HasEnvMap)material).getEnvMap() != null 
 			) {
 
-				if ( m_uniforms.get("cameraPosition").getLocation() != null ) 
+				if ( m_uniforms.get("cameraPosition").getLocation() != -1 )
 				{
 					_vector3.setFromMatrixPosition( camera.getMatrixWorld() );
 					GLES20.glUniform3f(m_uniforms.get("cameraPosition").getLocation(),
-                            _vector3.getX(), _vector3.getY(), _vector3.getZ());
+                            (float) _vector3.getX(), (float) _vector3.getY(),
+                            (float) _vector3.getZ());
 				}
 			}
 
@@ -2462,10 +2467,10 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 				 material instanceof HasSkinning && ((HasSkinning)material).isSkinning() 
 			) {
 
-				if ( m_uniforms.get("viewMatrix").getLocation() != null ) 
+				if ( m_uniforms.get("viewMatrix").getLocation() != -1 )
 				{
 					GLES20.glUniformMatrix4fv(m_uniforms.get("viewMatrix").getLocation(),
-                            false, camera.getMatrixWorldInverse().getArray());
+                            1, false, camera.getMatrixWorldInverse().getArray().getFloatBuffer());
 				}
 			}
 		}
@@ -2478,7 +2483,7 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 			if ( object instanceof SkinnedMesh && ((SkinnedMesh)object).isUseVertexTexture() &&
                     this._supportsBoneTextures)
 			{
-				if ( m_uniforms.get("boneTexture").getLocation() != null ) 
+				if ( m_uniforms.get("boneTexture").getLocation() != -1 )
 				{
 					int textureUnit = getTextureUnit();
 
@@ -2488,10 +2493,10 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 			} 
 			else 
 			{
-				if ( m_uniforms.get("boneGlobalMatrices").getLocation() != null ) 
+				if ( m_uniforms.get("boneGlobalMatrices").getLocation() != -1 )
 				{
 					GLES20.glUniformMatrix4fv(m_uniforms.get("boneGlobalMatrices").getLocation(),
-                            false, ((SkinnedMesh) object).boneMatrices);
+                            1, false, ((SkinnedMesh) object).boneMatrices.getFloatBuffer());
 				}
 			}
 		}
@@ -2534,9 +2539,9 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 
 		loadUniformsMatrices( m_uniforms, object );
 
-		if ( m_uniforms.get("modelMatrix").getLocation() != null )
+		if ( m_uniforms.get("modelMatrix").getLocation() != -1 )
 			GLES20.glUniformMatrix4fv(m_uniforms.get("modelMatrix").getLocation(),
-                    false, object.getMatrixWorld().getArray());
+                    1, false, object.getMatrixWorld().getArray().getFloatBuffer());
 
 		return shader;
 	}
@@ -2582,26 +2587,24 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 	{
 		GeometryObject objectImpl = (GeometryObject) object;
 		GLES20.glUniformMatrix4fv(uniforms.get("modelViewMatrix").getLocation(),
-                false, objectImpl._modelViewMatrix.getArray());
+                1, false, objectImpl._modelViewMatrix.getArray().getFloatBuffer());
 
 		if ( uniforms.containsKey("normalMatrix") )
 			GLES20.glUniformMatrix3fv(uniforms.get("normalMatrix").getLocation(),
-                    false, objectImpl._normalMatrix.getArray());
+                    1, false, objectImpl._normalMatrix.getArray().getFloatBuffer());
 	}
 
 	@SuppressWarnings("unchecked")
 	private void loadUniformsGeneric( Map<String, Uniform> materialUniforms ) 
 	{
-		WebGLRenderingContext gl = getGL();
-		
-		for ( Uniform uniform : materialUniforms.values() ) 
+		for ( Uniform uniform : materialUniforms.values() )
 		{
 //			for ( String key: materialUniforms.keySet() ) 
 //			{
 //				 Uniform uniform = materialUniforms.get(key);
-			WebGLUniformLocation location = uniform.getLocation();
+			int location = uniform.getLocation();
 		
-			if ( location == null ) continue;
+			if ( location == -1 ) continue;
 
 			Object value = uniform.getValue();
 			Uniform.TYPE type = uniform.getType();
@@ -2611,61 +2614,68 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 		
 			if(type == TYPE.I) // single integer
 			{
-				gl.uniform1i( location, (value instanceof Boolean) ?
-                        ((Boolean)value) ? 1 : 0 : (Integer) value );
+				GLES20.glUniform1i(location, (value instanceof Boolean) ?
+                        ((Boolean) value) ? 1 : 0 : (Integer) value);
 			}
-			else if(type == TYPE.F) // single double
+			else if(type == TYPE.F) // single float
 			{
-				gl.uniform1f( location, (Double)value );
+				GLES20.glUniform1f(location, (Float) value);
 			}
 			else if(type == TYPE.V2) // single Vector2
 			{ 
-				gl.uniform2f( location, ((Vector2)value).getX(), ((Vector2)value).getX() );
+				GLES20.glUniform2f(location, (float) ((Vector2) value).getX(),
+                        (float) ((Vector2) value).getX());
 			}
 			else if(type == TYPE.V3) // single Vector3
 			{ 
-				gl.uniform3f( location, ((Vector3)value).getX(),
-                        (Vector3)value).getY(), ((Vector3)value).getZ() );
+				GLES20.glUniform3f(location, (float) ((Vector3) value).getX(),
+                        (float) ((Vector3) value).getY(), (float) ((Vector3)value).getZ() );
 			}
 			else if(type == TYPE.V4) // single Vector4
 			{
-				gl.uniform4f( location, ((Vector4)value).getX(), ((Vector4)value).getY(),
-                        ((Vector4)value).getZ(), ((Vector4)value).getW() );
+				GLES20.glUniform4f(location,
+                        (float) ((Vector4) value).getX(), (float) ((Vector4) value).getY(),
+                        (float) ((Vector4) value).getZ(), (float) ((Vector4) value).getW());
 			}
 			else if(type == TYPE.C) // single Color
 			{
-				gl.uniform3f( location, ((Color)value).getR(),
-                        ((Color)value).getG(), ((Color)value).getB() );
+				GLES20.glUniform3f(location, (float) ((Color) value).getR(),
+                        (float) ((Color) value).getG(), (float) ((Color) value).getB());
 			}
 			else if(type == TYPE.FV1) // flat array of floats (JS or typed array)
 			{
-				gl.uniform1fv( location, (Float32Array)value );
+				GLES20.glUniform1fv(location, ((Float32Array) value).getLength(),
+                        ((Float32Array) value).getFloatBuffer());
 			}
 			else if(type == TYPE.FV) // flat array of floats with 3 x N size (JS or typed array)
 			{ 
-				gl.uniform3fv( location, (Float32Array) value );
+				GLES20.glUniform3fv(location, ((Float32Array) value).getLength() / 3,
+                        ((Float32Array) value).getFloatBuffer());
 			}
 			else if(type == TYPE.V2V) // List of Vector2
 			{ 
 				List<Vector2> listVector2f = (List<Vector2>) value;
-				if ( uniform.getCacheArray() == null )
-					uniform.setCacheArray( Float32Array.create( 2 * listVector2f.size() ) );
+                Float32Array cacheArray = uniform.getCacheArray();
+				if (cacheArray  == null )
+					uniform.setCacheArray(cacheArray = Float32Array.create( 2 * listVector2f.size() ) );
 
 				for ( int i = 0, il = listVector2f.size(); i < il; i ++ ) 
 				{
 					int offset = i * 2;
 
-					uniform.getCacheArray().set(offset, listVector2f.get(i).getX());
-					uniform.getCacheArray().set(offset + 1, listVector2f.get(i).getY());
+					cacheArray.set(offset, listVector2f.get(i).getX());
+					cacheArray.set(offset + 1, listVector2f.get(i).getY());
 				}
 
-				gl.uniform2fv( location, uniform.getCacheArray() );
+				GLES20.glUniform2fv(location, uniform.getCacheArray().getLength() / 2,
+                        cacheArray.getFloatBuffer());
 			}
 			else if(type == TYPE.V3V) // List of Vector3
 			{
 				List<Vector3> listVector3f = (List<Vector3>) value;
-				if ( uniform.getCacheArray() == null )
-					uniform.setCacheArray( Float32Array.create( 3 * listVector3f.size() ) );
+                Float32Array cacheArray = uniform.getCacheArray();
+				if ( cacheArray == null )
+					uniform.setCacheArray(cacheArray = Float32Array.create( 3 * listVector3f.size() ) );
 
 				for ( int i = 0, il = listVector3f.size(); i < il; i ++ ) 
 				{
@@ -2676,13 +2686,15 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 					uniform.getCacheArray().set(offset + 2 , listVector3f.get( i ).getZ());
 				}
 
-				gl.uniform3fv( location, uniform.getCacheArray() );
+				GLES20.glUniform3fv(location, cacheArray.getLength() / 3,
+                        cacheArray.getFloatBuffer());
 			}
 			else if(type == TYPE.V4V) // List of Vector4
 			{
 				List<Vector4> listVector4f = (List<Vector4>) value;
-				if ( uniform.getCacheArray() == null)
-					uniform.setCacheArray( Float32Array.create( 4 * listVector4f.size() ) );
+                Float32Array cacheArray = uniform.getCacheArray();
+				if ( cacheArray == null)
+					uniform.setCacheArray(cacheArray = Float32Array.create( 4 * listVector4f.size() ) );
 
 
 				for ( int i = 0, il = listVector4f.size(); i < il; i ++ ) 
@@ -2695,34 +2707,38 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 					uniform.getCacheArray().set(offset + 3, listVector4f.get( i ).getW());
 				}
 
-				gl.uniform4fv( location, uniform.getCacheArray() );
+				GLES20.glUniform4fv(location, cacheArray.getLength() / 4,
+                        cacheArray.getFloatBuffer());
 			}
 			else if(type == TYPE.M4) // single Matrix4
 			{
 				Matrix4 matrix4 = (Matrix4) value;
-				if ( uniform.getCacheArray() == null )
-					uniform.setCacheArray( Float32Array.create( 16 ) );
+                Float32Array cacheArray = uniform.getCacheArray();
+				if ( cacheArray == null )
+					uniform.setCacheArray(cacheArray = Float32Array.create( 16 ) );
 
-				matrix4.flattenToArrayOffset( uniform.getCacheArray() );
-				gl.uniformMatrix4fv( location, false, uniform.getCacheArray() );
+				matrix4.flattenToArrayOffset( cacheArray );
+				GLES20.glUniformMatrix4fv(location, 1, false, cacheArray.getFloatBuffer());
 			}
 			else if(type == TYPE.M4V) // List of Matrix4
 			{
 				List<Matrix4> listMatrix4f = (List<Matrix4>) value;
-				if ( uniform.getCacheArray() == null )
-					uniform.setCacheArray( Float32Array.create( 16 * listMatrix4f.size() ) );
+                Float32Array cacheArray = uniform.getCacheArray();
+				if ( cacheArray == null )
+					uniform.setCacheArray(cacheArray = Float32Array.create( 16 * listMatrix4f.size() ) );
 
 				for ( int i = 0, il = listMatrix4f.size(); i < il; i ++ )
-					listMatrix4f.get( i ).flattenToArrayOffset( uniform.getCacheArray(), i * 16 );
+					listMatrix4f.get( i ).flattenToArrayOffset( cacheArray, i * 16 );
 
-				gl.uniformMatrix4fv( location, false, uniform.getCacheArray() );
+				GLES20.glUniformMatrix4fv(location, cacheArray.getLength() / 16,
+                        false, cacheArray.getFloatBuffer());
 			}
 			else if(type == TYPE.T) // single Texture (2d or cube)
 			{
 				Texture texture = (Texture)value;
 				int textureUnit = getTextureUnit();
 
-				gl.uniform1i( location, textureUnit );
+				GLES20.glUniform1i(location, textureUnit);
 
 				if ( texture != null )
 				{
@@ -2746,7 +2762,7 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 					units[ i ] = getTextureUnit();
 				}
 
-				gl.uniform1iv( location, units );
+				GLES20.glUniform1iv(location, units.length, units, 0);
 
 				for( int i = 0, il = textureList.size(); i < il; i ++ ) 
 				{
@@ -2837,7 +2853,7 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 				_oldPolygonOffsetFactor != factor || 
 				_oldPolygonOffsetUnits != units ) 
 		) {
-			getGL().polygonOffset( factor, units );
+			GLES20.glPolygonOffset( (float) factor, (float) units );
 
 			this._oldPolygonOffsetFactor = factor;
 			this._oldPolygonOffsetUnits = units;
@@ -2920,9 +2936,9 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 		} 
 		else 
 		{
-			this._oldBlendEquation = null;
-			this._oldBlendSrc = null;
-			this._oldBlendDst = null;
+			this._oldBlendEquation = 0;
+			this._oldBlendSrc = 0;
+			this._oldBlendDst = 0;
 		}
 	}
 
@@ -2930,7 +2946,7 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 	
 	private void setCubeTextureDynamic(RenderTargetCubeTexture texture, int slot) 
 	{
-		getGL().activeTexture( TextureUnit.TEXTURE0, slot );
+		GLES20.glActiveTexture( GLES20.GL_TEXTURE0 + slot );
 		GLES20.glBindTexture(TextureTarget.TEXTURE_CUBE_MAP, texture.getWebGlTexture());
 	}
 
@@ -2945,7 +2961,7 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 				this.getInfo().getMemory().textures ++;
 			}
 			
-			getGL().activeTexture( TextureUnit.TEXTURE0, slot );
+			GLES20.glActiveTexture( GLES20.GL_TEXTURE0, slot );
 			GLES20.glBindTexture(TextureTarget.TEXTURE_2D, texture.getWebGlTexture());
 
 			getGL().pixelStorei( PixelStoreParameter.UNPACK_FLIP_Y_WEBGL, texture.isFlipY() ? 1 : 0 );
@@ -2997,7 +3013,7 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 		// Needed to check webgl texture in case deferred loading
 		else if(texture.getWebGlTexture() != null)
 		{
-			getGL().activeTexture( TextureUnit.TEXTURE0, slot );
+			GLES20.glActiveTexture( GLES20.GL_TEXTURE0, slot );
 			GLES20.glBindTexture(TextureTarget.TEXTURE_2D, texture.getWebGlTexture());
 		}
 	}
@@ -3063,7 +3079,7 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 				this.getInfo().getMemory().textures += 6;
 			}
 
-			getGL().activeTexture( TextureUnit.TEXTURE0, slot );
+			GLES20.glActiveTexture( GLES20.GL_TEXTURE0, slot );
 			GLES20.glBindTexture(TextureTarget.TEXTURE_CUBE_MAP, texture.getWebGlTexture());
 			getGL().pixelStorei( PixelStoreParameter.UNPACK_FLIP_Y_WEBGL, texture.isFlipY() ? 1 : 0 );
 
@@ -3105,7 +3121,7 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 		} 
 		else 
 		{
-			getGL().activeTexture( TextureUnit.TEXTURE0, slot );
+			GLES20.glActiveTexture( GLES20.GL_TEXTURE0, slot );
 			GLES20.glBindTexture(TextureTarget.TEXTURE_CUBE_MAP, texture.getWebGlTexture());
 		}
 
