@@ -18,8 +18,9 @@
 
 package thothbot.parallax.core.shared.math;
 
+import android.util.Log;
+
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
-import thothbot.parallax.core.shared.Log;
 
 /**
  * This class implements three-dimensional matrix. NxN, where N=4.
@@ -39,6 +40,8 @@ import thothbot.parallax.core.shared.Log;
  */
 public class Matrix4
 {
+	private static final String TAG = "Parallax";
+
 	private Float32Array elements;
 	
 	// Temporary variables
@@ -742,7 +745,7 @@ public class Matrix4
 
 			String msg = "Matrix4.getInverse(): can't invert matrix, determinant is 0";
 
-			Log.error(msg);
+			Log.e(TAG, msg);
 			
 			this.identity();
 			return this;

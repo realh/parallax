@@ -18,12 +18,15 @@
 
 package thothbot.parallax.core.shared.math;
 
+import android.util.Log;
+
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
-import thothbot.parallax.core.shared.Log;
 
 public class Euler {
-	
-	public static interface EulerChangeHandler 
+
+	private static final String TAG = "Parallax";
+
+	public static interface EulerChangeHandler
 	{
 		void onChange(Euler rotation);
 	}
@@ -306,7 +309,7 @@ public class Euler {
 
 		} else {
 
-			Log.warn( "Euler: .setFromRotationMatrix() given unsupported order: " + order );
+			Log.w(TAG, "Euler: .setFromRotationMatrix() given unsupported order: " + order);
 
 		}
 
@@ -376,7 +379,7 @@ public class Euler {
 
 		} else {
 
-			Log.warn( "Euler: .setFromQuaternion() given unsupported order: " + order );
+			Log.w(TAG, "Euler: .setFromQuaternion() given unsupported order: " + order);
 
 		}
 

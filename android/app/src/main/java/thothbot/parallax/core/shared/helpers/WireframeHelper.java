@@ -30,15 +30,12 @@ import thothbot.parallax.core.shared.core.BufferAttribute;
 import thothbot.parallax.core.shared.core.BufferGeometry;
 import thothbot.parallax.core.shared.core.BufferGeometry.DrawCall;
 import thothbot.parallax.core.shared.core.Face3;
-import thothbot.parallax.core.shared.core.FastMap;
 import thothbot.parallax.core.shared.core.Geometry;
 import thothbot.parallax.core.shared.core.GeometryObject;
 import thothbot.parallax.core.shared.materials.LineBasicMaterial;
 import thothbot.parallax.core.shared.math.Color;
 import thothbot.parallax.core.shared.math.Vector3;
 import thothbot.parallax.core.shared.objects.Line;
-
-import com.google.gwt.core.client.GWT;
 
 public class WireframeHelper extends Line {
 	
@@ -57,8 +54,7 @@ public class WireframeHelper extends Line {
 		BufferGeometry geometry = (BufferGeometry) getGeometry();
 
 		int[] edge = new int[]{ 0, 0 };
-		Map<String, Boolean> hash = GWT.isScript() ? 
-				new FastMap<Boolean>() : new HashMap<String, Boolean>();
+		Map<String, Boolean> hash = new HashMap<String, Boolean>();
 
 		if(object.getGeometry() instanceof Geometry) 
 		{
