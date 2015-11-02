@@ -1,6 +1,7 @@
 /*
  * Copyright 2012 Alex Usachev, thothbot@gmail.com
- * 
+ * Copyright 2015 Tony Houghton, h@realh.co.uk
+ *
  * This file is part of Parallax project.
  * 
  * Parallax is free software: you can redistribute it and/or modify it 
@@ -18,19 +19,14 @@
 
 package thothbot.parallax.core.client.renderers;
 
+import android.opengl.GLES20;
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import thothbot.parallax.core.client.gl2.WebGLRenderingContext;
-import thothbot.parallax.core.client.gl2.enums.CullFaceMode;
-import thothbot.parallax.core.client.gl2.enums.EnableCap;
-import thothbot.parallax.core.client.gl2.enums.FrontFaceDirection;
-import thothbot.parallax.core.client.gl2.enums.PixelFormat;
-import thothbot.parallax.core.client.gl2.enums.TextureMagFilter;
-import thothbot.parallax.core.client.gl2.enums.TextureMinFilter;
 import thothbot.parallax.core.client.shaders.DepthRGBAShader;
 import thothbot.parallax.core.client.textures.RenderTargetTexture;
-import thothbot.parallax.core.shared.Log;
 import thothbot.parallax.core.shared.cameras.Camera;
 import thothbot.parallax.core.shared.cameras.OrthographicCamera;
 import thothbot.parallax.core.shared.cameras.PerspectiveCamera;
@@ -59,13 +55,16 @@ import thothbot.parallax.core.shared.scenes.Scene;
 
 public final class ShadowMap extends Plugin 
 {
+	private static final String TAG = "Parallax";
+
 	private boolean isAutoUpdate = true;
 	private boolean isSoft = true;
 	private boolean isCullFrontFaces = true;
 	private boolean isDebugEnabled = false;
 	private boolean isCascade = false;
 	
-	private ShaderMaterial depthMaterial, depthMaterialMorph, depthMaterialSkin, depthMaterialMorphSkin;
+	private ShaderMaterial depthMaterial, depthMaterialMorph,
+			depthMaterialSkin, depthMaterialMorphSkin;
 
 	private Frustum frustum;
 	private Matrix4 projScreenMatrix;
@@ -156,27 +155,26 @@ public final class ShadowMap extends Plugin
 	}
 
 	@Override
-	public void render(Camera camera, List<Light> sceneLights, int currentWidth, int currentHeight) 
+	public void render(Camera camera, List<Light> sceneLights,
+					   int currentWidth, int currentHeight)
 	{
 		if ( ! ( isEnabled() && isAutoUpdate() ) ) return;
 
-		WebGLRenderingContext gl = getRenderer().getGL();
-		
 		// set GL state for depth map
 
-		gl.clearColor( 1, 1, 1, 1 );
-		gl.disable( EnableCap.BLEND );
+		GLES20.glClearColor(1, 1, 1, 1);
+		GLES20.glDisable( GLES20.GL_BLEND );
 
-		gl.enable( EnableCap.CULL_FACE );
-		gl.frontFace( FrontFaceDirection.CCW );
+		GLES20.glEnable( GLES20.GL_CULL_FACE );
+		GLES20.glFrontFace( GLES20.GL_CCW );
 
 		if ( isCullFrontFaces() ) 
 		{
-			gl.cullFace( CullFaceMode.FRONT );
+			GLES20.glCullFace(GLES20.GL_FRONT);
 		} 
 		else 
 		{
-			gl.cullFace( CullFaceMode.BACK );
+			GLES20.glCullFace(GLES20.GL_BACK);
 		}
 
 		getRenderer().setDepthTest( true );
@@ -193,7 +191,8 @@ public final class ShadowMap extends Plugin
 
 			if ( ! sceneLight.isCastShadow() ) continue;
 						
-			if ( ( sceneLight instanceof DirectionalLight ) && ((DirectionalLight)sceneLight).isShadowCascade() ) 
+			if ( ( sceneLight instanceof DirectionalLight ) &&
+					((DirectionalLight)sceneLight).isShadowCascade() )
 			{
 				DirectionalLight dirLight = (DirectionalLight)sceneLight;
 
@@ -217,7 +216,7 @@ public final class ShadowMap extends Plugin
 
 						shadowCascadeArray.add( n, virtualLight );
 
-						Log.debug( "Shadowmap plugin: Created virtualLight");
+						Log.d(TAG, "Shadowmap plugin: Created virtualLight");
 					} 
 					else 
 					{
@@ -240,13 +239,15 @@ public final class ShadowMap extends Plugin
 			
 			if ( light.getShadowMap() == null ) 
 			{
-				RenderTargetTexture map = new RenderTargetTexture(light.getShadowMapWidth(), light.getShadowMapHeight());
-				map.setMinFilter(TextureMinFilter.NEAREST);
-				map.setMagFilter(TextureMagFilter.NEAREST);
-				map.setFormat(PixelFormat.RGBA);
+				RenderTargetTexture map = new RenderTargetTexture(light.getShadowMapWidth(),
+						light.getShadowMapHeight());
+				map.setMinFilter(GLES20.GL_NEAREST);
+				map.setMagFilter(GLES20.GL_NEAREST);
+				map.setFormat(GLES20.GL_RGBA);
 				light.setShadowMap(map);
 
-				light.setShadowMapSize( new Vector2( light.getShadowMapWidth(), light.getShadowMapHeight() ) );
+				light.setShadowMapSize( new Vector2( light.getShadowMapWidth(),
+						light.getShadowMapHeight() ) );
 				light.setShadowMatrix( new Matrix4() );
 			}
 			
@@ -272,7 +273,8 @@ public final class ShadowMap extends Plugin
 				} 
 				else 
 				{
-					Log.error( "Shadowmap plugin: Unsupported light class for shadow: " + light.getClass().getName() );
+					Log.e(TAG, "Shadowmap plugin: Unsupported light class for shadow: " +
+							light.getClass().getName());
 					continue;
 				}
 
@@ -319,7 +321,8 @@ public final class ShadowMap extends Plugin
 
 			// update camera matrices and frustum
 			
-			this.projScreenMatrix.multiply( shadowCamera.getProjectionMatrix(), shadowCamera.getMatrixWorldInverse() );
+			this.projScreenMatrix.multiply( shadowCamera.getProjectionMatrix(),
+					shadowCamera.getMatrixWorldInverse() );
 			this.frustum.setFromMatrix( this.projScreenMatrix );
 
 			// render shadow map
@@ -356,10 +359,12 @@ public final class ShadowMap extends Plugin
 
 				boolean useMorphing = ((Geometry)object.getGeometry()).getMorphTargets() != null 
 						&& ((Geometry)object.getGeometry()).getMorphTargets().size() > 0 
-						&& objectMaterial instanceof HasSkinning && ((HasSkinning)objectMaterial).isMorphTargets();
+						&& objectMaterial instanceof HasSkinning &&
+                        ((HasSkinning)objectMaterial).isMorphTargets();
 						
 				boolean  useSkinning = object instanceof SkinnedMesh 
-						&& objectMaterial instanceof HasSkinning && ((HasSkinning)objectMaterial).isSkinning();
+						&& objectMaterial instanceof HasSkinning &&
+						((HasSkinning)objectMaterial).isSkinning();
 
 				Material material = null;
 				
@@ -386,7 +391,8 @@ public final class ShadowMap extends Plugin
 
 				if ( buffer instanceof BufferGeometry ) {
 
-					getRenderer().renderBufferDirect( shadowCamera, sceneLights, null, material, (BufferGeometry)buffer, object );
+					getRenderer().renderBufferDirect( shadowCamera, sceneLights,
+							null, material, (BufferGeometry)buffer, object );
 
 				} else {
 
@@ -398,16 +404,19 @@ public final class ShadowMap extends Plugin
 
 			// set matrices and render immediate objects
 
-			for ( int j = 0, jl = getRenderer()._webglObjectsImmediate.size(); j < jl; j ++ ) {
+			for ( int j = 0, jl = getRenderer()._webglObjectsImmediate.size();
+				  j < jl; j ++ ) {
 
 				WebGLObject webglObject = getRenderer()._webglObjectsImmediate.get( j );
 				GeometryObject object = webglObject.object;
 
 				if ( object.isVisible() && object.isCastShadow() ) {
 
-					object._modelViewMatrix.multiply( shadowCamera.getMatrixWorldInverse(), object.getMatrixWorld() );
+					object._modelViewMatrix.multiply( shadowCamera.getMatrixWorldInverse(),
+							object.getMatrixWorld() );
 
-					getRenderer().renderImmediateObject( shadowCamera, sceneLights, null, this.depthMaterial, object );
+					getRenderer().renderImmediateObject( shadowCamera, sceneLights,
+							null, this.depthMaterial, object );
 
 				}
 
@@ -420,12 +429,13 @@ public final class ShadowMap extends Plugin
 		Color clearColor = getRenderer().getClearColor();
 		double clearAlpha = getRenderer().getClearAlpha();
 
-		gl.clearColor( clearColor.getR(), clearColor.getG(), clearColor.getB(), clearAlpha );
-		gl.enable( EnableCap.BLEND );
+		GLES20.glClearColor((float) clearColor.getR(), (float) clearColor.getG(),
+				(float) clearColor.getB(), (float) clearAlpha);
+		GLES20.glEnable( GLES20.GL_BLEND );
 
 		if ( isCullFrontFaces() ) 
 		{
-			gl.cullFace( CullFaceMode.BACK );
+			GLES20.glCullFace(GLES20.GL_BACK);
 		}
 		
 		getRenderer().resetGLState();
@@ -437,13 +447,17 @@ public final class ShadowMap extends Plugin
 
 			List<WebGLObject> webglObjects = getRenderer()._webglObjects.get( object.getId() + "" );
 
-			if ( webglObjects != null && object.isCastShadow() && (object.isFrustumCulled() == false || getRenderer()._frustum.isIntersectsObject( (GeometryObject) object ) == true) ) {
+			if ( webglObjects != null && object.isCastShadow() &&
+					(object.isFrustumCulled() == false ||
+							getRenderer()._frustum.isIntersectsObject(
+									(GeometryObject) object ) == true) ) {
 
 				for ( int i = 0, l = webglObjects.size(); i < l; i ++ ) {
 
 					WebGLObject webglObject = webglObjects.get( i );
 
-					object._modelViewMatrix.multiply( shadowCamera.getMatrixWorldInverse(), object.getMatrixWorld() );
+					object._modelViewMatrix.multiply( shadowCamera.getMatrixWorldInverse(),
+							object.getMatrixWorld() );
 					_renderList.add( webglObject );
 
 				}

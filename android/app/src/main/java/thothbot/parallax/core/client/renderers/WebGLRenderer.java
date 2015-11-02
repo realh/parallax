@@ -2308,7 +2308,8 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 		parameters.maxShadows = maxShadows;
 		
 		for(Plugin plugin: this.plugins)
-		if(plugin instanceof ShadowMap && ((ShadowMap)plugin).isEnabled() && object.isReceiveShadow())
+		if(plugin instanceof ShadowMap && ((ShadowMap)plugin).isEnabled() &&
+                object.isReceiveShadow())
 		{
 			parameters.shadowMapEnabled = object.isReceiveShadow() && maxShadows > 0;
 			parameters.shadowMapSoft    = ((ShadowMap)plugin).isSoft();
