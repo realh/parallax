@@ -18,12 +18,13 @@
 
 package thothbot.parallax.core.shared.core;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import thothbot.parallax.core.shared.Log;
 import thothbot.parallax.core.shared.curves.Curve;
 import thothbot.parallax.core.shared.curves.CurvePath;
 import thothbot.parallax.core.shared.curves.FrenetFrames;
@@ -42,6 +43,8 @@ import thothbot.parallax.core.shared.utils.ShapeUtils;
  */
 public class ExtrudeGeometry extends Geometry
 {
+	private static final String TAG = "Parallax";
+
 	public static class ExtrudeGeometryParameters
 	{
 		// size of the text
@@ -124,7 +127,7 @@ public class ExtrudeGeometry extends Geometry
 	
 	public void addShape( Shape shape, ExtrudeGeometryParameters options ) 
 	{
-		Log.debug("ExtrudeGeometry: Called addShape() shape=" + shape);
+		Log.d(TAG, "ExtrudeGeometry: Called addShape() shape=" + shape);
 
 		List<Vector2> extrudePts = null;
 		boolean extrudeByPath = false;
@@ -445,13 +448,13 @@ public class ExtrudeGeometry extends Geometry
 
 		if ( v_dot_w_hat == 0 ) 
 		{
-			Log.info( "getBevelVec2() Either infinite or no solutions!" );
+			Log.i(TAG, "getBevelVec2() Either infinite or no solutions!");
 
 			if ( q_sub_p_dot_w_hat == 0 )
-				Log.info( "getBevelVec2() Its finite solutions." );
+				Log.i(TAG, "getBevelVec2() Its finite solutions.");
 
 			else
-				Log.error( "getBevelVec2() Too bad, no solutions." );
+				Log.e(TAG, "getBevelVec2() Too bad, no solutions.");
 		}
 
 		double s = q_sub_p_dot_w_hat / v_dot_w_hat;
@@ -469,7 +472,7 @@ public class ExtrudeGeometry extends Geometry
 	private void buildLidFaces() 
 	{
 		int flen = this.localFaces.size();
-		Log.debug("ExtrudeGeometry: buildLidFaces() faces=" + flen);
+		Log.d(TAG, "ExtrudeGeometry: buildLidFaces() faces=" + flen);
 
 		if ( this.options.bevelEnabled ) 
 		{

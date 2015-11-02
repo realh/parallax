@@ -18,7 +18,6 @@
 
 package thothbot.parallax.core.shared.cameras;
 
-import thothbot.parallax.core.client.events.ViewportResizeEvent;
 import thothbot.parallax.core.shared.math.Mathematics;
 
 /**
@@ -81,9 +80,9 @@ public class PerspectiveCamera extends Camera implements HasNearFar
 	}
 	
 	@Override
-	public void onResize(ViewportResizeEvent event) 
+	public void onViewportResize(int width, int height)
 	{
-		setAspect(event.getRenderer().getAbsoluteAspectRation());	
+		setAspect((double) width / (double) height);
 	}
 
 	/**
