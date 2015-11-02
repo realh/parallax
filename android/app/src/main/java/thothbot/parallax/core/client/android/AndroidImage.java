@@ -37,4 +37,19 @@ public class AndroidImage implements Image
     {
         GLUtils.texImage2D(target, 0, bitmap, 0);
     }
+
+    @Override
+    public int getWidth() {
+        return bitmap.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return bitmap.getHeight();
+    }
+
+    @Override
+    public Image createScaledCopy(int width, int height) {
+        return new AndroidImage(Bitmap.createScaledBitmap(this.bitmap, width, height, true));
+    }
 }

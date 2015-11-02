@@ -18,8 +18,9 @@
 
 package thothbot.parallax.core.shared.math;
 
+import android.util.Log;
+
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
-import thothbot.parallax.core.shared.Log;
 
 /**
  * This class implements three-dimensional matrix. MxM, where M=3.
@@ -38,6 +39,7 @@ import thothbot.parallax.core.shared.Log;
  */
 public class Matrix3
 {
+	private static final String TAG = "Parallax";
 	private Float32Array elements;
 	
 	// Temporary variables
@@ -186,7 +188,7 @@ public class Matrix3
 
 		if (det == 0)
 		{
-			Log.error("Matrix3.invert(): determinant == 0");
+			Log.e(TAG, "Matrix3.invert(): determinant == 0");
 			this.identity();
 		}
 		else

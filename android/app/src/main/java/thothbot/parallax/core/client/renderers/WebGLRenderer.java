@@ -31,8 +31,10 @@ import java.util.Map;
 
 import thothbot.parallax.core.client.events.ViewportResizeHandler;
 import thothbot.parallax.core.client.gl2.GLES20Ext;
+import thothbot.parallax.core.client.gl2.Image;
 import thothbot.parallax.core.client.gl2.WebGLShaderPrecisionFormat;
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
+import thothbot.parallax.core.client.gl2.arrays.TypeArray;
 import thothbot.parallax.core.client.gl2.arrays.Uint8Array;
 import thothbot.parallax.core.client.shaders.Attribute;
 import thothbot.parallax.core.client.shaders.ProgramParameters;
@@ -2947,35 +2949,37 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 	private void setCubeTextureDynamic(RenderTargetCubeTexture texture, int slot) 
 	{
 		GLES20.glActiveTexture( GLES20.GL_TEXTURE0 + slot );
-		GLES20.glBindTexture(TextureTarget.TEXTURE_CUBE_MAP, texture.getWebGlTexture());
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, texture.getWebGlTexture());
 	}
 
 	public void setTexture( Texture texture, int slot ) 
 	{
 		if ( texture.isNeedsUpdate()) 
 		{
-			if ( texture.getWebGlTexture() == null ) 
+			if ( texture.getWebGlTexture() == 0 )
 			{
-				texture.setWebGlTexture( GLES20.glCreateTexture() );
+				GLES20.glGenTextures(1, tmpGLResult, 0);
+				texture.setWebGlTexture( tmpGLResult[0] );
 
 				this.getInfo().getMemory().textures ++;
 			}
 			
-			GLES20.glActiveTexture( GLES20.GL_TEXTURE0, slot );
-			GLES20.glBindTexture(TextureTarget.TEXTURE_2D, texture.getWebGlTexture());
+			GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + slot);
+			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture.getWebGlTexture());
 
-			getGL().pixelStorei( PixelStoreParameter.UNPACK_FLIP_Y_WEBGL, texture.isFlipY() ? 1 : 0 );
-			getGL().pixelStorei( PixelStoreParameter.UNPACK_PREMULTIPLY_ALPHA_WEBGL,
+            /*
+			GLES20.glPixelStorei( PixelStoreParameter.UNPACK_FLIP_Y_WEBGL, texture.isFlipY() ? 1 : 0 );
+			GLES20.glPixelStorei( PixelStoreParameter.UNPACK_PREMULTIPLY_ALPHA_WEBGL,
                     texture.isPremultiplyAlpha() ? 1 : 0 );
-			getGL().pixelStorei( PixelStoreParameter.UNPACK_ALIGNMENT,
-                    texture.getUnpackAlignment() );
+            */
+			GLES20.glPixelStorei( GLES20.GL_UNPACK_ALIGNMENT, texture.getUnpackAlignment() );
 
-			Element image = texture.getImage();
-			boolean isImagePowerOfTwo = Mathematics.isPowerOfTwo( image.getOffsetWidth() ) 
-					&& Mathematics.isPowerOfTwo( image.getOffsetHeight() );
+			Image image = texture.getImage();
+			boolean isImagePowerOfTwo = Mathematics.isPowerOfTwo( image.getWidth() )
+					&& Mathematics.isPowerOfTwo( image.getHeight() );
 
-			texture.setTextureParameters( getGL(), getMaxAnisotropy(),
-                    TextureTarget.TEXTURE_2D, isImagePowerOfTwo );
+			texture.setTextureParameters( getMaxAnisotropy(),
+                    GLES20.GL_TEXTURE_2D, isImagePowerOfTwo );
 
 			if ( texture instanceof CompressedTexture ) 
 			{
@@ -2984,55 +2988,51 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 				for( int i = 0, il = mipmaps.size(); i < il; i ++ ) 
 				{
 					DataTexture mipmap = mipmaps.get( i );
-					GLES20.glCompressedTexImage2D(TextureTarget.TEXTURE_2D, i,
+					GLES20.glCompressedTexImage2D(GLES20.GL_TEXTURE_2D, i,
                             ((CompressedTexture) texture).getCompressedFormat(),
-                            mipmap.getWidth(), mipmap.getHeight(), 0, mipmap.getData());
+                            mipmap.getWidth(), mipmap.getHeight(), 0,
+                            mipmap.getData().getByteLength(),
+                            mipmap.getData().getBuffer());
 				}
 			}
 			else if ( texture instanceof DataTexture ) 
 			{
-				getGL().texImage2D( TextureTarget.TEXTURE_2D, 0,
-						((DataTexture) texture).getWidth(),
-						((DataTexture) texture).getHeight(), 
-						0, 
-						texture.getFormat(), 
-						texture.getType(),
-						((DataTexture) texture).getData() );
+                TypeArray texData = ((DataTexture) texture).getData();
+				GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0,
+                        ((DataTexture) texture).getWidth(),
+                        ((DataTexture) texture).getHeight(),
+                        0,
+                        texture.getFormat(),
+                        texture.getType(),
+                        texData.getByteLength(),
+                        texData.getBuffer());
 			} 
 			else 
 			{
-				getGL().texImage2D( TextureTarget.TEXTURE_2D, 0, texture.getFormat(),
-                        texture.getType(), (ImageElement)image );
+				image.glTexImage2D(GLES20.GL_TEXTURE_2D );
 			}
 
 			if ( texture.isGenerateMipmaps() && isImagePowerOfTwo ) 
-				getGL().generateMipmap( TextureTarget.TEXTURE_2D );
+				GLES20.glGenerateMipmap( GLES20.GL_TEXTURE_2D );
 
 			texture.setNeedsUpdate(false);
 		} 
 		// Needed to check webgl texture in case deferred loading
-		else if(texture.getWebGlTexture() != null)
+		else if (texture.getWebGlTexture() != 0)
 		{
-			GLES20.glActiveTexture( GLES20.GL_TEXTURE0, slot );
-			GLES20.glBindTexture(TextureTarget.TEXTURE_2D, texture.getWebGlTexture());
+			GLES20.glActiveTexture( GLES20.GL_TEXTURE0 + slot );
+			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture.getWebGlTexture());
 		}
 	}
 	
-	private CanvasElement createPowerOfTwoImage(Element image) 
+	private Image createPowerOfTwoImage(Image image)
 	{
-		int width = image.getOffsetWidth();
-		int height = image.getOffsetHeight();
-		
-		CanvasElement canvas = Document.get().createElement("canvas").cast();
-		
-		// Scale up the texture to the next highest power of two dimensions.
-		canvas.setWidth( Mathematics.getNextHighestPowerOfTwo( width ) );
-		canvas.setHeight( Mathematics.getNextHighestPowerOfTwo( height ) );
+		int width = image.getWidth();
+		int height = image.getHeight();
+		int w2 = Mathematics.getNextHighestPowerOfTwo( width );
+		int h2 = Mathematics.getNextHighestPowerOfTwo( height );
 
-		Context2d context = canvas.getContext2d();
-		context.drawImage((ImageElement)image, 0, 0, width, height);
-		
-		return canvas;
+		return (w2 != width || h2 != height) ? image.createScaledCopy(w2, h2) : image;
 	}
 
 	/**
@@ -3079,9 +3079,9 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 				this.getInfo().getMemory().textures += 6;
 			}
 
-			GLES20.glActiveTexture( GLES20.GL_TEXTURE0, slot );
-			GLES20.glBindTexture(TextureTarget.TEXTURE_CUBE_MAP, texture.getWebGlTexture());
-			getGL().pixelStorei( PixelStoreParameter.UNPACK_FLIP_Y_WEBGL, texture.isFlipY() ? 1 : 0 );
+			GLES20.glActiveTexture( GLES20.GL_TEXTURE0 + slot );
+			GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, texture.getWebGlTexture());
+			GLES20.glPixelStorei( PixelStoreParameter.UNPACK_FLIP_Y_WEBGL, texture.isFlipY() ? 1 : 0 );
 
 			List<Element> cubeImage = new ArrayList<Element>();
 
@@ -3098,31 +3098,31 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 			boolean isImagePowerOfTwo = Mathematics.isPowerOfTwo( image.getOffsetWidth() ) 
 					&& Mathematics.isPowerOfTwo( image.getOffsetHeight() );
 
-			texture.setTextureParameters( getGL(), getMaxAnisotropy(), TextureTarget.TEXTURE_CUBE_MAP, true /*power of two*/ );
+			texture.setTextureParameters( getGL(), getMaxAnisotropy(), GLES20.GL_TEXTURE_CUBE_MAP, true /*power of two*/ );
 
 			for ( int i = 0; i < 6; i ++ ) 
 			{
 				if(!isImagePowerOfTwo)
 				{
-					getGL().texImage2D( TextureTarget.TEXTURE_CUBE_MAP_POSITIVE_X, i, 0,
-							texture.getFormat(), texture.getType(), createPowerOfTwoImage( cubeImage.get( i ) ) );
+					GLES20.glTexImage2D(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X, i, 0,
+                            texture.getFormat(), texture.getType(), createPowerOfTwoImage(cubeImage.get(i)));
 				}
 				else
 				{
-					getGL().texImage2D( TextureTarget.TEXTURE_CUBE_MAP_POSITIVE_X, i, 0,
-							texture.getFormat(), texture.getType(), (ImageElement)cubeImage.get( i ) );
+					GLES20.glTexImage2D(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X, i, 0,
+                            texture.getFormat(), texture.getType(), (ImageElement) cubeImage.get(i));
 				}
 			}
 
 			if ( texture.isGenerateMipmaps() )	
-				getGL().generateMipmap( TextureTarget.TEXTURE_CUBE_MAP );
+				GLES20.glGenerateMipmap( GLES20.GL_TEXTURE_CUBE_MAP );
 
 			texture.setNeedsUpdate(false);
 		} 
 		else 
 		{
-			GLES20.glActiveTexture( GLES20.GL_TEXTURE0, slot );
-			GLES20.glBindTexture(TextureTarget.TEXTURE_CUBE_MAP, texture.getWebGlTexture());
+			GLES20.glActiveTexture( GLES20.GL_TEXTURE0 + slot );
+			GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, texture.getWebGlTexture());
 		}
 
 	}
@@ -3199,7 +3199,8 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 			//  - limit here is ANGLE's 254 max uniform vectors
 			//    (up to 54 should be safe)
 
-			int nVertexUniforms = getGL().getParameteri( GLES20.GL_MAX_VERTEX_UNIFORM_VECTORS );
+            GLES20.glGetIntegerv( GLES20.GL_MAX_VERTEX_UNIFORM_VECTORS, tmpGLResult, 0 );
+			int nVertexUniforms = tmpGLResult[0];
 			int nVertexMatrices = (int) Math.floor( ( nVertexUniforms - 20 ) / 4 );
 
 			int maxBones = nVertexMatrices;
@@ -3233,8 +3234,7 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 			if ( light instanceof HemisphereLight ) hemiLights ++;
 		}
 
-		Map<String, Integer> retval = GWT.isScript() ? 
-				new FastMap<Integer>() : new HashMap<String, Integer>();
+		Map<String, Integer> retval =  new HashMap<String, Integer>();
 		retval.put("directional", dirLights);
 		retval.put("point", pointLights);
 		retval.put("spot", spotLights);

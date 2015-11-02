@@ -23,5 +23,29 @@ package thothbot.parallax.core.client.gl2;
  */
 public interface Image
 {
+    /**
+     * Upload the texture to the GPU.
+     *
+     * @param target    eg GL_TEXTURE_2D.
+     */
     public void glTexImage2D(int target);
+
+    /**
+     *
+     * @return  width of image in pixels.
+     */
+    public int getWidth();
+
+    /**
+     *
+     * @return  height of image in pixels.
+     */
+    public int getHeight();
+
+    /**
+     * @param width
+     * @param height
+     * @return  a new Image which is a scaled copy of this one.
+     */
+    public Image createScaledCopy(int width, int height);
 }
