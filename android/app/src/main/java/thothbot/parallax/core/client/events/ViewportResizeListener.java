@@ -18,6 +18,7 @@
 
 package thothbot.parallax.core.client.events;
 
-public interface ViewportResizeHandler {
+public interface ViewportResizeListener
+{
     public void onViewportResize(int newWidth, int newHeight);
 }

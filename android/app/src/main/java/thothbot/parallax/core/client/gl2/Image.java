@@ -48,4 +48,9 @@ public interface Image
      * @return  a new Image which is a scaled copy of this one.
      */
     public Image createScaledCopy(int width, int height);
+
+    /**
+     * Explicitly free the Image's internal resources.
+     */
+    public void recycle();
 }

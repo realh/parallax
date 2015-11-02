@@ -21,7 +21,7 @@ package thothbot.parallax.core.shared.materials;
 
 import java.util.Map;
 
-import thothbot.parallax.core.client.events.ViewportResizeHandler;
+import thothbot.parallax.core.client.events.ViewportResizeListener;
 import thothbot.parallax.core.client.shaders.ParticleBasicShader;
 import thothbot.parallax.core.client.shaders.Shader;
 import thothbot.parallax.core.client.shaders.Uniform;
@@ -30,7 +30,8 @@ import thothbot.parallax.core.shared.cameras.Camera;
 import thothbot.parallax.core.shared.math.Color;
 
 public final class PointCloudMaterial extends Material implements HasFog,
-		HasColor, HasMap, HasVertexColors, ViewportResizeHandler {
+		HasColor, HasMap, HasVertexColors, ViewportResizeListener
+{
 	private boolean isFog;
 
 	private Color color;

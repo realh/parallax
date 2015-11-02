@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import thothbot.parallax.core.client.events.ViewportResizeHandler;
+import thothbot.parallax.core.client.events.ViewportResizeListener;
 import thothbot.parallax.core.client.gl2.GLES20Ext;
 import thothbot.parallax.core.client.gl2.Image;
 import thothbot.parallax.core.client.gl2.WebGLShaderPrecisionFormat;
@@ -94,7 +94,7 @@ import thothbot.parallax.core.shared.scenes.Scene;
 /**
  * The WebGL renderer displays your beautifully crafted {@link Scene}s using WebGL, if your device supports it.
  */
-public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHandler
+public class WebGLRenderer extends AbstractRenderer implements ViewportResizeListener
 {
 	private static final String TAG = "Parallax";
 
@@ -536,7 +536,7 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 		
 		GLES20.glViewport(_viewportX, _viewportY, _viewportWidth, _viewportHeight);
 		GLES20.glClearColor((float) clearColor.getR(), (float) clearColor.getG(),
-                (float) clearColor.getB(), (float) clearAlpha);
+				(float) clearColor.getB(), (float) clearAlpha);
 	}
 
 	/**
@@ -602,7 +602,7 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 		this.clearAlpha = alpha;
 
 		GLES20.glClearColor((float) this.clearColor.getR(), (float) this.clearColor.getG(),
-                (float) this.clearColor.getB(), (float) this.clearAlpha);
+				(float) this.clearColor.getB(), (float) this.clearAlpha);
 	}
 
 	@Override
@@ -1037,7 +1037,7 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 		if ( ! material.isVisible() ) 
 			return;
 
-		Shader program = setProgram( camera, lights, fog, material, object );
+		Shader program = setProgram(camera, lights, fog, material, object);
 
 		Map<String, Integer> attributes = material.getShader().getAttributesLocations();
 		
@@ -3042,12 +3042,12 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 	 * @param image    the image element
 	 * @param maxSize  the max size of absoluteWidth or absoluteHeight
 	 * 
-	 * @return the image element (Canvas or Image)
+	 * @return a new Image, or the same one if no clamping was necessary
 	 */
-	private Element clampToMaxSize ( Element image, int maxSize ) 
+	private Image clampToMaxSize ( Image image, int maxSize )
 	{
-		int imgWidth = image.getOffsetWidth();
-		int imgHeight = image.getOffsetHeight();
+		int imgWidth = image.getWidth();
+		int imgHeight = image.getHeight();
 
 		if ( imgWidth <= maxSize && imgHeight <= maxSize )
 			return image;
@@ -3056,14 +3056,7 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 		int newWidth = (int) Math.floor( imgWidth * maxSize / maxDimension );
 		int newHeight = (int) Math.floor( imgHeight * maxSize / maxDimension );
 
-		CanvasElement canvas = Document.get().createElement("canvas").cast();
-		canvas.setWidth(newWidth);
-		canvas.setHeight(newHeight);
-		
-		Context2d context = canvas.getContext2d();
-		context.drawImage((ImageElement)image, 0, 0, imgWidth, imgHeight, 0, 0, newWidth, newHeight );
-
-		return canvas;
+		return image.createScaledCopy(newWidth, newHeight);
 	}
 
 	private void setCubeTexture ( CubeTexture texture, int slot ) 
@@ -3073,45 +3066,57 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 
 		if ( texture.isNeedsUpdate() ) 
 		{
-			if ( texture.getWebGlTexture() == null )
+			if ( texture.getWebGlTexture() == 0 )
 			{
-				texture.setWebGlTexture(GLES20.glCreateTexture());
+				GLES20.glGenTextures(1, tmpGLResult, 0);
+				texture.setWebGlTexture(tmpGLResult[0]);
 				this.getInfo().getMemory().textures += 6;
 			}
 
 			GLES20.glActiveTexture( GLES20.GL_TEXTURE0 + slot );
 			GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, texture.getWebGlTexture());
-			GLES20.glPixelStorei( PixelStoreParameter.UNPACK_FLIP_Y_WEBGL, texture.isFlipY() ? 1 : 0 );
+			//GLES20.glPixelStorei( PixelStoreParameter.UNPACK_FLIP_Y_WEBGL,
+			// texture.isFlipY() ? 1 : 0 );
 
-			List<Element> cubeImage = new ArrayList<Element>();
+			List<Image> cubeImage = new ArrayList<Image>();
 
 			for ( int i = 0; i < 6; i ++ ) 
 			{
 				if ( this.autoScaleCubemaps )
-					cubeImage.add(clampToMaxSize( texture.getImage( i ), this._maxCubemapSize ));
+				{
+					Image clamped = clampToMaxSize(texture.getImage(i),
+							this._maxCubemapSize);
+					cubeImage.add(clamped);
 
+				}
 				else
-					cubeImage.add(texture.getImage( i ));
+				{
+					cubeImage.add(texture.getImage(i));
+				}
 			}
 
-			Element image = cubeImage.get( 0 );
-			boolean isImagePowerOfTwo = Mathematics.isPowerOfTwo( image.getOffsetWidth() ) 
-					&& Mathematics.isPowerOfTwo( image.getOffsetHeight() );
+			Image image = cubeImage.get( 0 );
+			boolean isImagePowerOfTwo = Mathematics.isPowerOfTwo( image.getWidth() )
+					&& Mathematics.isPowerOfTwo( image.getHeight() );
 
-			texture.setTextureParameters( getGL(), getMaxAnisotropy(), GLES20.GL_TEXTURE_CUBE_MAP, true /*power of two*/ );
+			texture.setTextureParameters( getMaxAnisotropy(), GLES20.GL_TEXTURE_CUBE_MAP,
+					true /*power of two*/ );
 
 			for ( int i = 0; i < 6; i ++ ) 
 			{
-				if(!isImagePowerOfTwo)
+				Image img = cubeImage.get(i);
+
+				if (!isImagePowerOfTwo)
 				{
-					GLES20.glTexImage2D(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X, i, 0,
-                            texture.getFormat(), texture.getType(), createPowerOfTwoImage(cubeImage.get(i)));
+					Image scaledImg = createPowerOfTwoImage(img);
+					img.recycle();
+					img = scaledImg;
 				}
 				else
 				{
-					GLES20.glTexImage2D(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X, i, 0,
-                            texture.getFormat(), texture.getType(), (ImageElement) cubeImage.get(i));
+					img.glTexImage2D(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X);
 				}
+				img.recycle();
 			}
 
 			if ( texture.isGenerateMipmaps() )	
@@ -3135,13 +3140,13 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 	public void setRenderTarget( RenderTargetTexture renderTarget ) 
 	{
 		Log.d(TAG, "  ----> Called setRenderTarget(params)");
-		int framebuffer = null;
+		int framebuffer = 0;
 		
 		int width, height, vx, vy;
 		
 		if(renderTarget != null) 
 		{
-			renderTarget.setRenderTarget(getGL());
+			renderTarget.setRenderTarget();
 		    framebuffer = renderTarget.getWebGLFramebuffer();
 
 		    width = renderTarget.getWidth();
@@ -3163,7 +3168,7 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 
 		if ( framebuffer != this._currentFramebuffer ) 
 		{
-			GLES20.glBindFramebuffer(framebuffer);
+			GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, framebuffer);
 			GLES20.glViewport(vx, vy, width, height);
 
 			this._currentFramebuffer = framebuffer;
@@ -3185,7 +3190,8 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 	 */
 	private int allocateBones (GeometryObject object ) 
 	{
-		if ( this._supportsBoneTextures && object instanceof SkinnedMesh && ((SkinnedMesh)object).isUseVertexTexture() ) 
+		if ( this._supportsBoneTextures && object instanceof SkinnedMesh &&
+				((SkinnedMesh)object).isUseVertexTexture() )
 		{
 			return 1024;
 		} 
@@ -3211,8 +3217,10 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 
 				if ( maxBones < ((SkinnedMesh)object).getBones().size() )
 				{
-					Log.w(TAG, "WebGLRenderer: too many bones - " + ((SkinnedMesh) object).getBones().size()
-							+ ", this GPU supports just " + maxBones + " (try OpenGL instead of ANGLE)");
+					Log.w(TAG, "WebGLRenderer: too many bones - " +
+							((SkinnedMesh) object).getBones().size() +
+							", this GPU supports just " + maxBones +
+							" (try OpenGL instead of ANGLE)");
 				}
 			}
 
@@ -3226,7 +3234,8 @@ public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHan
 				
 		for(Light light: lights) 
 		{
-			if ( light instanceof ShadowLight && ((ShadowLight)light).isOnlyShadow() ) continue;
+			if ( light instanceof ShadowLight && ((ShadowLight)light).isOnlyShadow() )
+				continue;
 
 			if ( light instanceof DirectionalLight ) dirLights ++;
 			if ( light instanceof PointLight ) pointLights ++;

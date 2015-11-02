@@ -52,4 +52,20 @@ public class AndroidImage implements Image
     public Image createScaledCopy(int width, int height) {
         return new AndroidImage(Bitmap.createScaledBitmap(this.bitmap, width, height, true));
     }
+
+    @Override
+    public void recycle()
+    {
+        if (bitmap != null)
+        {
+            bitmap.recycle();
+            bitmap = null;
+        }
+    }
+
+    @Override
+    public void finalize()
+    {
+        recycle();
+    }
 }

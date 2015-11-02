@@ -18,7 +18,7 @@
 
 package thothbot.parallax.core.shared.cameras;
 
-import thothbot.parallax.core.client.events.ViewportResizeHandler;
+import thothbot.parallax.core.client.events.ViewportResizeListener;
 import thothbot.parallax.core.shared.core.Object3D;
 import thothbot.parallax.core.shared.math.Matrix4;
 import thothbot.parallax.core.shared.math.Quaternion;
@@ -30,7 +30,7 @@ import thothbot.parallax.core.shared.math.Vector3;
  * @author thothbot
  *
  */
-public class Camera extends Object3D implements ViewportResizeHandler
+public class Camera extends Object3D implements ViewportResizeListener
 {
 	protected Matrix4 matrixWorldInverse;
 	protected Matrix4 projectionMatrix;
