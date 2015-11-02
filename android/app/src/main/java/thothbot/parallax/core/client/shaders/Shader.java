@@ -20,6 +20,7 @@
 package thothbot.parallax.core.client.shaders;
 
 import android.opengl.GLES20;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
-import thothbot.parallax.core.shared.Log;
 import thothbot.parallax.core.shared.math.Mathematics;
 
 /**
@@ -39,8 +39,10 @@ import thothbot.parallax.core.shared.math.Mathematics;
  */
 public abstract class Shader
 {
+	private static final String TAG = "Parallax";
+
 	/**
-	 * Sets the Shaders precision value.
+	 * Sets the Shader's precision value.
 	 */
 	public static enum PRECISION 
 	{
@@ -135,7 +137,7 @@ public abstract class Shader
 	
 	public Shader buildProgram(boolean useVertexTexture, int maxMorphTargets, int maxMorphNormals)
 	{
-		Log.debug("Building new program...");
+		Log.d(TAG, "Building new program...");
 
 		initShaderProgram();
 
@@ -191,7 +193,7 @@ public abstract class Shader
 
 	private void initShaderProgram()
 	{
-		Log.debug("Called initProgram()");
+		Log.d(TAG, "Called initProgram()");
 
 		this.program = GLES20.glCreateProgram();
 
@@ -207,15 +209,15 @@ public abstract class Shader
 
 		GLES20.glGetProgramiv(this.program, GLES20.GL_LINK_STATUS, tmpArray, 0);
 		if (tmpArray[0] == GLES20.GL_FALSE)
-			Log.error("Could not initialise shader\n"
-					+ "GL error: " + GLES20.glGetProgramInfoLog(program)
-					+ "Shader: " + this.getClass().getName()
-					+ "\n-----\nVERTEX:\n" + vertex
-					+ "\n-----\nFRAGMENT:\n" + fragment
+			Log.e(TAG, "Could not initialise shader\n"
+							+ "GL error: " + GLES20.glGetProgramInfoLog(program)
+							+ "Shader: " + this.getClass().getName()
+							+ "\n-----\nVERTEX:\n" + vertex
+							+ "\n-----\nFRAGMENT:\n" + fragment
 			);
 
 		else
-			Log.info("initProgram(): shaders has been initialised");
+			Log.i(TAG, "initProgram(): shaders has been initialised");
 
 		// clean up
 		GLES20.glDeleteShader(glVertexShader);
@@ -235,7 +237,7 @@ public abstract class Shader
 	 */
 	private int getShaderProgram(Class<?> type, String string)
 	{
-		Log.debug("Called getShaderProgram() for type " + type.getName());
+		Log.d(TAG, "Called getShaderProgram() for type " + type.getName());
 		int shader = 0;
 
 		if (type == ChunksFragmentShader.class)
@@ -250,7 +252,7 @@ public abstract class Shader
 		GLES20.glGetProgramiv(shader, GLES20.GL_COMPILE_STATUS, tmpArray, 0);
 		if (tmpArray[0] == GLES20.GL_FALSE)
 		{
-			Log.error(GLES20.glGetShaderInfoLog(shader));
+			Log.e(TAG, GLES20.glGetShaderInfoLog(shader));
 			return 0;
 		}
 

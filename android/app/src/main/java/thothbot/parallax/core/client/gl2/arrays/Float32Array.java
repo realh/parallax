@@ -41,6 +41,10 @@ public final class Float32Array extends TypeArray {
 		floatBuffer = getBuffer().asFloatBuffer();
 	}
 
+	public FloatBuffer getFloatBuffer() {
+		return floatBuffer;
+	}
+
     @Override
     public int getElementType() {
         return GLES20.GL_FLOAT;

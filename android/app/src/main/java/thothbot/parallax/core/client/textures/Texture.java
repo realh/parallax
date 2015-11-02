@@ -246,14 +246,14 @@ public class Texture
 	/**
 	 * Checks if the texture needs to be updated.
 	 */
-	public Boolean isNeedsUpdate()	{
+	public boolean isNeedsUpdate()	{
 		return this.isNeedsUpdate;
 	}
 		
 	/**
 	 * Sets flag to updated the texture.
 	 */
-	public void setNeedsUpdate(Boolean needsUpdate) {
+	public void setNeedsUpdate(boolean needsUpdate) {
 		this.isNeedsUpdate = needsUpdate;
 	}
 	

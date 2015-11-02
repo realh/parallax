@@ -1,6 +1,7 @@
 /*
  * Copyright 2012 Alex Usachev, thothbot@gmail.com
- * 
+ * Copyright 2015 Tony Houghton, h@realh.co.uk
+ *
  * This file is part of Parallax project.
  * 
  * Parallax is free software: you can redistribute it and/or modify it 
@@ -18,6 +19,9 @@
 
 package thothbot.parallax.core.client.renderers;
 
+import android.opengl.GLES20;
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,40 +29,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import thothbot.parallax.core.client.context.Canvas3d;
-import thothbot.parallax.core.client.events.HasEventBus;
-import thothbot.parallax.core.client.events.ViewportResizeEvent;
-import thothbot.parallax.core.client.gl2.WebGLConstants;
-import thothbot.parallax.core.client.gl2.WebGLExtension;
-import thothbot.parallax.core.client.gl2.WebGLFramebuffer;
-import thothbot.parallax.core.client.gl2.WebGLProgram;
-import thothbot.parallax.core.client.gl2.WebGLRenderingContext;
+import thothbot.parallax.core.client.events.ViewportResizeHandler;
+import thothbot.parallax.core.client.gl2.GLES20Ext;
 import thothbot.parallax.core.client.gl2.WebGLShaderPrecisionFormat;
-import thothbot.parallax.core.client.gl2.WebGLUniformLocation;
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
 import thothbot.parallax.core.client.gl2.arrays.Uint8Array;
-import thothbot.parallax.core.client.gl2.enums.BeginMode;
-import thothbot.parallax.core.client.gl2.enums.BlendEquationMode;
-import thothbot.parallax.core.client.gl2.enums.BlendingFactorDest;
-import thothbot.parallax.core.client.gl2.enums.BlendingFactorSrc;
-import thothbot.parallax.core.client.gl2.enums.BufferTarget;
-import thothbot.parallax.core.client.gl2.enums.BufferUsage;
-import thothbot.parallax.core.client.gl2.enums.ClearBufferMask;
-import thothbot.parallax.core.client.gl2.enums.CullFaceMode;
-import thothbot.parallax.core.client.gl2.enums.DataType;
-import thothbot.parallax.core.client.gl2.enums.DepthFunction;
-import thothbot.parallax.core.client.gl2.enums.DrawElementsType;
-import thothbot.parallax.core.client.gl2.enums.EnableCap;
-import thothbot.parallax.core.client.gl2.enums.FrontFaceDirection;
-import thothbot.parallax.core.client.gl2.enums.PixelStoreParameter;
-import thothbot.parallax.core.client.gl2.enums.ShaderPrecisionSpecifiedTypes;
-import thothbot.parallax.core.client.gl2.enums.Shaders;
-import thothbot.parallax.core.client.gl2.enums.TextureMinFilter;
-import thothbot.parallax.core.client.gl2.enums.TextureTarget;
-import thothbot.parallax.core.client.gl2.enums.TextureUnit;
-import thothbot.parallax.core.client.gl2.extension.ExtTextureFilterAnisotropic;
-import thothbot.parallax.core.client.gl2.extension.WebGLCompressedTextureS3tc;
-import thothbot.parallax.core.client.renderers.WebGLExtensions.Id;
 import thothbot.parallax.core.client.shaders.Attribute;
 import thothbot.parallax.core.client.shaders.ProgramParameters;
 import thothbot.parallax.core.client.shaders.Shader;
@@ -70,7 +45,6 @@ import thothbot.parallax.core.client.textures.DataTexture;
 import thothbot.parallax.core.client.textures.RenderTargetCubeTexture;
 import thothbot.parallax.core.client.textures.RenderTargetTexture;
 import thothbot.parallax.core.client.textures.Texture;
-import thothbot.parallax.core.shared.Log;
 import thothbot.parallax.core.shared.cameras.Camera;
 import thothbot.parallax.core.shared.cameras.HasNearFar;
 import thothbot.parallax.core.shared.core.AbstractGeometry;
@@ -78,7 +52,6 @@ import thothbot.parallax.core.shared.core.BufferAttribute;
 import thothbot.parallax.core.shared.core.BufferGeometry;
 import thothbot.parallax.core.shared.core.BufferGeometry.DrawCall;
 import thothbot.parallax.core.shared.core.Face3;
-import thothbot.parallax.core.shared.core.FastMap;
 import thothbot.parallax.core.shared.core.Geometry;
 import thothbot.parallax.core.shared.core.GeometryGroup;
 import thothbot.parallax.core.shared.core.GeometryObject;
@@ -116,37 +89,23 @@ import thothbot.parallax.core.shared.scenes.AbstractFog;
 import thothbot.parallax.core.shared.scenes.FogExp2;
 import thothbot.parallax.core.shared.scenes.Scene;
 
-import com.google.gwt.canvas.dom.client.Context2d;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.CanvasElement;
-import com.google.gwt.dom.client.Document;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.ImageElement;
-
 /**
  * The WebGL renderer displays your beautifully crafted {@link Scene}s using WebGL, if your device supports it.
  */
-public class WebGLRenderer extends AbstractRenderer implements HasEventBus
+public class WebGLRenderer extends AbstractRenderer implements ViewportResizeHandler
 {
-	// The HTML5 Canvas's 'webgl' context obtained from the canvas where the renderer will draw.
-	private WebGLRenderingContext gl;
+	private static final String TAG = "Parallax";
 
 	private WebGlRendererInfo info;
 					
 	private List<Light> lights = new ArrayList<Light>();
 	
-	public Map<String, List<WebGLObject>> _webglObjects = GWT.isScript() ? 
-			new FastMap<List<WebGLObject>>() : new HashMap<String, List<WebGLObject>>();	
+	public Map<String, List<WebGLObject>> _webglObjects =  new HashMap<String, List<WebGLObject>>();
 
 	public List<WebGLObject> _webglObjectsImmediate  = new ArrayList<WebGLObject>();
 
 	public List<WebGLObject> opaqueObjects = new ArrayList<WebGLObject>();
 	public List<WebGLObject> transparentObjects = new ArrayList<WebGLObject>();
-	
-	public double devicePixelRatio = _devicePixelRatio();	
-	public final native double _devicePixelRatio() /*-{
-    	return self.devicePixelRatio !==null ? self.devicePixelRatio : 1.0;
-  	}-*/; 
 	
 	public boolean _logarithmicDepthBuffer = false;
 
@@ -170,7 +129,7 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 //	private boolean shadowMapEnabled = false;
 //	shadowMapType = PCFShadowMap;
-	private CullFaceMode shadowMapCullFace = CullFaceMode.FRONT;
+	private int shadowMapCullFace = GLES20.GL_FRONT;
 	private boolean shadowMapDebug = false;
 	private boolean shadowMapCascade = false;
 	
@@ -185,8 +144,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 	
 	public Map<String, Shader> _programs;
 	
-	private WebGLProgram _currentProgram = null;
-	private WebGLFramebuffer _currentFramebuffer = null;
+	private int _currentProgram = 0;
+	private int _currentFramebuffer = 0;
 	private int _currentMaterialId = -1;
 	private int _currentGeometryGroupHash = -1;
 	private Camera _currentCamera = null;	
@@ -201,9 +160,9 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 	private Material.BLENDING _oldBlending = null;
 	
-	private BlendEquationMode _oldBlendEquation = null;
-	private BlendingFactorSrc _oldBlendSrc = null;
-	private BlendingFactorDest _oldBlendDst = null;
+	private int _oldBlendEquation = 0;
+	private int _oldBlendSrc = 0;
+	private int _oldBlendDst = 0;
 	
 	private Boolean _oldDepthTest = null;
 	private Boolean _oldDepthWrite = null;
@@ -275,53 +234,64 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 	private boolean isAutoUpdateObjects = true;
 	private boolean isAutoUpdateScene = true;
 
+    private int[] tmpGLResult = { 0 };
+
 	/**
-	 * The constructor will create renderer for the {@link Canvas3d} widget.
+	 * The constructor will create renderer for the current EGL context.
 	 * 
-	 * @param gl     the {@link WebGLRenderingContext}
 	 * @param width  the viewport width
 	 * @param height the viewport height
 	 */
-	public WebGLRenderer(WebGLRenderingContext gl, int width, int height)
+	public WebGLRenderer(int width, int height)
 	{
-		this.gl = gl;
-
 		this.setInfo(new WebGlRendererInfo());
 		
 		this._lights           = new RendererLights();
-		this._programs         = GWT.isScript() ? 
-				new FastMap<Shader>() : new HashMap<String, Shader>();
-			
-		this._maxTextures       = gl.getParameteri(WebGLConstants.MAX_TEXTURE_IMAGE_UNITS);
-		this._maxVertexTextures = gl.getParameteri(WebGLConstants.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-		this._maxTextureSize    = gl.getParameteri(WebGLConstants.MAX_TEXTURE_SIZE);
-		this._maxCubemapSize    = gl.getParameteri(WebGLConstants.MAX_CUBE_MAP_TEXTURE_SIZE);
+		this._programs         = new HashMap<String, Shader>();
+
+        GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_IMAGE_UNITS, tmpGLResult, 0);
+		this._maxTextures       = tmpGLResult[0];
+        GLES20.glGetIntegerv(GLES20.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, tmpGLResult, 0);
+		this._maxVertexTextures = tmpGLResult[0];
+        GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_SIZE, tmpGLResult, 0);
+		this._maxTextureSize    = tmpGLResult[0];
+        GLES20.glGetIntegerv(GLES20.GL_MAX_CUBE_MAP_TEXTURE_SIZE, tmpGLResult, 0);
+		this._maxCubemapSize    = tmpGLResult[0];
 
 		this._supportsVertexTextures = ( this._maxVertexTextures > 0 ); 
-		this._supportsBoneTextures = this._supportsVertexTextures && WebGLExtensions.get(gl, WebGLExtensions.Id.OES_texture_float) != null ;
+		this._supportsBoneTextures = this._supportsVertexTextures &&
+                WebGLExtensions.get(WebGLExtensions.Id.OES_texture_float);
 		
-		this._vertexShaderPrecisionHighpFloat = gl.getShaderPrecisionFormat( Shaders.VERTEX_SHADER, ShaderPrecisionSpecifiedTypes.HIGH_FLOAT );
-		this._vertexShaderPrecisionMediumpFloat = gl.getShaderPrecisionFormat( Shaders.VERTEX_SHADER, ShaderPrecisionSpecifiedTypes.MEDIUM_FLOAT );
-		this._vertexShaderPrecisionLowpFloat = gl.getShaderPrecisionFormat( Shaders.VERTEX_SHADER, ShaderPrecisionSpecifiedTypes.LOW_FLOAT );
+		this._vertexShaderPrecisionHighpFloat = new
+                WebGLShaderPrecisionFormat(GLES20.GL_VERTEX_SHADER, GLES20.GL_HIGH_FLOAT);
+		this._vertexShaderPrecisionMediumpFloat = new
+                WebGLShaderPrecisionFormat(GLES20.GL_VERTEX_SHADER, GLES20.GL_MEDIUM_FLOAT);
+		this._vertexShaderPrecisionLowpFloat = new
+                WebGLShaderPrecisionFormat(GLES20.GL_VERTEX_SHADER, GLES20.GL_LOW_FLOAT);
 
-		this._fragmentShaderPrecisionHighpFloat = gl.getShaderPrecisionFormat( Shaders.FRAGMENT_SHADER, ShaderPrecisionSpecifiedTypes.HIGH_FLOAT );
-		this._fragmentShaderPrecisionMediumpFloat = gl.getShaderPrecisionFormat( Shaders.FRAGMENT_SHADER, ShaderPrecisionSpecifiedTypes.MEDIUM_FLOAT );
-		this._fragmentShaderPrecisionLowpFloat = gl.getShaderPrecisionFormat( Shaders.FRAGMENT_SHADER, ShaderPrecisionSpecifiedTypes.LOW_FLOAT );
+		this._fragmentShaderPrecisionHighpFloat = new
+                WebGLShaderPrecisionFormat(GLES20.GL_FRAGMENT_SHADER, GLES20.GL_HIGH_FLOAT);
+		this._fragmentShaderPrecisionMediumpFloat =
+                new WebGLShaderPrecisionFormat(GLES20.GL_FRAGMENT_SHADER, GLES20.GL_MEDIUM_FLOAT);
+		this._fragmentShaderPrecisionLowpFloat = new
+                WebGLShaderPrecisionFormat(GLES20.GL_FRAGMENT_SHADER, GLES20.GL_LOW_FLOAT);
 		
-		this.highpAvailable = _vertexShaderPrecisionHighpFloat.getPrecision() > 0 && _fragmentShaderPrecisionHighpFloat.getPrecision() > 0;
-		this.mediumpAvailable = _vertexShaderPrecisionMediumpFloat.getPrecision() > 0 && _fragmentShaderPrecisionMediumpFloat.getPrecision() > 0;
+		this.highpAvailable = _vertexShaderPrecisionHighpFloat.getPrecision() > 0 &&
+                _fragmentShaderPrecisionHighpFloat.getPrecision() > 0;
+		this.mediumpAvailable = _vertexShaderPrecisionMediumpFloat.getPrecision() > 0 &&
+                _fragmentShaderPrecisionMediumpFloat.getPrecision() > 0;
 		
 		if ( this._precision == Shader.PRECISION.HIGHP && ! highpAvailable ) {
 
 			if ( mediumpAvailable ) {
 
 				this._precision = Shader.PRECISION.MEDIUMP;
-				Log.warn( "WebGLRenderer: highp not supported, using mediump." );
+				Log.w(TAG, "WebGLRenderer: highp not supported, using mediump.");
 
 			} else {
 
 				this._precision = Shader.PRECISION.LOWP;
-				Log.warn( "WebGLRenderer: highp and mediump not supported, using lowp." );
+				Log.w(TAG, "WebGLRenderer: highp and mediump not supported, using lowp.");
 
 			}
 
@@ -330,26 +300,20 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		if ( this._precision == Shader.PRECISION.MEDIUMP && ! mediumpAvailable ) {
 
 			this._precision = Shader.PRECISION.LOWP;
-			Log.warn( "THREE.WebGLRenderer: mediump not supported, using lowp." );
+			Log.w(TAG, "THREE.WebGLRenderer: mediump not supported, using lowp.");
 		}
 
 				
-		WebGLExtensions.get(gl, WebGLExtensions.Id.OES_texture_float);
-		WebGLExtensions.get(gl, WebGLExtensions.Id.OES_texture_float_linear);
-		WebGLExtensions.get(gl, WebGLExtensions.Id.OES_standard_derivatives);
+		WebGLExtensions.get(WebGLExtensions.Id.OES_texture_float);
+		WebGLExtensions.get(WebGLExtensions.Id.OES_texture_float_linear);
+		WebGLExtensions.get(WebGLExtensions.Id.OES_standard_derivatives);
 		
 		if ( _logarithmicDepthBuffer ) 
 		{
-			WebGLExtensions.get(gl, WebGLExtensions.Id.EXT_frag_depth);
+			WebGLExtensions.get(WebGLExtensions.Id.EXT_frag_depth);
 		}
-		
-		WebGLCompressedTextureS3tc GLExtensionCompressedTextureS3TC = (WebGLCompressedTextureS3tc) gl.getExtension( "WEBGL_compressed_texture_s3tc" );
-		if(GLExtensionCompressedTextureS3TC == null)
-			GLExtensionCompressedTextureS3TC = (WebGLCompressedTextureS3tc) gl.getExtension( "MOZ_WEBGL_compressed_texture_s3tc" );
-		if(GLExtensionCompressedTextureS3TC == null)
-			GLExtensionCompressedTextureS3TC = (WebGLCompressedTextureS3tc) gl.getExtension( "WEBKIT_WEBGL_compressed_texture_s3tc" );
-		if(GLExtensionCompressedTextureS3TC == null)
-			Log.warn( "WebGLRenderer: S3TC compressed textures not supported." );
+
+		WebGLExtensions.get(WebGLExtensions.Id.EXT_compressed_texture_s3tc);
 
 		setSize(width, height);
 		setDefaultGLState();
@@ -381,34 +345,38 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 	
 	public boolean supportsFloatTextures() 
 	{
-		return WebGLExtensions.get( this.gl, Id.OES_texture_float ) != null;
+		return WebGLExtensions.get( WebGLExtensions.Id.OES_texture_float );
 	}
 
 	public boolean supportsStandardDerivatives() 
 	{
-		return WebGLExtensions.get( this.gl, Id.OES_standard_derivatives ) != null;
+		return WebGLExtensions.get( WebGLExtensions.Id.OES_standard_derivatives );
 	}
 
 	public boolean supportsCompressedTextureS3TC() 
 	{
-		return WebGLExtensions.get( this.gl, Id.WEBGL_compressed_texture_s3tc ) != null;
+		return WebGLExtensions.get( WebGLExtensions.Id.EXT_compressed_texture_s3tc );
 	}
 
 	public boolean supportsCompressedTexturePVRTC() 
 	{
-		return WebGLExtensions.get( this.gl, Id.WEBGL_compressed_texture_pvrtc ) != null;
+		return WebGLExtensions.get( WebGLExtensions.Id.EXT_compressed_texture_pvrtc );
 	}
 
 	public boolean supportsBlendMinMax() 
 	{
-		return WebGLExtensions.get( this.gl, Id.EXT_blend_minmax ) != null;
+		return WebGLExtensions.get( WebGLExtensions.Id.EXT_blend_minmax );
 	}
 
 	public int getMaxAnisotropy() 
 	{
-		WebGLExtension extension = WebGLExtensions.get( this.gl, Id.EXT_texture_filter_anisotropic ); 
-
-		return extension != null ? getGL().getParameteri(ExtTextureFilterAnisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT) : 0;
+		if (WebGLExtensions.get( WebGLExtensions.Id.EXT_texture_filter_anisotropic )) {
+            GLES20.glGetIntegerv(GLES20Ext.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT,
+                    tmpGLResult, 0);
+            return tmpGLResult[0];
+        } else {
+            return 0;
+        }
 	}
 
 	public Shader.PRECISION getPrecision() {
@@ -547,47 +515,33 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		this.info = info;
 	}
 
-	/**
-	 * Gets the WebGL context from the {@link Canvas3d} widget.
-	 * 
-	 * @return the underlying context implementation for drawing onto the
-	 *         {@link Canvas3d}.
-	 */
-	public WebGLRenderingContext getGL()
+	private void setDefaultGLState()
 	{
-		return this.gl;
-	}
+		GLES20.glClearColor(0, 0, 0, 1);
+		GLES20.glClearDepthf(1);
+		GLES20.glClearStencil(0);
 
-	private void setDefaultGLState() 
-	{
-		getGL().clearColor( 0.0, 0.0, 0.0, 1.0 );
-		getGL().clearDepth( 1 );
-		getGL().clearStencil( 0 );
+		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+		GLES20.glDepthFunc(GLES20.GL_LEQUAL);
 
-		getGL().enable( EnableCap.DEPTH_TEST );
-		getGL().depthFunc( DepthFunction.LEQUAL );
+		GLES20.glFrontFace(GLES20.GL_CCW);
+		GLES20.glCullFace(GLES20.GL_BACK);
+		GLES20.glEnable(GLES20.GL_CULL_FACE);
 
-		getGL().frontFace( FrontFaceDirection.CCW );
-		getGL().cullFace( CullFaceMode.BACK );
-		getGL().enable( EnableCap.CULL_FACE );
-
-		getGL().enable( EnableCap.BLEND );
-		getGL().blendEquation( BlendEquationMode.FUNC_ADD );
-		getGL().blendFunc( BlendingFactorSrc.SRC_ALPHA, BlendingFactorDest.ONE_MINUS_SRC_ALPHA );
+		GLES20.glEnable(GLES20.GL_BLEND);
+		GLES20.glBlendEquation(GLES20.GL_FUNC_ADD);
+		GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 		
-		getGL().viewport( _viewportX, _viewportY, _viewportWidth, _viewportHeight );
-		getGL().clearColor( clearColor.getR(), clearColor.getG(), clearColor.getB(), clearAlpha );
+		GLES20.glViewport(_viewportX, _viewportY, _viewportWidth, _viewportHeight);
+		GLES20.glClearColor((float) clearColor.getR(), (float) clearColor.getG(),
+                (float) clearColor.getB(), (float) clearAlpha);
 	}
-
-	/**
-	 * Return a Boolean true if the context supports vertex textures.
-	 */
 
 	/**
 	 * Sets the sizes and also sets {@link #setViewport(int, int, int, int)} size.
 	 * 
-	 * @param width  the {@link Canvas3d} width.
-	 * @param height the {@link Canvas3d} height.
+	 * @param width  the canvas width.
+	 * @param height the canvas height.
 	 */
 	@Override
 	public void setSize(int width, int height)
@@ -595,11 +549,9 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		super.setSize(width, height);
 
 		setViewport(0, 0, width, height);
-		
-		EVENT_BUS.fireEvent(new ViewportResizeEvent(this));
 	}
 
-	/**
+    /**
 	 * Sets the viewport to render from (X, Y) to (X + absoluteWidth, Y + absoluteHeight).
 	 * By default X and Y = 0.
 	 */
@@ -611,7 +563,10 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		this._viewportWidth = width;
 		this._viewportHeight = height;
 
-		getGL().viewport(this._viewportX, this._viewportY, this._viewportWidth, this._viewportHeight);
+		GLES20.glViewport(this._viewportX, this._viewportY,
+                this._viewportWidth, this._viewportHeight);
+
+        fireViewportResizeEvent(width, height);
 	}
 	
 	/**
@@ -619,7 +574,7 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 	 */
 	public void setScissor(int x, int y, int width, int height)
 	{
-		getGL().scissor(x, y, width, height);
+		GLES20.glScissor(x, y, width, height);
 	}
 
 	/**
@@ -630,9 +585,9 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 	public void enableScissorTest(boolean enable)
 	{
 		if (enable)
-			getGL().enable(EnableCap.SCISSOR_TEST);
+			GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
 		else
-			getGL().disable(EnableCap.SCISSOR_TEST);
+			GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
 	}
 
 	@Override
@@ -641,7 +596,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		this.clearColor.copy(color);
 		this.clearAlpha = alpha;
 
-		getGL().clearColor( this.clearColor.getR(), this.clearColor.getG(), this.clearColor.getB(), this.clearAlpha );
+		GLES20.glClearColor((float) this.clearColor.getR(), (float) this.clearColor.getG(),
+                (float) this.clearColor.getB(), (float) this.clearAlpha);
 	}
 
 	@Override
@@ -662,32 +618,33 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 	{
 		int bits = 0;
 
-		if ( color ) bits |= ClearBufferMask.COLOR_BUFFER_BIT.getValue();
-		if ( depth ) bits |= ClearBufferMask.DEPTH_BUFFER_BIT.getValue();
-		if ( stencil ) bits |= ClearBufferMask.STENCIL_BUFFER_BIT.getValue();
+		if ( color ) bits |= GLES20.GL_COLOR_BUFFER_BIT;
+		if ( depth ) bits |= GLES20.GL_DEPTH_BUFFER_BIT;
+		if ( stencil ) bits |= GLES20.GL_STENCIL_BUFFER_BIT;
 
-		getGL().clear( bits );
+		GLES20.glClear(bits);
 	}
 	
 	public void clearColor() 
 	{
-		getGL().clear( ClearBufferMask.COLOR_BUFFER_BIT.getValue() );
+		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 	}
 
 	public void clearDepth() 
 	{
-		getGL().clear( ClearBufferMask.DEPTH_BUFFER_BIT.getValue() );
+		GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
 	}
 
 	public void clearStencil() 
 	{
-		getGL().clear( ClearBufferMask.STENCIL_BUFFER_BIT.getValue() );
+		GLES20.glClear(GLES20.GL_STENCIL_BUFFER_BIT);
 	}
 
 	/**
 	 * Clear {@link RenderTargetTexture} and GL buffers.
 	 */
-	public void clearTarget( RenderTargetTexture renderTarget, boolean color, boolean depth, boolean stencil ) 
+	public void clearTarget( RenderTargetTexture renderTarget,
+                             boolean color, boolean depth, boolean stencil )
 	{
 		setRenderTarget( renderTarget );
 		clear( color, depth, stencil );
@@ -695,7 +652,7 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 	
 	public void resetGLState() 
 	{
-		_currentProgram = null;
+		_currentProgram = 0;
 		_currentCamera = null;
 
 		_oldBlending = null;
@@ -725,7 +682,7 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 		if ( _enabledAttributes.get( attribute ) == 0 ) {
 
-			getGL().enableVertexAttribArray( attribute );
+			GLES20.glEnableVertexAttribArray(attribute);
 			_enabledAttributes.set( attribute, 1);
 
 		}
@@ -738,7 +695,7 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 			if ( _enabledAttributes.get( i ) != _newAttributes.get( i ) ) {
 
-				getGL().disableVertexAttribArray( i );
+				GLES20.glDisableVertexAttribArray(i);
 				_enabledAttributes.set( i, 0);
 
 			}
@@ -751,7 +708,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 	/**
 	 * Morph Targets Buffer initialization
 	 */
-	private void setupMorphTargets ( Material material, WebGLGeometry geometrybuffer, Mesh object )
+	private void setupMorphTargets ( Material material, WebGLGeometry geometrybuffer,
+                                     Mesh object )
 	{
 
 		// set base
@@ -760,16 +718,19 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 		if ( object.morphTargetBase != - 1 && attributes.get("position") >= 0) 
 		{
-			getGL().bindBuffer( BufferTarget.ARRAY_BUFFER, geometrybuffer.__webglMorphTargetsBuffers.get( object.morphTargetBase ) );
+			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER,
+                    geometrybuffer.__webglMorphTargetsBuffers.get(object.morphTargetBase));
 			enableAttribute( attributes.get("position") );
-			getGL().vertexAttribPointer( attributes.get("position"), 3, DataType.FLOAT, false, 0, 0 );
+			GLES20.glVertexAttribPointer(attributes.get("position"), 3,
+                    GLES20.GL_FLOAT, false, 0, 0);
 
 		} 
 		else if ( attributes.get("position") >= 0 ) 
 		{
-			getGL().bindBuffer( BufferTarget.ARRAY_BUFFER, geometrybuffer.__webglVertexBuffer );
+			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometrybuffer.__webglVertexBuffer);
 			enableAttribute( attributes.get("position") );
-			getGL().vertexAttribPointer( attributes.get("position"), 3, DataType.FLOAT, false, 0, 0 );
+			GLES20.glVertexAttribPointer(attributes.get("position"), 3,
+                    GLES20.GL_FLOAT, false, 0, 0);
 		}
 
 		if ( object.morphTargetForcedOrder.size() > 0 ) 
@@ -786,17 +747,22 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 			) {
 				if ( attributes.get("morphTarget" + m )  >= 0 ) 
 				{
-					gl.bindBuffer( BufferTarget.ARRAY_BUFFER, geometrybuffer.__webglMorphTargetsBuffers.get( order.get( m ) ) );
+					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER,
+                            geometrybuffer.__webglMorphTargetsBuffers.get(order.get(m)));
 					enableAttribute( attributes.get("morphTarget" + m ) );
-					gl.vertexAttribPointer( attributes.get("morphTarget" + m) , 3, DataType.FLOAT, false, 0, 0 );
+					GLES20.glVertexAttribPointer(attributes.get("morphTarget" + m), 3,
+                            GLES20.GL_FLOAT, false, 0, 0);
 					
 				}
 
-				if (  attributes.get("morphNormal" + m )  >= 0 && material instanceof HasSkinning && ((HasSkinning)material).isMorphNormals()) 
+				if (  attributes.get("morphNormal" + m )  >= 0 &&
+                        material instanceof HasSkinning && ((HasSkinning)material).isMorphNormals())
 				{
-					gl.bindBuffer( BufferTarget.ARRAY_BUFFER, geometrybuffer.__webglMorphNormalsBuffers.get( order.get( m ) ) );
+					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER,
+                            geometrybuffer.__webglMorphNormalsBuffers.get(order.get(m)));
 					enableAttribute( attributes.get("morphNormal" + m ));
-					gl.vertexAttribPointer( attributes.get("morphNormal" + m ), 3, DataType.FLOAT, false, 0, 0 );
+					GLES20.glVertexAttribPointer(attributes.get("morphNormal" + m), 3,
+                            GLES20.GL_FLOAT, false, 0, 0);
 				}
 
 				object.__webglMorphTargetInfluences.set( m , influences.get( order.get( m ) ));
@@ -860,17 +826,22 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 					if ( attributes.get( "morphTarget" + m ) >= 0 ) {
 
-						gl.bindBuffer( BufferTarget.ARRAY_BUFFER, geometrybuffer.__webglMorphTargetsBuffers.get( influenceIndex ) );
+						GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER,
+                                geometrybuffer.__webglMorphTargetsBuffers.get(influenceIndex));
 						enableAttribute( attributes.get( "morphTarget" + m ) );
-						gl.vertexAttribPointer( attributes.get( "morphTarget" + m ), 3, DataType.FLOAT, false, 0, 0 );
+						GLES20.glVertexAttribPointer(attributes.get("morphTarget" + m), 3,
+                                GLES20.GL_FLOAT, false, 0, 0);
 
 					}
 
-					if ( attributes.get( "morphNormal" + m ) >= 0 && ((HasSkinning)material).isMorphNormals() ) {
+					if ( attributes.get( "morphNormal" + m ) >= 0 &&
+                            ((HasSkinning)material).isMorphNormals() ) {
 
-						gl.bindBuffer( BufferTarget.ARRAY_BUFFER, geometrybuffer.__webglMorphNormalsBuffers.get( influenceIndex ) );
+						GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER,
+                                geometrybuffer.__webglMorphNormalsBuffers.get(influenceIndex));
 						enableAttribute( attributes.get( "morphNormal" + m ) );
-						gl.vertexAttribPointer( attributes.get( "morphNormal" + m ), 3, DataType.FLOAT, false, 0, 0 );
+						GLES20.glVertexAttribPointer(attributes.get("morphNormal" + m), 3,
+                                GLES20.GL_FLOAT, false, 0, 0);
 
 					}
 
@@ -879,11 +850,13 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 				} else {
 
 					/*
-					_gl.vertexAttribPointer( attributes[ "morphTarget" + m ], 3, _gl.FLOAT, false, 0, 0 );
+					_gl.vertexAttribPointer( attributes[ "morphTarget" + m ], 3,
+					_gl.FLOAT, false, 0, 0 );
 
 					if ( material.morphNormals ) {
 
-						_gl.vertexAttribPointer( attributes[ "morphNormal" + m ], 3, _gl.FLOAT, false, 0, 0 );
+						_gl.vertexAttribPointer( attributes[ "morphNormal" + m ], 3,
+						_gl.FLOAT, false, 0, 0 );
 
 					}
 					*/
@@ -897,10 +870,11 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		}
 
 		// load updated influences uniform
-		if( uniforms.get("morphTargetInfluences").getLocation() != null ) 
+		if( uniforms.get("morphTargetInfluences").getLocation() != -1 )
 		{
 			Float32Array vals = object.__webglMorphTargetInfluences;
-			getGL().uniform1fv( uniforms.get("morphTargetInfluences").getLocation(), vals );
+            GLES20.glUniform1fv( uniforms.get("morphTargetInfluences").getLocation(),
+                    vals.getLength(), vals.getFloatBuffer() );
 		}
 	}
 	
@@ -908,24 +882,24 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 		initAttributes();
 //
-//		if ( object.hasPositions && ! object.__webglVertexBuffer ) object.__webglVertexBuffer = getGL().createBuffer();
-//		if ( object.hasNormals && ! object.__webglNormalBuffer ) object.__webglNormalBuffer = getGL().createBuffer();
-//		if ( object.hasUvs && ! object.__webglUvBuffer ) object.__webglUvBuffer = getGL().createBuffer();
-//		if ( object.hasColors && ! object.__webglColorBuffer ) object.__webglColorBuffer = getGL().createBuffer();
+//		if ( object.hasPositions && ! object.__webglVertexBuffer ) object.__webglVertexBuffer = GLES20.glCreateBuffer();
+//		if ( object.hasNormals && ! object.__webglNormalBuffer ) object.__webglNormalBuffer = GLES20.glCreateBuffer();
+//		if ( object.hasUvs && ! object.__webglUvBuffer ) object.__webglUvBuffer = GLES20.glCreateBuffer();
+//		if ( object.hasColors && ! object.__webglColorBuffer ) object.__webglColorBuffer = GLES20.glCreateBuffer();
 //
 //		if ( object.hasPositions )
 //		{
 //
-//			getGL().bindBuffer( BufferTarget.ARRAY_BUFFER, object.__webglVertexBuffer );
-//			getGL().bufferData( BufferTarget.ARRAY_BUFFER, object.positionArray, BufferUsage.DYNAMIC_DRAW );
+//			GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, object.__webglVertexBuffer );
+//			GLES20.glBufferData( GLES20.GL_ARRAY_BUFFER, object.positionArray, GLES20.GL_DYNAMIC_DRAW );
 //			enableAttribute( program.attributes.position );
-//			getGL().vertexAttribPointer( program.attributes.position, 3, getGL().FLOAT, false, 0, 0 );
+//			GLES20.glVertexAttribPointer( program.attributes.position, 3, getGL().FLOAT, false, 0, 0 );
 //
 //		}
 //
 //		if ( object.hasNormals ) {
 //
-//			getGL().bindBuffer( BufferTarget.ARRAY_BUFFER, object.__webglNormalBuffer );
+//			GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, object.__webglNormalBuffer );
 //
 //			if (((HasShading)material).getShading() == Material.SHADING.FLAT ) {
 //
@@ -970,33 +944,33 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 //
 //			}
 //
-//			getGL().bufferData( BufferTarget.ARRAY_BUFFER, object.normalArray, BufferUsage.DYNAMIC_DRAW );
+//			GLES20.glBufferData( GLES20.GL_ARRAY_BUFFER, object.normalArray, GLES20.GL_DYNAMIC_DRAW );
 //			enableAttribute( program.attributes.normal );
-//			getGL().vertexAttribPointer( program.attributes.normal, 3, getGL().FLOAT, false, 0, 0 );
+//			GLES20.glVertexAttribPointer( program.attributes.normal, 3, getGL().FLOAT, false, 0, 0 );
 //
 //		}
 //
 //		if ( object.hasUvs && material.map ) {
 //
-//			getGL().bindBuffer( BufferTarget.ARRAY_BUFFER, object.__webglUvBuffer );
-//			getGL().bufferData( BufferTarget.ARRAY_BUFFER, object.uvArray, BufferUsage.DYNAMIC_DRAW );
+//			GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, object.__webglUvBuffer );
+//			GLES20.glBufferData( GLES20.GL_ARRAY_BUFFER, object.uvArray, GLES20.GL_DYNAMIC_DRAW );
 //			enableAttribute( program.attributes.uv );
-//			getGL().vertexAttribPointer( program.attributes.uv, 2, DataType.FLOAT, false, 0, 0 );
+//			GLES20.glVertexAttribPointer( program.attributes.uv, 2, GLES20.GL_FLOAT, false, 0, 0 );
 //
 //		}
 //
 //		if ( object.hasColors && ((HasVertexColors)material).isVertexColors != Material.COLORS.NO ) {
 //
-//			getGL().bindBuffer( BufferTarget.ARRAY_BUFFER, object.__webglColorBuffer );
-//			getGL().bufferData( BufferTarget.ARRAY_BUFFER, object.colorArray, BufferUsage.DYNAMIC_DRAW );
+//			GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, object.__webglColorBuffer );
+//			GLES20.glBufferData( GLES20.GL_ARRAY_BUFFER, object.colorArray, GLES20.GL_DYNAMIC_DRAW );
 //			enableAttribute( program.attributes.color );
-//			getGL().vertexAttribPointer( program.attributes.color, 3, DataType.FLOAT, false, 0, 0 );
+//			GLES20.glVertexAttribPointer( program.attributes.color, 3, GLES20.GL_FLOAT, false, 0, 0 );
 //
 //		}
 //
 //		disableUnusedAttributes();
 //
-//		getGL().drawArrays( BeginMode.TRIANGLES, 0, object.count );
+//		GLES20.glDrawArrays( GLES20.GL_TRIANGLES, 0, object.count );
 //
 //		object.count = 0;
 
@@ -1020,22 +994,23 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 					int size = geometryAttribute.getItemSize();
 
-					gl.bindBuffer( BufferTarget.ARRAY_BUFFER, geometryAttribute.getBuffer() );
+					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometryAttribute.getBuffer());
 
 					enableAttribute( programAttribute );
 
-					gl.vertexAttribPointer( programAttribute, size, DataType.FLOAT, false, 0, startIndex * size * 4 ); // 4 bytes per Float32
+					GLES20.glVertexAttribPointer(programAttribute, size, GLES20.GL_FLOAT,
+                            false, 0, startIndex * size * 4); // 4 bytes per Float32
 
 				}
 //				else if ( material.defaultAttributeValues != null ) {
 //
 //					if ( material.defaultAttributeValues[ key ].length === 2 ) {
 //
-//						gl.vertexAttrib2fv( programAttribute, material.defaultAttributeValues[ key ] );
+//						GLES20.glVertexAttrib2fv( programAttribute, material.defaultAttributeValues[ key ] );
 //
 //					} else if ( material.defaultAttributeValues[ key ].length === 3 ) {
 //
-//						gl.vertexAttrib3fv( programAttribute, material.defaultAttributeValues[ key ] );
+//						GLES20.glVertexAttrib3fv( programAttribute, material.defaultAttributeValues[ key ] );
 //
 //					}
 //
@@ -1051,7 +1026,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 	
 	//camera, lights, fog, material, geometry, object
-	public void renderBufferDirect( Camera camera, List<Light> lights, AbstractFog fog, Material material, BufferGeometry geometry, GeometryObject object ) 
+	public void renderBufferDirect( Camera camera, List<Light> lights, AbstractFog fog,
+                                    Material material, BufferGeometry geometry, GeometryObject object )
 	{
 		if ( ! material.isVisible() ) 
 			return;
@@ -1061,9 +1037,11 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		Map<String, Integer> attributes = material.getShader().getAttributesLocations();
 		
 		boolean updateBuffers = false;
-		int wireframeBit = material instanceof HasWireframe && ((HasWireframe)material).isWireframe() ? 1 : 0;
+		int wireframeBit = material instanceof HasWireframe &&
+                ((HasWireframe)material).isWireframe() ? 1 : 0;
 
-		int geometryGroupHash = ( geometry.getId() * 0xffffff ) + ( material.getShader().getId() * 2 ) + wireframeBit;
+		int geometryGroupHash = ( geometry.getId() * 0xffffff ) +
+                ( material.getShader().getId() * 2 ) + wireframeBit;
 
 		if ( geometryGroupHash != this._currentGeometryGroupHash ) 
 		{
@@ -1077,19 +1055,19 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 		}
 
-		WebGLRenderingContext gl = getGL();
-				
 		// render mesh
 
 		if ( object instanceof Mesh ) 
 		{
-			BeginMode mode = material instanceof HasWireframe && ((HasWireframe)material).isWireframe() ? BeginMode.LINES : BeginMode.TRIANGLES;
+			int mode = material instanceof HasWireframe &&
+                    ((HasWireframe)material).isWireframe() ?
+                    GLES20.GL_LINES : GLES20.GL_TRIANGLES;
 			
 			BufferAttribute index = geometry.getAttribute("index");
 
 			if(index != null)
 			{
-				DrawElementsType type = DrawElementsType.UNSIGNED_SHORT;
+				int type = GLES20.GL_UNSIGNED_SHORT;
 				int size = 2;
 
 				List<BufferGeometry.DrawCall> offsets = geometry.getDrawcalls();
@@ -1100,14 +1078,16 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 						setupVertexAttributes( material, program, geometry, 0 );
 
-						getGL().bindBuffer( BufferTarget.ELEMENT_ARRAY_BUFFER, index.getBuffer() );
+						GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER,
+                                index.getBuffer());
 
 					}
 
-					getGL().drawElements( mode, index.getArray().getLength(), type, 0 );
+					GLES20.glDrawElements(mode, index.getArray().getLength(), type, 0);
 
 					this.info.getRender().calls ++;
-					this.info.getRender().vertices += index.getArray().getLength(); // not really true, here vertices can be shared
+					this.info.getRender().vertices +=
+                            index.getArray().getLength(); // not really true, here vertices can be shared
 					this.info.getRender().faces += index.getArray().getLength() / 3;
 
 				} else {
@@ -1125,14 +1105,16 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 						if ( updateBuffers ) {
 
 							setupVertexAttributes( material, program, geometry, startIndex );
-							getGL().bindBuffer( BufferTarget.ELEMENT_ARRAY_BUFFER, index.getBuffer() );
+							GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, index.getBuffer());
 
 						}
 
-						gl.drawElements( mode,  offsets.get( i ).count, type, offsets.get( i ).start * size  );
+						GLES20.glDrawElements(mode, offsets.get(i).count, type,
+                                offsets.get(i).start * size);
 
 						getInfo().getRender().calls ++;
-						getInfo().getRender().vertices += offsets.get( i ).count; // not really true, here vertices can be shared
+						getInfo().getRender().vertices +=
+                                offsets.get( i ).count; // not really true, here vertices can be shared
 						getInfo().getRender().faces += offsets.get( i ).count / 3;
 					}
 
@@ -1154,7 +1136,7 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 				// render non-indexed triangles
 
-				gl.drawArrays( mode, 0, position.getArray().getLength() / 3 );
+				GLES20.glDrawArrays(mode, 0, position.getArray().getLength() / 3);
 
 				this.info.getRender().calls ++;
 				this.info.getRender().vertices += position.getArray().getLength() / 3;
@@ -1177,7 +1159,7 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 			// render particles
 
-			gl.drawArrays( BeginMode.POINTS, 0, position.getArray().getLength() / 3 );
+			GLES20.glDrawArrays(GLES20.GL_POINTS, 0, position.getArray().getLength() / 3);
 
 			this.info.getRender().calls ++;
 			this.info.getRender().points += position.getArray().getLength() / 3;
@@ -1185,8 +1167,9 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		else if ( object instanceof Line ) 
 		{
 
-			BeginMode mode = ( ((Line)object).getMode() == Line.MODE.STRIPS ) ? BeginMode.LINE_STRIP : BeginMode.LINES;
-			object.setLineWidth(gl, ((LineBasicMaterial)material).getLinewidth());
+			int mode = ( ((Line)object).getMode() == Line.MODE.STRIPS ) ?
+                    GLES20.GL_LINE_STRIP : GLES20.GL_LINES;
+			object.setLineWidth(((LineBasicMaterial)material).getLinewidth());
 
 			BufferAttribute index = geometry.getAttribute("index");
 
@@ -1203,7 +1186,7 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 //
 //				} else {
 
-					DrawElementsType type = DrawElementsType.UNSIGNED_SHORT;
+					int type = GLES20.GL_UNSIGNED_SHORT;
 					int size = 2;
 
 //				}
@@ -1215,14 +1198,16 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 					if ( updateBuffers ) {
 
 						setupVertexAttributes( material, program, geometry, 0 );
-						gl.bindBuffer( BufferTarget.ELEMENT_ARRAY_BUFFER, index.getBuffer() );
+						GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, index.getBuffer());
 
 					}
 
-					gl.drawElements( mode, index.getArray().getLength(), type, 0 ); // 2 bytes per Uint16Array
+					GLES20.glDrawElements(mode, index.getArray().getLength(),
+                            type, 0); // 2 bytes per Uint16Array
 
 					this.info.getRender().calls ++;
-					this.info.getRender().vertices += index.getArray().getLength(); // not really true, here vertices can be shared
+					this.info.getRender().vertices +=
+                            index.getArray().getLength(); // not really true, here vertices can be shared
 
 				} else {
 
@@ -1239,16 +1224,18 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 						if ( updateBuffers ) {
 
 							setupVertexAttributes( material, program, geometry, startIndex );
-							gl.bindBuffer( BufferTarget.ELEMENT_ARRAY_BUFFER, index.getBuffer() );
+							GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, index.getBuffer());
 
 						}
 
 						// render indexed lines
 
-						gl.drawElements( mode, drawcalls.get( i ).count, type, drawcalls.get( i ).start * size ); // 2 bytes per Uint16Array
+						GLES20.glDrawElements(mode, drawcalls.get(i).count, type,
+                                drawcalls.get(i).start * size); // 2 bytes per Uint16Array
 
 						this.info.getRender().calls ++;
-						this.info.getRender().vertices += drawcalls.get( i ).count; // not really true, here vertices can be shared
+						this.info.getRender().vertices +=
+                                drawcalls.get( i ).count; // not really true, here vertices can be shared
 
 					}
 
@@ -1266,7 +1253,7 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 				BufferAttribute position = geometry.getAttribute("position");
 
-				gl.drawArrays( mode, 0, position.getArray().getLength() / 3 );
+				GLES20.glDrawArrays(mode, 0, position.getArray().getLength() / 3);
 
 				this.info.getRender().calls ++;
 				this.info.getRender().points += position.getArray().getLength() / 3;
@@ -1278,24 +1265,23 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 	
 	public List<GeometryGroup> makeGroups( Geometry geometry, boolean usesFaceMaterial ) {
 		
-		long maxVerticesInGroup = WebGLExtensions.get(gl, WebGLExtensions.Id.OES_element_index_uint) != null ? 4294967296L : 65535L;
+		long maxVerticesInGroup = WebGLExtensions.get(WebGLExtensions.Id.OES_element_index_uint)
+                ? 4294967296L : 65535L;
 		
 		int numMorphTargets = geometry.getMorphTargets().size();
 		int numMorphNormals = geometry.getMorphNormals().size();
 
 		String groupHash;
 
-		Map<String, Integer> hash_map = GWT.isScript() ? 
-				new FastMap<Integer>() : new HashMap<String, Integer>(); 
+		Map<String, Integer> hash_map = new HashMap<String, Integer>();
 
-		Map<String, GeometryGroup> groups = GWT.isScript() ? 
-				new FastMap<GeometryGroup>() : new HashMap<String, GeometryGroup>();
+		Map<String, GeometryGroup> groups = new HashMap<String, GeometryGroup>();
 				
 		List<GeometryGroup> groupsList = new ArrayList<GeometryGroup>();
 
 		for ( int f = 0, fl = geometry.getFaces().size(); f < fl; f ++ ) {
 
-			Face3 face = geometry.getFaces().get( f );
+			Face3 face = geometry.getFaces().get(f);
 			Integer materialIndex = usesFaceMaterial ? face.getMaterialIndex() : 0;
 
 			if ( ! hash_map.containsKey(materialIndex) ) {
@@ -1308,7 +1294,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 			if ( ! groups.containsKey(groupHash) ) {
 
-				GeometryGroup group = new GeometryGroup(materialIndex, numMorphTargets, numMorphNormals);
+				GeometryGroup group = new GeometryGroup(materialIndex,
+                        numMorphTargets, numMorphNormals);
 				
 				groups.put(groupHash, group);
 				groupsList.add( group );
@@ -1322,7 +1309,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 				if ( ! groups.containsKey(groupHash) ) {
 
-					GeometryGroup group = new GeometryGroup(materialIndex, numMorphTargets, numMorphNormals);
+					GeometryGroup group = new GeometryGroup(materialIndex,
+                            numMorphTargets, numMorphNormals);
 					groups.put(groupHash, group);
 					groupsList.add( group );
 					
@@ -1344,17 +1332,20 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		Material material = object.getMaterial();
 		boolean addBuffers = false;
 
-		if ( GeometryGroup.geometryGroups.get( geometry.getId() + "" ) == null || geometry.isGroupsNeedUpdate() ) {
+		if ( GeometryGroup.geometryGroups.get( geometry.getId() + "" ) == null ||
+                geometry.isGroupsNeedUpdate() ) {
 
 			this._webglObjects.put(object.getId() + "", new ArrayList<WebGLObject>());
 
-			GeometryGroup.geometryGroups.put( geometry.getId() + "", makeGroups( geometry, material instanceof MeshFaceMaterial ));
+			GeometryGroup.geometryGroups.put( geometry.getId() + "",
+                    makeGroups( geometry, material instanceof MeshFaceMaterial ));
 
 			geometry.setGroupsNeedUpdate( false );
 
 		}
 
-		List<GeometryGroup> geometryGroupsList = GeometryGroup.geometryGroups.get( geometry.getId() + "" );
+		List<GeometryGroup> geometryGroupsList =
+                GeometryGroup.geometryGroups.get( geometry.getId() + "" );
 
 		// create separate VBOs per geometry chunk
 
@@ -1364,10 +1355,10 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 			// initialise VBO on the first access
 
-			if ( geometryGroup.__webglVertexBuffer == null ) {
+			if ( geometryGroup.__webglVertexBuffer == 0 ) {
 
 				((Mesh)object).createBuffers(this, geometryGroup);
-				((Mesh)object).initBuffers(gl, geometryGroup);
+				((Mesh)object).initBuffers(geometryGroup);
 
 				geometry.setVerticesNeedUpdate( true );
 				geometry.setMorphTargetsNeedUpdate( true );
@@ -1407,7 +1398,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 		}
 
-		AbstractGeometry geometry = object instanceof GeometryObject ? ((GeometryObject)object).getGeometry() : null;
+		AbstractGeometry geometry = object instanceof GeometryObject ?
+                ((GeometryObject)object).getGeometry() : null;
 
 		if ( geometry == null ) {
 
@@ -1428,10 +1420,10 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 			} else if ( object instanceof Line ) {
 
-				if ( geometry.__webglVertexBuffer == null ) {
+				if ( geometry.__webglVertexBuffer == 0 ) {
 
 					((Line)object).createBuffers(this);
-					((Line)object).initBuffers(gl);
+					((Line)object).initBuffers();
 
 					geometry.setVerticesNeedUpdate( true );
 					geometry.setColorsNeedUpdate( true );
@@ -1441,10 +1433,10 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 			} else if ( object instanceof PointCloud ) {
 
-				if ( geometry.__webglVertexBuffer == null ) {
+				if ( geometry.__webglVertexBuffer == 0 ) {
 					
 					((PointCloud)object).createBuffers(this);
-					((PointCloud)object).initBuffers(gl);
+					((PointCloud)object).initBuffers();
 
 					geometry.setVerticesNeedUpdate( true );
 					geometry.setColorsNeedUpdate( true );
@@ -1467,7 +1459,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 				} else if ( geometry instanceof Geometry ) {
 
-					List<GeometryGroup> geometryGroupsList = GeometryGroup.geometryGroups.get( geometry.getId() + "" );
+					List<GeometryGroup> geometryGroupsList =
+                            GeometryGroup.geometryGroups.get( geometry.getId() + "" );
 
 					for ( int i = 0,l = geometryGroupsList.size(); i < l; i ++ ) {
 
@@ -1481,7 +1474,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 				addBuffer( geometry, (GeometryObject) object );
 
-			} /*else if ( object instanceof ImmediateRenderObject || object.immediateRenderCallback ) {
+			} /*else if ( object instanceof ImmediateRenderObject ||
+                    object.immediateRenderCallback ) {
 
 				addBufferImmediate( _webglObjectsImmediate, object );
 
@@ -1534,7 +1528,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 				List<WebGLObject> webglObjects = this._webglObjects.get( object.getId() + "" );	
 			
-				if ( webglObjects != null && ( object.isFrustumCulled() == false || _frustum.isIntersectsObject( (GeometryObject) object ) == true ) ) {
+				if ( webglObjects != null && ( object.isFrustumCulled() == false ||
+                        _frustum.isIntersectsObject( (GeometryObject) object ) == true ) ) {
 
 					updateObject( (GeometryObject) object, scene );
 
@@ -1603,7 +1598,7 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 		if ( geometry instanceof BufferGeometry ) {
 
-			((BufferGeometry)geometry).setDirectBuffers(gl);
+			((BufferGeometry)geometry).setDirectBuffers();
 
 		} else if ( object instanceof Mesh ) {
 
@@ -1615,7 +1610,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 			}
 
-			List<GeometryGroup> geometryGroupsList = GeometryGroup.geometryGroups.get( geometry.getId() + "" );
+			List<GeometryGroup> geometryGroupsList =
+                    GeometryGroup.geometryGroups.get( geometry.getId() + "" );
 
 			for ( int i = 0, il = geometryGroupsList.size(); i < il; i ++ ) {
 
@@ -1625,17 +1621,21 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 				if ( geometry.isGroupsNeedUpdate() ) {
 
-					((Mesh)object).initBuffers( gl, geometryGroup );
+					((Mesh)object).initBuffers( geometryGroup );
 
 				}
 
-				boolean customAttributesDirty = (material instanceof ShaderMaterial) && ((ShaderMaterial)material).getShader().areCustomAttributesDirty();
+				boolean customAttributesDirty = (material instanceof ShaderMaterial) &&
+                        ((ShaderMaterial)material).getShader().areCustomAttributesDirty();
 
-				if ( geometry.isVerticesNeedUpdate() || geometry.isMorphTargetsNeedUpdate() || geometry.isElementsNeedUpdate() ||
+				if ( geometry.isVerticesNeedUpdate() || geometry.isMorphTargetsNeedUpdate() ||
+                        geometry.isElementsNeedUpdate() ||
 					 geometry.isUvsNeedUpdate() || geometry.isNormalsNeedUpdate() ||
-					 geometry.isColorsNeedUpdate() || geometry.isTangentsNeedUpdate() || customAttributesDirty ) {
+					 geometry.isColorsNeedUpdate() || geometry.isTangentsNeedUpdate() ||
+                        customAttributesDirty ) {
 
-					((Mesh)object).setBuffers( gl, geometryGroup, BufferUsage.DYNAMIC_DRAW, ! ((Geometry)geometry).isDynamic(), material );
+					((Mesh)object).setBuffers( geometryGroup, GLES20.GL_DYNAMIC_DRAW,
+                            ! ((Geometry)geometry).isDynamic(), material );
 
 				}
 
@@ -1657,11 +1657,13 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 			material = getBufferMaterial( object, (Geometry)geometry );
 
-			boolean customAttributesDirty = (material instanceof ShaderMaterial) && ((ShaderMaterial)material).getShader().areCustomAttributesDirty();
+			boolean customAttributesDirty = (material instanceof ShaderMaterial) &&
+                    ((ShaderMaterial)material).getShader().areCustomAttributesDirty();
 
-			if ( geometry.isVerticesNeedUpdate() || geometry.isColorsNeedUpdate() || geometry.isLineDistancesNeedUpdate() || customAttributesDirty ) {
+			if ( geometry.isVerticesNeedUpdate() || geometry.isColorsNeedUpdate() ||
+                    geometry.isLineDistancesNeedUpdate() || customAttributesDirty ) {
 
-				((Line)object).setBuffers( gl, BufferUsage.DYNAMIC_DRAW );
+				((Line)object).setBuffers( GLES20.GL_DYNAMIC_DRAW );
 
 			}
 
@@ -1678,11 +1680,13 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 			material = getBufferMaterial( object, (Geometry)geometry );
 
-			boolean customAttributesDirty = (material instanceof ShaderMaterial) && ((ShaderMaterial)material).getShader().areCustomAttributesDirty();
+			boolean customAttributesDirty = (material instanceof ShaderMaterial) &&
+                    material.getShader().areCustomAttributesDirty();
 
-			if ( geometry.isVerticesNeedUpdate() || geometry.isColorsNeedUpdate() || ((PointCloud)object).isSortParticles() || customAttributesDirty ) {
+			if ( geometry.isVerticesNeedUpdate() || geometry.isColorsNeedUpdate() ||
+                    ((PointCloud)object).isSortParticles() || customAttributesDirty ) {
 
-				((PointCloud)object).setBuffers( this, BufferUsage.DYNAMIC_DRAW );
+				((PointCloud)object).setBuffers( this, GLES20.GL_DYNAMIC_DRAW );
 
 			}
 
@@ -1690,7 +1694,7 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 			geometry.setColorsNeedUpdate( false );
 
 			if(material instanceof ShaderMaterial ) {
-				((ShaderMaterial)material).getShader().clearCustomAttributes();
+				material.getShader().clearCustomAttributes();
 			}
 
 		}
@@ -1715,13 +1719,14 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 	 * @param renderTarget optional
 	 * @param forceClear   optional
 	 */
-	public void render( Scene scene, Camera camera, RenderTargetTexture renderTarget, boolean forceClear ) 
+	public void render( Scene scene, Camera camera, RenderTargetTexture renderTarget,
+                        boolean forceClear )
 	{		
 		// Render basic plugins
 		if(renderPlugins( this.plugins, scene, camera, Plugin.TYPE.BASIC_RENDER ))
 			return;
 		
-		Log.debug("Called render()");
+		Log.d(TAG, "Called render()");
 				
 		AbstractFog fog = scene.getFog();
 
@@ -1744,7 +1749,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 		camera.getMatrixWorldInverse().getInverse( camera.getMatrixWorld() );
 		
-		_projScreenMatrix.multiply( camera.getProjectionMatrix(), camera.getMatrixWorldInverse() );
+		_projScreenMatrix.multiply( camera.getProjectionMatrix(),
+                camera.getMatrixWorldInverse() );
 		_frustum.setFromMatrix( _projScreenMatrix );
 
 		this.lights = new ArrayList<Light>();
@@ -1827,20 +1833,22 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 		}
 
-		Log.debug("  -- render() overrideMaterial : " + (scene.getOverrideMaterial() != null)
+		Log.d(TAG, "  -- render() overrideMaterial : " + (scene.getOverrideMaterial() != null)
 				+ ", lights: " + lights.size()
 				+ ", opaqueObjects: " + opaqueObjects.size()
-				+ ", transparentObjects: " + transparentObjects.size() );
+				+ ", transparentObjects: " + transparentObjects.size());
 		
 		if ( scene.getOverrideMaterial() != null ) 
 		{			
 			Material material = scene.getOverrideMaterial();
 			
-			setBlending( material.getBlending(), material.getBlendEquation(), material.getBlendSrc(), material.getBlendDst() );
+			setBlending( material.getBlending(), material.getBlendEquation(),
+                    material.getBlendSrc(), material.getBlendDst() );
 			setDepthTest( material.isDepthTest() );
 			setDepthWrite( material.isDepthWrite() );
 			
-			setPolygonOffset( material.isPolygonOffset(), material.getPolygonOffsetFactor(), material.getPolygonOffsetUnits() );
+			setPolygonOffset( material.isPolygonOffset(),
+                    material.getPolygonOffsetFactor(), material.getPolygonOffsetUnits() );
 
 			renderObjects( opaqueObjects, camera, lights, fog, true, material );
 			renderObjects( transparentObjects, camera, lights, fog, true, material );
@@ -1866,10 +1874,10 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 		// Generate mipmap if we're using any kind of mipmap filtering
 		if ( renderTarget != null && renderTarget.isGenerateMipmaps() 
-				&& renderTarget.getMinFilter() != TextureMinFilter.NEAREST 
-				&& renderTarget.getMinFilter() != TextureMinFilter.LINEAR)
+				&& renderTarget.getMinFilter() != GLES20.GL_NEAREST
+				&& renderTarget.getMinFilter() != GLES20.GL_LINEAR)
 		{
-			renderTarget.updateRenderTargetMipmap(getGL());
+			renderTarget.updateRenderTargetMipmap();
 		}
 
 		// Ensure depth buffer writing is enabled so it can be cleared on next render
@@ -1877,11 +1885,13 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		this.setDepthTest( true );
 		this.setDepthWrite( true );
 
-//		 getGL().finish();
+//		 GLES20.glFinish();
 	}
 	
-	public void renderObjectsImmediate ( List<WebGLObject> renderList, Boolean isTransparentMaterial, Camera camera,
-				List<Light> lights, AbstractFog fog, boolean useBlending, Material overrideMaterial ) {
+	public void renderObjectsImmediate ( List<WebGLObject> renderList,
+                                         Boolean isTransparentMaterial, Camera camera,
+                                         List<Light> lights, AbstractFog fog,
+                                         boolean useBlending, Material overrideMaterial ) {
 
 		Material material = null;
 
@@ -1899,17 +1909,20 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 				} else {
 
 					if(isTransparentMaterial != null)
-						material = isTransparentMaterial ? webglObject.transparent : webglObject.opaque;
+						material = isTransparentMaterial ? webglObject.transparent :
+                                webglObject.opaque;
 
 					if ( material == null ) 
 						continue;
 
 					if ( useBlending )
-						setBlending( material.getBlending(), material.getBlendEquation(), material.getBlendSrc(), material.getBlendDst() );
+						setBlending( material.getBlending(), material.getBlendEquation(),
+                                material.getBlendSrc(), material.getBlendDst() );
 
 					setDepthTest( material.isDepthTest() );
 					setDepthWrite( material.isDepthWrite() );
-					setPolygonOffset( material.isPolygonOffset(), material.getPolygonOffsetFactor(), material.getPolygonOffsetUnits() );
+					setPolygonOffset( material.isPolygonOffset(),
+                            material.getPolygonOffsetFactor(), material.getPolygonOffsetUnits() );
 
 				}
 
@@ -1921,7 +1934,9 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 	}
 	
-	public void renderImmediateObject( Camera camera, List<Light> lights, AbstractFog fog, Material material, GeometryObject object ) {
+	public void renderImmediateObject( Camera camera, List<Light> lights,
+                                       AbstractFog fog, Material material,
+                                       GeometryObject object ) {
 
 		Shader program = setProgram( camera, lights, fog, material, object );
 
@@ -1959,10 +1974,10 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 				continue;
 			
 			plugin.setRendering(true);
-			Log.debug("Called renderPlugins(): " + plugin.getClass().getName());
+			Log.d(TAG, "Called renderPlugins(): " + plugin.getClass().getName());
 
 			// reset state for plugin (to start from clean slate)
-			this._currentProgram = null;
+			this._currentProgram = 0;
 			this._currentCamera = null;
 
 			this._oldBlending = null;
@@ -1979,7 +1994,7 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 			// reset state after plugin (anything could have changed)
 
-			this._currentProgram = null;
+			this._currentProgram = 0;
 			this._currentCamera = null;
 
 			this._oldBlending = null;
@@ -2000,13 +2015,16 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		return retval;
 	}
 
-	private void renderObjects (List<WebGLObject> renderList, Camera camera, List<Light> lights, AbstractFog fog, boolean useBlending ) 
+	private void renderObjects (List<WebGLObject> renderList, Camera camera,
+                                List<Light> lights, AbstractFog fog, boolean useBlending )
 	{
 		renderObjects ( renderList, camera, lights, fog, useBlending, null);
 	}
 
 	//renderList, camera, lights, fog, useBlending, overrideMaterial
-	private void renderObjects (List<WebGLObject> renderList, Camera camera, List<Light> lights, AbstractFog fog, boolean useBlending, Material overrideMaterial ) 
+	private void renderObjects (List<WebGLObject> renderList, Camera camera,
+                                List<Light> lights, AbstractFog fog, boolean useBlending,
+                                Material overrideMaterial )
 	{		
 		Material material = null;
 		
@@ -2025,16 +2043,20 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 			} else {
 
-				material = webglObject.material; //TODO: material = (isMaterialTransparent) ? webglObject.transparent : webglObject.opaque;
+				material = webglObject.material;
+				//TODO: material = (isMaterialTransparent) ?
+				// webglObject.transparent : webglObject.opaque;
 
 				if ( material == null ) continue;
 
 				if ( useBlending ) 
-					setBlending( material.getBlending(), material.getBlendEquation(), material.getBlendSrc(), material.getBlendDst() );
+					setBlending( material.getBlending(), material.getBlendEquation(),
+                            material.getBlendSrc(), material.getBlendDst() );
 
 				setDepthTest( material.isDepthTest() );
 				setDepthWrite( material.isDepthWrite() );
-				setPolygonOffset( material.isPolygonOffset(), material.getPolygonOffsetFactor(), material.getPolygonOffsetUnits() );
+				setPolygonOffset( material.isPolygonOffset(), material.getPolygonOffsetFactor(),
+                        material.getPolygonOffsetUnits() );
 
 			}
 
@@ -2059,7 +2081,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 	 * Render GeometryObject with material.
 	 */
 	//camera, lights, fog, material, geometryGroup, object
-	public void renderBuffer( Camera camera, List<Light> lights, AbstractFog fog, Material material, WebGLGeometry geometry, GeometryObject object )
+	public void renderBuffer( Camera camera, List<Light> lights, AbstractFog fog,
+                              Material material, WebGLGeometry geometry, GeometryObject object )
 	{
 		if ( ! material.isVisible() ) 
 			return;
@@ -2069,11 +2092,13 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		Map<String, Integer> attributes = material.getShader().getAttributesLocations();
 
 		boolean updateBuffers = false;
-		int wireframeBit = material instanceof HasWireframe && ((HasWireframe)material).isWireframe() ? 1 : 0;
+		int wireframeBit = material instanceof HasWireframe &&
+                ((HasWireframe)material).isWireframe() ? 1 : 0;
 
-		int geometryGroupHash = ( geometry.getId() * 0xffffff ) + ( material.getShader().getId() * 2 ) + wireframeBit;
+		int geometryGroupHash = ( geometry.getId() * 0xffffff ) +
+                (material.getShader().getId() * 2 ) + wireframeBit;
 
-//		Log.error("--- renderBuffer() geometryGroupHash=" + geometryGroupHash 
+//		Log.e(TAG,"--- renderBuffer() geometryGroupHash=" + geometryGroupHash
 //				+ ", _currentGeometryGroupHash=" +  this._currentGeometryGroupHash
 //				+ ", program.id=" + program.getId()
 ////				+ ", geometryGroup.id=" + geometryBuffer.getId()
@@ -2094,13 +2119,16 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		}
 
 		// vertices
-		if ( !(material instanceof HasSkinning && ((HasSkinning)material).isMorphTargets()) && attributes.get("position") >= 0 ) 
+		if ( !(material instanceof HasSkinning && ((HasSkinning)material).isMorphTargets()) &&
+                attributes.get("position") >= 0 )
 		{
 			if ( updateBuffers ) 
 			{
-				getGL().bindBuffer( BufferTarget.ARRAY_BUFFER, geometry.__webglVertexBuffer );
+				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER,
+                        geometry.__webglVertexBuffer);
 				enableAttribute( attributes.get("position") );
-				getGL().vertexAttribPointer( attributes.get("position"), 3, DataType.FLOAT, false, 0, 0 );
+				GLES20.glVertexAttribPointer(attributes.get("position"), 3,
+                        GLES20.GL_FLOAT, false, 0, 0);
 			}
 
 		} 
@@ -2124,9 +2152,10 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 					if( attributes.get( attribute.belongsToAttribute ) >= 0 ) 
 					{
-						getGL().bindBuffer( BufferTarget.ARRAY_BUFFER, attribute.buffer );
+						GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, attribute.buffer);
 						enableAttribute( attributes.get( attribute.belongsToAttribute ) );
-						getGL().vertexAttribPointer( attributes.get( attribute.belongsToAttribute ), attribute.size, DataType.FLOAT, false, 0, 0 );
+						GLES20.glVertexAttribPointer(attributes.get(attribute.belongsToAttribute),
+                                attribute.size, GLES20.GL_FLOAT, false, 0, 0);
 					}
 				}
 			}
@@ -2134,17 +2163,19 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 			// colors
 			if ( attributes.get("color") >= 0 ) 
 			{
-				if ( ((Geometry)object.getGeometry()).getColors().size() > 0 || ((Geometry)object.getGeometry()).getFaces().size() > 0 ) {
+				if ( ((Geometry)object.getGeometry()).getColors().size() > 0 ||
+                        ((Geometry)object.getGeometry()).getFaces().size() > 0 ) {
 
-					getGL().bindBuffer( BufferTarget.ARRAY_BUFFER, geometry.__webglColorBuffer );
+					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglColorBuffer);
 					enableAttribute( attributes.get("color") );
-					getGL().vertexAttribPointer( attributes.get("color"), 3, DataType.FLOAT, false, 0, 0 );
+					GLES20.glVertexAttribPointer(attributes.get("color"), 3,
+                            GLES20.GL_FLOAT, false, 0, 0);
 
 				} else {
 
-					double defaultAttributeValues[] = new double[] {1.0,1.0,1.0};
+					float defaultAttributeValues[] = new float[] {1,1,1};
 					
-					getGL().vertexAttrib3fv( attributes.get("color"), defaultAttributeValues);
+					GLES20.glVertexAttrib3fv(attributes.get("color"), defaultAttributeValues, 0);
 
 				}
 			}
@@ -2152,17 +2183,17 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 			// normals
 			if ( attributes.get("normal") >= 0 )
 			{
-				getGL().bindBuffer( BufferTarget.ARRAY_BUFFER, geometry.__webglNormalBuffer );
+				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglNormalBuffer);
 				enableAttribute( attributes.get("normal") );
-				getGL().vertexAttribPointer( attributes.get("normal"), 3, DataType.FLOAT, false, 0, 0 );
+				GLES20.glVertexAttribPointer(attributes.get("normal"), 3, GLES20.GL_FLOAT, false, 0, 0);
 			}
 
 			// tangents
 			if ( attributes.get("tangent") >= 0 ) 
 			{
-				getGL().bindBuffer( BufferTarget.ARRAY_BUFFER, geometry.__webglTangentBuffer );
+				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglTangentBuffer);
 				enableAttribute( attributes.get("tangent") );
-				getGL().vertexAttribPointer( attributes.get("tangent"), 4, DataType.FLOAT, false, 0, 0 );
+				GLES20.glVertexAttribPointer(attributes.get("tangent"), 4, GLES20.GL_FLOAT, false, 0, 0);
 			}
 
 			// uvs
@@ -2170,14 +2201,14 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 			{
 				if ( ((Geometry)object.getGeometry()).getFaceVertexUvs().get( 0 ) != null ) 
 				{
-					getGL().bindBuffer( BufferTarget.ARRAY_BUFFER, geometry.__webglUVBuffer );
+					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglUVBuffer);
 					enableAttribute( attributes.get("uv") );
-					getGL().vertexAttribPointer( attributes.get("uv"), 2, DataType.FLOAT, false, 0, 0 );
+					GLES20.glVertexAttribPointer(attributes.get("uv"), 2, GLES20.GL_FLOAT, false, 0, 0);
 
 				} else {
 					
-					double defaultAttributeValues[] = new double[] {0.0,0.0};
-					getGL().vertexAttrib2fv( attributes.get("uv"), defaultAttributeValues );
+					float defaultAttributeValues[] = new float[] {0,0};
+					GLES20.glVertexAttrib2fv(attributes.get("uv"), defaultAttributeValues, 0);
 				}
 			}
 
@@ -2185,37 +2216,37 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 			{
 				if ( ((Geometry)object.getGeometry()).getFaceVertexUvs().get( 1 ) != null ) 
 				{
-					getGL().bindBuffer( BufferTarget.ARRAY_BUFFER, geometry.__webglUV2Buffer );
+					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglUV2Buffer);
 					enableAttribute( attributes.get("uv2") );
-					getGL().vertexAttribPointer( attributes.get("uv2"), 2, DataType.FLOAT, false, 0, 0 );
+					GLES20.glVertexAttribPointer(attributes.get("uv2"), 2, GLES20.GL_FLOAT, false, 0, 0);
 
 				} else {
 					
-					double defaultAttributeValues[] = new double[] {0.0,0.0};
+					float defaultAttributeValues[] = new float[] {0,0};
 					
-					getGL().vertexAttrib2fv( attributes.get("uv2"), defaultAttributeValues );
+					GLES20.glVertexAttrib2fv(attributes.get("uv2"), defaultAttributeValues, 0);
 				}
 			}
 
 			if ( material instanceof HasSkinning && ((HasSkinning)material).isSkinning() &&
 				 attributes.get("skinIndex") >= 0 && attributes.get("skinWeight") >= 0 ) 
 			{
-				getGL().bindBuffer( BufferTarget.ARRAY_BUFFER, geometry.__webglSkinIndicesBuffer );
+				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglSkinIndicesBuffer);
 				enableAttribute( attributes.get("skinIndex") );
-				getGL().vertexAttribPointer( attributes.get("skinIndex"), 4, DataType.FLOAT, false, 0, 0 );
+				GLES20.glVertexAttribPointer(attributes.get("skinIndex"), 4, GLES20.GL_FLOAT, false, 0, 0);
 
-				getGL().bindBuffer( BufferTarget.ARRAY_BUFFER, geometry.__webglSkinWeightsBuffer );
+				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglSkinWeightsBuffer);
 				enableAttribute( attributes.get("skinWeight") );
-				getGL().vertexAttribPointer( attributes.get("skinWeight"), 4, DataType.FLOAT, false, 0, 0 );
+				GLES20.glVertexAttribPointer(attributes.get("skinWeight"), 4, GLES20.GL_FLOAT, false, 0, 0);
 			}
 			
 			// line distances
 
 			if ( attributes.get("lineDistance") != null && attributes.get("lineDistance") >= 0 ) {
 
-				getGL().bindBuffer( BufferTarget.ARRAY_BUFFER, geometry.__webglLineDistanceBuffer );
+				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglLineDistanceBuffer);
 				enableAttribute( attributes.get("lineDistance") );
-				getGL().vertexAttribPointer( attributes.get("lineDistance"), 1, DataType.FLOAT, false, 0, 0 );
+				GLES20.glVertexAttribPointer(attributes.get("lineDistance"), 1, GLES20.GL_FLOAT, false, 0, 0);
 
 			}
 
@@ -2223,15 +2254,18 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		
 		disableUnusedAttributes();
 
-		Log.debug("  ----> renderBuffer() ID " + object.getId() + " (" + object.getClass().getSimpleName() + ")");
+		Log.d(TAG, "  ----> renderBuffer() ID " + object.getId() + " (" +
+                object.getClass().getSimpleName() + ")");
 
 		// Render object's buffers
 		object.renderBuffer(this, geometry, updateBuffers);
 	}
 
-	private void initMaterial ( Material material, List<Light> lights, AbstractFog fog, GeometryObject object ) 
+	private void initMaterial ( Material material, List<Light> lights,
+                                AbstractFog fog, GeometryObject object )
 	{
-		Log.debug("Called initMaterial for material: " + material.getClass().getName() + " and object " + object.getClass().getName());
+		Log.d(TAG, "Called initMaterial for material: " + material.getClass().getName() +
+                " and object " + object.getClass().getName());
 
 		// heuristics to create shader parameters according to lights in the scene
 		// (not to blow over maxLights budget)
@@ -2259,7 +2293,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 		if(object instanceof SkinnedMesh)
 		{
-			parameters.useVertexTexture = this._supportsBoneTextures;// && ((SkinnedMesh)object).useVertexTexture;
+			parameters.useVertexTexture = this._supportsBoneTextures;
+			// && ((SkinnedMesh)object).useVertexTexture;
 		}
 
 		parameters.maxMorphTargets = this.maxMorphTargets;
@@ -2283,7 +2318,7 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		}
 
 		material.updateProgramParameters(parameters);
-		Log.debug("initMaterial() called new Program");
+		Log.d(TAG, "initMaterial() called new Program");
 
 		String cashKey = material.getShader().getFragmentSource() 
 				+ material.getShader().getVertexSource()
@@ -2295,7 +2330,7 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		}
 		else
 		{
-			Shader shader = material.buildShader(getGL(), parameters);
+			Shader shader = material.buildShader(parameters);
 
 			this._programs.put(cashKey, shader);
 
@@ -2340,7 +2375,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		}
 	}
 
-	private Shader setProgram( Camera camera, List<Light> lights, AbstractFog fog, Material material, GeometryObject object ) 
+	private Shader setProgram( Camera camera, List<Light> lights, AbstractFog fog,
+                               Material material, GeometryObject object )
 	{
 		// Use new material units for new shader
 		this._usedTextureUnits = 0;
@@ -2367,12 +2403,12 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		boolean refreshLights = false;
 
 		Shader shader = material.getShader(); 
-		WebGLProgram program = shader.getProgram();
+		int program = shader.getProgram();
 		Map<String, Uniform> m_uniforms = shader.getUniforms();
 
 		if ( !program.equals(_currentProgram) )
 		{
-			getGL().useProgram( program );
+			GLES20.glUseProgram(program);
 			this._currentProgram = program;
 
 			refreshProgram = true;
@@ -2390,11 +2426,13 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 		if ( refreshProgram || !camera.equals( this._currentCamera) ) 
 		{
-			getGL().uniformMatrix4fv( m_uniforms.get("projectionMatrix").getLocation(), false, camera.getProjectionMatrix().getArray() );
+			GLES20.glUniformMatrix4fv(m_uniforms.get("projectionMatrix").getLocation(),
+                    false, camera.getProjectionMatrix().getArray());
 
 			if ( _logarithmicDepthBuffer ) {
 
-				gl.uniform1f( m_uniforms.get("logDepthBufFC").getLocation(), 2.0 / ( Math.log( ((HasNearFar)camera).getFar() + 1.0 ) / 0.6931471805599453 /*Math.LN2*/ ) );
+				gl.uniform1f( m_uniforms.get("logDepthBufFC").getLocation(), 2.0 /
+                        ( Math.log( ((HasNearFar)camera).getFar() + 1.0 ) / 0.6931471805599453 /*Math.LN2*/ ) );
 
 			}
 
@@ -2411,7 +2449,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 				if ( m_uniforms.get("cameraPosition").getLocation() != null ) 
 				{
 					_vector3.setFromMatrixPosition( camera.getMatrixWorld() );
-					getGL().uniform3f( m_uniforms.get("cameraPosition").getLocation(), _vector3.getX(), _vector3.getY(), _vector3.getZ() );
+					GLES20.glUniform3f(m_uniforms.get("cameraPosition").getLocation(),
+                            _vector3.getX(), _vector3.getY(), _vector3.getZ());
 				}
 			}
 
@@ -2424,7 +2463,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 				if ( m_uniforms.get("viewMatrix").getLocation() != null ) 
 				{
-					getGL().uniformMatrix4fv( m_uniforms.get("viewMatrix").getLocation(), false, camera.getMatrixWorldInverse().getArray() );
+					GLES20.glUniformMatrix4fv(m_uniforms.get("viewMatrix").getLocation(),
+                            false, camera.getMatrixWorldInverse().getArray());
 				}
 			}
 		}
@@ -2434,13 +2474,14 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		// not sure why, but otherwise weird things happen
 		if ( material instanceof HasSkinning && ((HasSkinning)material).isSkinning() )
 		{
-			if ( object instanceof SkinnedMesh && ((SkinnedMesh)object).isUseVertexTexture() && this._supportsBoneTextures) 
+			if ( object instanceof SkinnedMesh && ((SkinnedMesh)object).isUseVertexTexture() &&
+                    this._supportsBoneTextures)
 			{
 				if ( m_uniforms.get("boneTexture").getLocation() != null ) 
 				{
 					int textureUnit = getTextureUnit();
 
-					getGL().uniform1i( m_uniforms.get("boneTexture").getLocation(), textureUnit );
+					GLES20.glUniform1i(m_uniforms.get("boneTexture").getLocation(), textureUnit);
 					setTexture( ((SkinnedMesh)object).boneTexture, textureUnit );
 				}
 			} 
@@ -2448,7 +2489,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 			{
 				if ( m_uniforms.get("boneGlobalMatrices").getLocation() != null ) 
 				{
-					getGL().uniformMatrix4fv( m_uniforms.get("boneGlobalMatrices").getLocation(), false, ((SkinnedMesh)object).boneMatrices );
+					GLES20.glUniformMatrix4fv(m_uniforms.get("boneGlobalMatrices").getLocation(),
+                            false, ((SkinnedMesh) object).boneMatrices);
 				}
 			}
 		}
@@ -2492,7 +2534,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		loadUniformsMatrices( m_uniforms, object );
 
 		if ( m_uniforms.get("modelMatrix").getLocation() != null )
-			getGL().uniformMatrix4fv( m_uniforms.get("modelMatrix").getLocation(), false, object.getMatrixWorld().getArray() );
+			GLES20.glUniformMatrix4fv(m_uniforms.get("modelMatrix").getLocation(),
+                    false, object.getMatrixWorld().getArray());
 
 		return shader;
 	}
@@ -2522,8 +2565,10 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 					shadowMapSize.add(shadowLight.getShadowMapSize() );
 					shadowMatrix.add(shadowLight.getShadowMatrix() );
 
-					((Float32Array)uniforms.get("shadowDarkness").getValue()).set( j, shadowLight.getShadowDarkness() );
-					((Float32Array)uniforms.get("shadowBias").getValue()).set( j, shadowLight.getShadowBias() );
+					((Float32Array)uniforms.get("shadowDarkness").getValue()).set( j,
+                            shadowLight.getShadowDarkness() );
+					((Float32Array)uniforms.get("shadowBias").getValue()).set( j,
+                            shadowLight.getShadowBias() );
 					j++;
 				}
 			}
@@ -2535,10 +2580,12 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 	private void loadUniformsMatrices ( Map<String, Uniform> uniforms, GeometryObject object ) 
 	{
 		GeometryObject objectImpl = (GeometryObject) object;
-		getGL().uniformMatrix4fv( uniforms.get("modelViewMatrix").getLocation(), false, objectImpl._modelViewMatrix.getArray() );
+		GLES20.glUniformMatrix4fv(uniforms.get("modelViewMatrix").getLocation(),
+                false, objectImpl._modelViewMatrix.getArray());
 
 		if ( uniforms.containsKey("normalMatrix") )
-			getGL().uniformMatrix3fv( uniforms.get("normalMatrix").getLocation(), false, objectImpl._normalMatrix.getArray() );
+			GLES20.glUniformMatrix3fv(uniforms.get("normalMatrix").getLocation(),
+                    false, objectImpl._normalMatrix.getArray());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -2563,7 +2610,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		
 			if(type == TYPE.I) // single integer
 			{
-				gl.uniform1i( location, (value instanceof Boolean) ? ((Boolean)value) ? 1 : 0 : (Integer) value );
+				gl.uniform1i( location, (value instanceof Boolean) ?
+                        ((Boolean)value) ? 1 : 0 : (Integer) value );
 			}
 			else if(type == TYPE.F) // single double
 			{
@@ -2575,15 +2623,18 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 			}
 			else if(type == TYPE.V3) // single Vector3
 			{ 
-				gl.uniform3f( location, ((Vector3)value).getX(), ((Vector3)value).getY(), ((Vector3)value).getZ() );
+				gl.uniform3f( location, ((Vector3)value).getX(),
+                        (Vector3)value).getY(), ((Vector3)value).getZ() );
 			}
 			else if(type == TYPE.V4) // single Vector4
 			{
-				gl.uniform4f( location, ((Vector4)value).getX(), ((Vector4)value).getY(), ((Vector4)value).getZ(), ((Vector4)value).getW() );
+				gl.uniform4f( location, ((Vector4)value).getX(), ((Vector4)value).getY(),
+                        ((Vector4)value).getZ(), ((Vector4)value).getW() );
 			}
 			else if(type == TYPE.C) // single Color
 			{
-				gl.uniform3f( location, ((Color)value).getR(), ((Color)value).getG(), ((Color)value).getB() );
+				gl.uniform3f( location, ((Color)value).getR(),
+                        ((Color)value).getG(), ((Color)value).getB() );
 			}
 			else if(type == TYPE.FV1) // flat array of floats (JS or typed array)
 			{
@@ -2715,7 +2766,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 		if ( textureUnit >= this._maxTextures ) 
 		{
-			Log.warn( "Trying to use " + textureUnit + " texture units while this GPU supports only " + this._maxTextures );
+			Log.w(TAG, "Trying to use " + textureUnit +
+                    " texture units while this GPU supports only " + this._maxTextures);
 		}
 
 		return textureUnit;
@@ -2732,14 +2784,14 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		if ( this.cache_oldMaterialSided == null || this.cache_oldMaterialSided != material.getSides() ) 
 		{
 			if(material.getSides() == Material.SIDE.DOUBLE)
-				getGL().disable( EnableCap.CULL_FACE );
+				GLES20.glDisable(GLES20.GL_CULL_FACE);
 			else
-				getGL().enable( EnableCap.CULL_FACE );
+				GLES20.glEnable(GLES20.GL_CULL_FACE);
 
 			if ( material.getSides() == Material.SIDE.BACK ) 
-				getGL().frontFace( FrontFaceDirection.CW );
+				GLES20.glFrontFace(GLES20.GL_CW);
 			else
-				getGL().frontFace( FrontFaceDirection.CCW );
+				GLES20.glFrontFace(GLES20.GL_CCW);
 
 			this.cache_oldMaterialSided = material.getSides();
 		}
@@ -2750,9 +2802,9 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		if ( this._oldDepthTest == null || this._oldDepthTest != depthTest ) 
 		{
 			if ( depthTest )
-				getGL().enable( EnableCap.DEPTH_TEST );
+				GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 			else 
-				getGL().disable( EnableCap.DEPTH_TEST );
+				GLES20.glDisable(GLES20.GL_DEPTH_TEST);
 
 			this._oldDepthTest = depthTest;
 		}
@@ -2762,7 +2814,7 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 	{
 		if ( this._oldDepthWrite == null || this._oldDepthWrite != depthWrite ) 
 		{
-			getGL().depthMask( depthWrite );
+			GLES20.glDepthMask(depthWrite);
 			_oldDepthWrite = depthWrite;
 		}
 	}
@@ -2772,9 +2824,9 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		if ( this._oldPolygonOffset == null || this._oldPolygonOffset != polygonoffset ) 
 		{
 			if ( polygonoffset )
-				getGL().enable( EnableCap.POLYGON_OFFSET_FILL );
+				GLES20.glEnable(GLES20.GL_POLYGON_OFFSET_FILL);
 			else
-				getGL().disable( EnableCap.POLYGON_OFFSET_FILL );
+				GLES20.glDisable(GLES20.GL_POLYGON_OFFSET_FILL);
 
 			this._oldPolygonOffset = polygonoffset;
 		}
@@ -2797,54 +2849,55 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		{
 			if( blending == Material.BLENDING.NO) 
 			{
-				getGL().disable( EnableCap.BLEND );
+				GLES20.glDisable(GLES20.GL_BLEND);
 				
 			} 
 			else if( blending == Material.BLENDING.ADDITIVE) 
 			{
 				
-				getGL().enable( EnableCap.BLEND );
-				getGL().blendEquation( BlendEquationMode.FUNC_ADD );
-				getGL().blendFunc( BlendingFactorSrc.SRC_ALPHA, BlendingFactorDest.ONE );
+				GLES20.glEnable(GLES20.GL_BLEND);
+				GLES20.glBlendEquation(GLES20.GL_FUNC_ADD);
+				GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE);
 				
 			// TODO: Find blendFuncSeparate() combination
 			} 
 			else if( blending == Material.BLENDING.SUBTRACTIVE) 
 			{
-				getGL().enable( EnableCap.BLEND );
-				getGL().blendEquation( BlendEquationMode.FUNC_ADD );
-				getGL().blendFunc( BlendingFactorSrc.ZERO, BlendingFactorDest.ONE_MINUS_SRC_COLOR );
+				GLES20.glEnable(GLES20.GL_BLEND);
+				GLES20.glBlendEquation(GLES20.GL_FUNC_ADD);
+				GLES20.glBlendFunc(GLES20.GL_ZERO, GLES20.GL_ONE_MINUS_SRC_COLOR);
 
 			// TODO: Find blendFuncSeparate() combination
 			} 
 			else if( blending == Material.BLENDING.MULTIPLY) 
 			{
-				getGL().enable( EnableCap.BLEND );
-				getGL().blendEquation( BlendEquationMode.FUNC_ADD );
-				getGL().blendFunc( BlendingFactorSrc.ZERO, BlendingFactorDest.SRC_COLOR );
+				GLES20.glEnable(GLES20.GL_BLEND);
+				GLES20.glBlendEquation(GLES20.GL_FUNC_ADD);
+				GLES20.glBlendFunc(GLES20.GL_ZERO, GLES20.GL_SRC_COLOR);
 
 			} 
 			else if( blending == Material.BLENDING.CUSTOM) 
 			{
-				getGL().enable( EnableCap.BLEND );
+				GLES20.glEnable(GLES20.GL_BLEND);
 
 			} 
 			// NORMAL
 			else 
 			{
-				getGL().enable( EnableCap.BLEND );
-				getGL().blendEquationSeparate( BlendEquationMode.FUNC_ADD, BlendEquationMode.FUNC_ADD );
-				getGL().blendFuncSeparate( BlendingFactorSrc.SRC_ALPHA, 
-						BlendingFactorDest.ONE_MINUS_SRC_ALPHA, 
-						BlendingFactorSrc.ONE, 
-						BlendingFactorDest.ONE_MINUS_SRC_ALPHA );
+				GLES20.glEnable(GLES20.GL_BLEND);
+				GLES20.glBlendEquationSeparate(GLES20.GL_FUNC_ADD, GLES20.GL_FUNC_ADD);
+				GLES20.glBlendFuncSeparate(GLES20.GL_SRC_ALPHA,
+                        GLES20.GL_ONE_MINUS_SRC_ALPHA,
+                        GLES20.GL_ONE,
+                        GLES20.GL_ONE_MINUS_SRC_ALPHA);
 			}
 
 			this._oldBlending = blending;
 		}
 	}
 
-	private void setBlending( Material.BLENDING blending, BlendEquationMode blendEquation, BlendingFactorSrc blendSrc, BlendingFactorDest blendDst ) 
+	private void setBlending( Material.BLENDING blending, int blendEquation,
+                              int blendSrc, int blendDst )
 	{
 		setBlending(blending);
 
@@ -2852,13 +2905,13 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		{
 			if ( blendEquation != this._oldBlendEquation ) 
 			{
-				getGL().blendEquation( blendEquation );
+				GLES20.glBlendEquation(blendEquation);
 				this._oldBlendEquation = blendEquation;
 			}
 
 			if ( blendSrc != _oldBlendSrc || blendDst != _oldBlendDst ) 
 			{
-				getGL().blendFunc( blendSrc, blendDst);
+				GLES20.glBlendFunc(blendSrc, blendDst);
 
 				this._oldBlendSrc = blendSrc;
 				this._oldBlendDst = blendDst;
@@ -2877,7 +2930,7 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 	private void setCubeTextureDynamic(RenderTargetCubeTexture texture, int slot) 
 	{
 		getGL().activeTexture( TextureUnit.TEXTURE0, slot );
-		getGL().bindTexture( TextureTarget.TEXTURE_CUBE_MAP, texture.getWebGlTexture() );
+		GLES20.glBindTexture(TextureTarget.TEXTURE_CUBE_MAP, texture.getWebGlTexture());
 	}
 
 	public void setTexture( Texture texture, int slot ) 
@@ -2886,23 +2939,26 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		{
 			if ( texture.getWebGlTexture() == null ) 
 			{
-				texture.setWebGlTexture( getGL().createTexture() );
+				texture.setWebGlTexture( GLES20.glCreateTexture() );
 
 				this.getInfo().getMemory().textures ++;
 			}
 			
 			getGL().activeTexture( TextureUnit.TEXTURE0, slot );
-			getGL().bindTexture( TextureTarget.TEXTURE_2D, texture.getWebGlTexture() );
+			GLES20.glBindTexture(TextureTarget.TEXTURE_2D, texture.getWebGlTexture());
 
 			getGL().pixelStorei( PixelStoreParameter.UNPACK_FLIP_Y_WEBGL, texture.isFlipY() ? 1 : 0 );
-			getGL().pixelStorei( PixelStoreParameter.UNPACK_PREMULTIPLY_ALPHA_WEBGL, texture.isPremultiplyAlpha() ? 1 : 0 );		
-			getGL().pixelStorei( PixelStoreParameter.UNPACK_ALIGNMENT, texture.getUnpackAlignment() );
+			getGL().pixelStorei( PixelStoreParameter.UNPACK_PREMULTIPLY_ALPHA_WEBGL,
+                    texture.isPremultiplyAlpha() ? 1 : 0 );
+			getGL().pixelStorei( PixelStoreParameter.UNPACK_ALIGNMENT,
+                    texture.getUnpackAlignment() );
 
 			Element image = texture.getImage();
 			boolean isImagePowerOfTwo = Mathematics.isPowerOfTwo( image.getOffsetWidth() ) 
 					&& Mathematics.isPowerOfTwo( image.getOffsetHeight() );
 
-			texture.setTextureParameters( getGL(), getMaxAnisotropy(), TextureTarget.TEXTURE_2D, isImagePowerOfTwo );
+			texture.setTextureParameters( getGL(), getMaxAnisotropy(),
+                    TextureTarget.TEXTURE_2D, isImagePowerOfTwo );
 
 			if ( texture instanceof CompressedTexture ) 
 			{
@@ -2911,13 +2967,14 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 				for( int i = 0, il = mipmaps.size(); i < il; i ++ ) 
 				{
 					DataTexture mipmap = mipmaps.get( i );
-					getGL().compressedTexImage2D( TextureTarget.TEXTURE_2D, i, ((CompressedTexture) texture).getCompressedFormat(), 
-							mipmap.getWidth(), mipmap.getHeight(), 0, mipmap.getData() );
+					GLES20.glCompressedTexImage2D(TextureTarget.TEXTURE_2D, i,
+                            ((CompressedTexture) texture).getCompressedFormat(),
+                            mipmap.getWidth(), mipmap.getHeight(), 0, mipmap.getData());
 				}
 			}
 			else if ( texture instanceof DataTexture ) 
 			{
-				getGL().texImage2D( TextureTarget.TEXTURE_2D, 0, 
+				getGL().texImage2D( TextureTarget.TEXTURE_2D, 0,
 						((DataTexture) texture).getWidth(),
 						((DataTexture) texture).getHeight(), 
 						0, 
@@ -2927,7 +2984,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 			} 
 			else 
 			{
-				getGL().texImage2D( TextureTarget.TEXTURE_2D, 0, texture.getFormat(), texture.getType(), (ImageElement)image );
+				getGL().texImage2D( TextureTarget.TEXTURE_2D, 0, texture.getFormat(),
+                        texture.getType(), (ImageElement)image );
 			}
 
 			if ( texture.isGenerateMipmaps() && isImagePowerOfTwo ) 
@@ -2939,7 +2997,7 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		else if(texture.getWebGlTexture() != null)
 		{
 			getGL().activeTexture( TextureUnit.TEXTURE0, slot );
-			getGL().bindTexture( TextureTarget.TEXTURE_2D, texture.getWebGlTexture() );
+			GLES20.glBindTexture(TextureTarget.TEXTURE_2D, texture.getWebGlTexture());
 		}
 	}
 	
@@ -3000,12 +3058,12 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		{
 			if ( texture.getWebGlTexture() == null )
 			{
-				texture.setWebGlTexture(getGL().createTexture());
+				texture.setWebGlTexture(GLES20.glCreateTexture());
 				this.getInfo().getMemory().textures += 6;
 			}
 
 			getGL().activeTexture( TextureUnit.TEXTURE0, slot );
-			getGL().bindTexture( TextureTarget.TEXTURE_CUBE_MAP, texture.getWebGlTexture() );
+			GLES20.glBindTexture(TextureTarget.TEXTURE_CUBE_MAP, texture.getWebGlTexture());
 			getGL().pixelStorei( PixelStoreParameter.UNPACK_FLIP_Y_WEBGL, texture.isFlipY() ? 1 : 0 );
 
 			List<Element> cubeImage = new ArrayList<Element>();
@@ -3029,12 +3087,12 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 			{
 				if(!isImagePowerOfTwo)
 				{
-					getGL().texImage2D( TextureTarget.TEXTURE_CUBE_MAP_POSITIVE_X, i, 0, 
+					getGL().texImage2D( TextureTarget.TEXTURE_CUBE_MAP_POSITIVE_X, i, 0,
 							texture.getFormat(), texture.getType(), createPowerOfTwoImage( cubeImage.get( i ) ) );
 				}
 				else
 				{
-					getGL().texImage2D( TextureTarget.TEXTURE_CUBE_MAP_POSITIVE_X, i, 0, 
+					getGL().texImage2D( TextureTarget.TEXTURE_CUBE_MAP_POSITIVE_X, i, 0,
 							texture.getFormat(), texture.getType(), (ImageElement)cubeImage.get( i ) );
 				}
 			}
@@ -3047,7 +3105,7 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		else 
 		{
 			getGL().activeTexture( TextureUnit.TEXTURE0, slot );
-			getGL().bindTexture( TextureTarget.TEXTURE_CUBE_MAP, texture.getWebGlTexture() );
+			GLES20.glBindTexture(TextureTarget.TEXTURE_CUBE_MAP, texture.getWebGlTexture());
 		}
 
 	}
@@ -3059,8 +3117,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 	 */
 	public void setRenderTarget( RenderTargetTexture renderTarget ) 
 	{
-		Log.debug("  ----> Called setRenderTarget(params)");
-		WebGLFramebuffer framebuffer = null;
+		Log.d(TAG, "  ----> Called setRenderTarget(params)");
+		int framebuffer = null;
 		
 		int width, height, vx, vy;
 		
@@ -3088,8 +3146,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 		if ( framebuffer != this._currentFramebuffer ) 
 		{
-			getGL().bindFramebuffer( framebuffer );
-			getGL().viewport( vx, vy, width, height);
+			GLES20.glBindFramebuffer(framebuffer);
+			GLES20.glViewport(vx, vy, width, height);
 
 			this._currentFramebuffer = framebuffer;
 		}
@@ -3124,7 +3182,7 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 			//  - limit here is ANGLE's 254 max uniform vectors
 			//    (up to 54 should be safe)
 
-			int nVertexUniforms = getGL().getParameteri( WebGLConstants.MAX_VERTEX_UNIFORM_VECTORS );
+			int nVertexUniforms = getGL().getParameteri( GLES20.GL_MAX_VERTEX_UNIFORM_VECTORS );
 			int nVertexMatrices = (int) Math.floor( ( nVertexUniforms - 20 ) / 4 );
 
 			int maxBones = nVertexMatrices;
@@ -3135,8 +3193,8 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 
 				if ( maxBones < ((SkinnedMesh)object).getBones().size() )
 				{
-					Log.warn( "WebGLRenderer: too many bones - " + ((SkinnedMesh)object).getBones().size() 
-							+ ", this GPU supports just " + maxBones + " (try OpenGL instead of ANGLE)" );
+					Log.w(TAG, "WebGLRenderer: too many bones - " + ((SkinnedMesh) object).getBones().size()
+							+ ", this GPU supports just " + maxBones + " (try OpenGL instead of ANGLE)");
 				}
 			}
 
@@ -3184,5 +3242,14 @@ public class WebGLRenderer extends AbstractRenderer implements HasEventBus
 		}
 
 		return maxShadows;
+	}
+
+    private void fireViewportResizeEvent(int width, int height) {
+        // FIXME: Dispatch to ViewportResizeHandlers
+    }
+
+	@Override
+	public void onViewportResize(int newWidth, int newHeight) {
+        fireViewportResizeEvent(newWidth, newHeight);
 	}
 }
