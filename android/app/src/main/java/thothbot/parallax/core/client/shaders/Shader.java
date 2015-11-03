@@ -208,16 +208,17 @@ public abstract class Shader
 		GLES20.glLinkProgram(this.program);
 
 		GLES20.glGetProgramiv(this.program, GLES20.GL_LINK_STATUS, tmpArray, 0);
+
 		if (tmpArray[0] == GLES20.GL_FALSE)
-			Log.e(TAG, "Could not initialise shader\n"
+			logMultiline("Could not initialise shader\n"
 							+ "GL error: " + GLES20.glGetProgramInfoLog(program)
-							+ "Shader: " + this.getClass().getName()
-							+ "\n-----\nVERTEX:\n" + vertex
-							+ "\n-----\nFRAGMENT:\n" + fragment
+							+ "\nShader: " + this.getClass().getName()
+							+ "\n-----\nVERTEX: " + glVertexShader + "\n" + vertex
+							+ "\n-----\nFRAGMENT: " + glFragmentShader + "\n" + fragment
 			);
 
 		else
-			Log.i(TAG, "initProgram(): shaders has been initialised");
+			Log.i(TAG, "initProgram(): shader has been initialised");
 
 		// clean up
 		GLES20.glDeleteShader(glVertexShader);
@@ -237,7 +238,6 @@ public abstract class Shader
 	 */
 	private int getShaderProgram(Class<?> type, String string)
 	{
-		Log.d(TAG, "Called getShaderProgram() for type " + type.getName());
 		int shader = 0;
 
 		if (type == ChunksFragmentShader.class)
@@ -249,10 +249,10 @@ public abstract class Shader
 		GLES20.glShaderSource(shader, string);
 		GLES20.glCompileShader(shader);
 
-		GLES20.glGetProgramiv(shader, GLES20.GL_COMPILE_STATUS, tmpArray, 0);
+		GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, tmpArray, 0);
 		if (tmpArray[0] == GLES20.GL_FALSE)
 		{
-			Log.e(TAG, GLES20.glGetShaderInfoLog(shader));
+			logMultiline(GLES20.glGetShaderInfoLog(shader));
 			return 0;
 		}
 
@@ -447,5 +447,18 @@ public abstract class Shader
 			values.set( i, values.get(i) / sum);
 
 		return values;
+	}
+
+	/**
+	 * Logs error message s one line at a time because Android has a limit on
+	 * log message length.
+	 *
+	 * @param s
+	 */
+	private static void logMultiline(String s)
+	{
+		String[] lines = s.split("\n");
+		for (String l: lines)
+			Log.e(TAG, l);
 	}
 }

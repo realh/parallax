@@ -26,7 +26,7 @@ public abstract class TypeArray  {
     private ByteBuffer buffer;
 	
 	protected TypeArray(int capacity) {
-		buffer = ByteBuffer.allocate(capacity).order(ByteOrder.nativeOrder());
+		buffer = ByteBuffer.allocateDirect(capacity).order(ByteOrder.nativeOrder());
 	}
 
     public ByteBuffer getBuffer() {
@@ -43,7 +43,7 @@ public abstract class TypeArray  {
         int l = b.limit();
         b.rewind();
         if (l > buffer.capacity()) {
-            buffer = ByteBuffer.allocate(l).order(ByteOrder.nativeOrder());
+            buffer = ByteBuffer.allocateDirect(l).order(ByteOrder.nativeOrder());
             createTypedBuffer();
         } else {
             buffer.rewind();
@@ -67,7 +67,7 @@ public abstract class TypeArray  {
         b.rewind();
         if (l > buffer.capacity()) {
             ByteBuffer old = buffer;
-            buffer = ByteBuffer.allocate(l).order(ByteOrder.nativeOrder());
+            buffer = ByteBuffer.allocateDirect(l).order(ByteOrder.nativeOrder());
             old.limit(offset);
             buffer.put(old);
             createTypedBuffer();

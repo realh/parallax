@@ -2621,7 +2621,7 @@ public class WebGLRenderer extends AbstractRenderer
 			}
 			else if(type == TYPE.F) // single float
 			{
-				GLES20.glUniform1f(location, (Float) value);
+				GLES20.glUniform1f(location, ((Double) value).floatValue());
 			}
 			else if(type == TYPE.V2) // single Vector2
 			{ 
