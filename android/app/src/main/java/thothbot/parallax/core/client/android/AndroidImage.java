@@ -27,7 +27,7 @@ public class AndroidImage implements Image
 {
     private Bitmap bitmap;
 
-    AndroidImage(Bitmap bitmap)
+    public AndroidImage(Bitmap bitmap)
     {
         this.bitmap = bitmap;
     }
