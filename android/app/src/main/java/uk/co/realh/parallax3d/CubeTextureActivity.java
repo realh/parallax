@@ -13,6 +13,7 @@ import thothbot.parallax.core.client.gl2.Image;
 import thothbot.parallax.core.client.renderers.WebGLRenderer;
 import thothbot.parallax.core.client.textures.Texture;
 import thothbot.parallax.core.shared.cameras.Camera;
+import thothbot.parallax.core.shared.cameras.OrthographicCamera;
 import thothbot.parallax.core.shared.cameras.PerspectiveCamera;
 import thothbot.parallax.core.shared.geometries.BoxGeometry;
 import thothbot.parallax.core.shared.materials.MeshBasicMaterial;
@@ -48,7 +49,7 @@ public class CubeTextureActivity extends AppCompatActivity {
         );
         camera.getPosition().setZ(400);
         */
-        camera = new Camera();
+        camera = new OrthographicCamera(2, 2, 1, -1);
 
         BoxGeometry geometry = new BoxGeometry( 1.5, 1.5, 1.5 );
 
@@ -90,15 +91,14 @@ public class CubeTextureActivity extends AppCompatActivity {
 
         @Override
         public void onSurfaceChanged(GL10 unused, int width, int height) {
-            if (renderer == null)
-            {
+            int size = width > height ? height : width;
+            boolean create = renderer == null;
+            if (create)
                 renderer = new WebGLRenderer(width, height);
-                setupScene(width, height);
-            }
-            else
-            {
-                //camera.setAspect((double) width / (double) height);
-            }
+            renderer.setViewport((width - size) / 2, (height - size) / 2,
+                    size, size);
+            if (create)
+                setupScene(size, size);
         }
 
         @Override
