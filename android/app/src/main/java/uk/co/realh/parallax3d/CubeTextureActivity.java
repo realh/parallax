@@ -51,7 +51,7 @@ public class CubeTextureActivity extends AppCompatActivity {
 
         MeshBasicMaterial material = new MeshBasicMaterial();
 
-        //material.setMap( new Texture(crateImage) );
+        material.setMap( new Texture(crateImage) );
         material.setColor(new Color(0x8080ff));
 
         mesh = new Mesh(geometry, material);

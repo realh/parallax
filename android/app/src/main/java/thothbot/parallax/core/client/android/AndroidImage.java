@@ -20,6 +20,7 @@ package thothbot.parallax.core.client.android;
 
 import android.graphics.Bitmap;
 import android.opengl.GLUtils;
+import android.util.Log;
 
 import thothbot.parallax.core.client.gl2.Image;
 
@@ -35,6 +36,7 @@ public class AndroidImage implements Image
     @Override
     public void glTexImage2D(int target)
     {
+        Log.d("Parallax", "Calling texImage2D on AndroidImage");
         GLUtils.texImage2D(target, 0, bitmap, 0);
     }
 

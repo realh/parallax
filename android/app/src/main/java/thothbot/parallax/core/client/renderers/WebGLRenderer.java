@@ -2954,7 +2954,7 @@ public class WebGLRenderer extends AbstractRenderer
 
 	public void setTexture( Texture texture, int slot ) 
 	{
-		if ( texture.isNeedsUpdate()) 
+		if ( texture.isNeedsUpdate())
 		{
 			if ( texture.getWebGlTexture() == 0 )
 			{

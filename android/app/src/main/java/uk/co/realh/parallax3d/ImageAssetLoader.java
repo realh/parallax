@@ -45,8 +45,10 @@ public class ImageAssetLoader
                     filename + "'");
         }
         if (null == bmp.getConfig()) {
-            Log.d(TAG, "Bitmap has unsupported format, trying to convert");
+            Log.d(TAG, "Bitmap has unsupported format, converting");
+            Bitmap orig = bmp;
             bmp = bmp.copy(Bitmap.Config.RGB_565, true);
+            orig.recycle();
         }
         return new AndroidImage(bmp);
     }

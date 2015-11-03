@@ -43,7 +43,10 @@ public final class WebGLExtensions {
 	public static boolean get(Id id) {
 
         if (allExtensions == null)
-            allExtensions = GLES20.glGetString(GLES20.GL_EXTENSIONS);
+		{
+			allExtensions = GLES20.glGetString(GLES20.GL_EXTENSIONS);
+			Log.d(TAG, "OpenGL ES Extensions: " + allExtensions);
+		}
 
         boolean result = allExtensions.contains(id.toString());
 

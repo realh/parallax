@@ -86,7 +86,7 @@ public class Texture
 	private int unpackAlignment = 4; // valid values: 1, 2, 4, 8
 									 // (see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glPixelStorei.xml)
 
-	private boolean isNeedsUpdate = false;
+	private boolean isNeedsUpdate = true;
 	
 	protected int[] webglTexture = { 0 };
 	
