@@ -27,8 +27,7 @@ public class CubeTextureActivity extends AppCompatActivity {
 
     private GLSurfaceView surfaceView;
 
-    //private PerspectiveCamera camera;
-    private Camera camera;
+    private PerspectiveCamera camera;
 
     private Mesh mesh;
 
@@ -40,7 +39,6 @@ public class CubeTextureActivity extends AppCompatActivity {
 
     private void setupScene(int width, int height)
     {
-        /*
         camera = new PerspectiveCamera(
                 70, // fov
                 (double) width / (double) height,
@@ -48,23 +46,15 @@ public class CubeTextureActivity extends AppCompatActivity {
                 1000 // far
         );
         camera.getPosition().setZ(400);
-        */
-        camera = new OrthographicCamera(2, 2, 1, -1);
 
-        BoxGeometry geometry = new BoxGeometry( 1.5, 1.5, 1.5 );
+        BoxGeometry geometry = new BoxGeometry( 200, 200, 200 );
 
         MeshBasicMaterial material = new MeshBasicMaterial();
-
-        Log.d(TAG, "Created material");
 
         //material.setMap( new Texture(crateImage) );
         material.setColor(new Color(0x8080ff));
 
-        Log.d(TAG, "Set material colour");
-
         mesh = new Mesh(geometry, material);
-
-        Log.d(TAG, "Created mesh");
 
         scene = new Scene();
         scene.add(mesh);
