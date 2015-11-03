@@ -12,9 +12,11 @@ import javax.microedition.khronos.opengles.GL10;
 import thothbot.parallax.core.client.gl2.Image;
 import thothbot.parallax.core.client.renderers.WebGLRenderer;
 import thothbot.parallax.core.client.textures.Texture;
+import thothbot.parallax.core.shared.cameras.Camera;
 import thothbot.parallax.core.shared.cameras.PerspectiveCamera;
 import thothbot.parallax.core.shared.geometries.BoxGeometry;
 import thothbot.parallax.core.shared.materials.MeshBasicMaterial;
+import thothbot.parallax.core.shared.math.Color;
 import thothbot.parallax.core.shared.objects.Mesh;
 import thothbot.parallax.core.shared.scenes.Scene;
 
@@ -24,7 +26,8 @@ public class CubeTextureActivity extends AppCompatActivity {
 
     private GLSurfaceView surfaceView;
 
-    private PerspectiveCamera camera;
+    //private PerspectiveCamera camera;
+    private Camera camera;
 
     private Mesh mesh;
 
@@ -36,6 +39,7 @@ public class CubeTextureActivity extends AppCompatActivity {
 
     private void setupScene(int width, int height)
     {
+        /*
         camera = new PerspectiveCamera(
                 70, // fov
                 (double) width / (double) height,
@@ -43,11 +47,14 @@ public class CubeTextureActivity extends AppCompatActivity {
                 1000 // far
         );
         camera.getPosition().setZ(400);
+        */
+        camera = new Camera();
 
-        BoxGeometry geometry = new BoxGeometry( 200, 200, 200 );
+        BoxGeometry geometry = new BoxGeometry( 1.5, 1.5, 1.5 );
 
         MeshBasicMaterial material = new MeshBasicMaterial();
-        material.setMap( new Texture(crateImage) );
+        //material.setMap( new Texture(crateImage) );
+        material.setColor(new Color(0x8080ff));
 
         mesh = new Mesh(geometry, material);
 
@@ -90,7 +97,7 @@ public class CubeTextureActivity extends AppCompatActivity {
             }
             else
             {
-                camera.setAspect((double) width / (double) height);
+                //camera.setAspect((double) width / (double) height);
             }
         }
 

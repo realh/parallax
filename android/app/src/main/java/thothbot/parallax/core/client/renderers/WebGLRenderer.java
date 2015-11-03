@@ -1729,7 +1729,7 @@ public class WebGLRenderer extends AbstractRenderer
 		if(renderPlugins( this.plugins, scene, camera, Plugin.TYPE.BASIC_RENDER ))
 			return;
 		
-		Log.d(TAG, "Called render()");
+		//Log.d(TAG, "Called render()");
 				
 		AbstractFog fog = scene.getFog();
 
@@ -1836,10 +1836,12 @@ public class WebGLRenderer extends AbstractRenderer
 
 		}
 
+		/*
 		Log.d(TAG, "  -- render() overrideMaterial : " + (scene.getOverrideMaterial() != null)
 				+ ", lights: " + lights.size()
 				+ ", opaqueObjects: " + opaqueObjects.size()
 				+ ", transparentObjects: " + transparentObjects.size());
+		*/
 		
 		if ( scene.getOverrideMaterial() != null ) 
 		{			
@@ -2257,8 +2259,8 @@ public class WebGLRenderer extends AbstractRenderer
 		
 		disableUnusedAttributes();
 
-		Log.d(TAG, "  ----> renderBuffer() ID " + object.getId() + " (" +
-                object.getClass().getSimpleName() + ")");
+		//Log.d(TAG, "  ----> renderBuffer() ID " + object.getId() + " (" +
+        //        object.getClass().getSimpleName() + ")");
 
 		// Render object's buffers
 		object.renderBuffer(this, geometry, updateBuffers);
@@ -3137,7 +3139,7 @@ public class WebGLRenderer extends AbstractRenderer
 	 */
 	public void setRenderTarget( RenderTargetTexture renderTarget ) 
 	{
-		Log.d(TAG, "  ----> Called setRenderTarget(params)");
+		//Log.d(TAG, "  ----> Called setRenderTarget(params)");
 		int framebuffer = 0;
 		
 		int width, height, vx, vy;

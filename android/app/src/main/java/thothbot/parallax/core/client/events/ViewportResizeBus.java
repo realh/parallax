@@ -37,9 +37,9 @@ public class ViewportResizeBus
     public static void removeViewportResizeListener(ViewportResizeListener listener)
     {
         Iterator<WeakReference<ViewportResizeListener>> it = listeners.iterator();
-        WeakReference<ViewportResizeListener> element;
-        while ((element = it.next()) != null)
+        while (it.hasNext())
         {
+            WeakReference<ViewportResizeListener> element = it.next();
             if (element.get() == null || element.get() == listener)
             {
                 it.remove();
@@ -50,9 +50,9 @@ public class ViewportResizeBus
     public static void onViewportResize(int newWidth, int newHeight)
     {
         Iterator<WeakReference<ViewportResizeListener>> it = listeners.iterator();
-        WeakReference<ViewportResizeListener> element;
-        while ((element = it.next()) != null)
+        while (it.hasNext())
         {
+            WeakReference<ViewportResizeListener> element = it.next();
             if (element.get() == null)
                 it.remove();
             else
