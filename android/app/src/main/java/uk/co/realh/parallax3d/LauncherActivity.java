@@ -26,4 +26,9 @@ public class LauncherActivity extends AppCompatActivity
     {
         startActivity(new Intent(this, GeometriesActivity.class));
     }
+
+    public void onParametricGeometryClick(View view)
+    {
+        startActivity(new Intent(this, ParametricGeometryActivity.class));
+    }
 }

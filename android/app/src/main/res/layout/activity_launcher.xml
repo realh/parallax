@@ -39,5 +39,12 @@
             android:id="@+id/geometries"
             android:text="@string/different_geometries"
             android:onClick="onGeometriesClick"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/parametric_geometry"
+            android:text="@string/parametric_geometry"
+            android:onClick="onParametricGeometryClick"/>
     </LinearLayout>
 </RelativeLayout>

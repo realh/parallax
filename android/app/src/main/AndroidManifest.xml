@@ -25,6 +25,8 @@
 
     <activity android:name="uk.co.realh.parallax3d.GeometriesActivity" />
 
+    <activity android:name="uk.co.realh.parallax3d.ParametricGeometryActivity" />
+
     </application>
 
 </manifest>
