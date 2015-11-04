@@ -29,6 +29,16 @@ public final class Float32Array extends TypeArray {
 	private FloatBuffer floatBuffer;
 
 	/**
+	 * Lighting requires arrays of unknown length.
+	 */
+	private boolean resizable = false;
+
+	protected Float32Array() {
+		buffer = null;
+		floatBuffer = null;
+	}
+
+	/**
 	 * @param capacity	In bytes.
 	 */
 	protected Float32Array(int capacity) {
@@ -54,6 +64,11 @@ public final class Float32Array extends TypeArray {
     public int getElementSize() {
         return 4;
     }
+
+	public static Float32Array createArray()
+	{
+		return new Float32Array();
+	}
 
     /**
 	 * Create a new {@link java.nio.ByteBuffer} with enough bytes to hold length
@@ -115,7 +130,7 @@ public final class Float32Array extends TypeArray {
 	 * @param value
 	 */
 	public void set(int index, double value) {
-		floatBuffer.put(index, (float) value);
+		set(index, (float) value);
 	}
 
 	/**
@@ -125,6 +140,22 @@ public final class Float32Array extends TypeArray {
 	 * @param value
 	 */
 	public void set(int index, float value) {
+		if (resizable)
+		{
+			FloatBuffer oldbuf = floatBuffer;
+
+			if (oldbuf == null || index >= oldbuf.capacity()) {
+				// Usually floats are added in groups of 3, so add spare capacity
+				createBuffer((index + 4) * 4);
+				createTypedBuffer();
+				if (oldbuf != null) {
+					floatBuffer.put(oldbuf);
+				}
+				floatBuffer.limit(index + 1);
+			} else if (index >= floatBuffer.limit()) {
+				floatBuffer.limit(index + 1);
+			}
+		}
 		floatBuffer.put(index, value);
 	}
 
@@ -143,7 +174,7 @@ public final class Float32Array extends TypeArray {
 	@Override
 	public int getLength()
 	{
-		return floatBuffer.limit();
+		return floatBuffer == null ? 0 : floatBuffer.limit();
 	}
 
 	/**

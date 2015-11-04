@@ -24,16 +24,27 @@ import java.nio.ByteOrder;
 public abstract class TypeArray  {
 
     protected ByteBuffer buffer;
-	
+
 	protected TypeArray(int capacity) {
-		buffer = ByteBuffer.allocateDirect(capacity).order(ByteOrder.nativeOrder());
+        createBuffer(capacity);
 	}
 
     public ByteBuffer getBuffer() {
         return buffer;
     }
-	
-	/**
+
+    /**
+     * Support creation of empty Float32Buffers which can be resized dynamically.
+     */
+    protected TypeArray() {
+        buffer = null;
+    }
+
+    protected void createBuffer(int capacity) {
+        buffer = ByteBuffer.allocateDirect(capacity).order(ByteOrder.nativeOrder());
+    }
+
+    /**
      * Set multiple values, reading input values from the array.
      *
      * @param array
@@ -43,7 +54,7 @@ public abstract class TypeArray  {
         int l = b.limit();
         b.rewind();
         if (l > buffer.capacity()) {
-            buffer = ByteBuffer.allocateDirect(l).order(ByteOrder.nativeOrder());
+            createBuffer(l);
             createTypedBuffer();
         } else {
             buffer.rewind();
@@ -67,7 +78,7 @@ public abstract class TypeArray  {
         b.rewind();
         if (l > buffer.capacity()) {
             ByteBuffer old = buffer;
-            buffer = ByteBuffer.allocateDirect(l).order(ByteOrder.nativeOrder());
+            createBuffer(l);
             old.limit(offset);
             buffer.put(old);
             createTypedBuffer();
