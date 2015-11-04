@@ -15,6 +15,7 @@
 package thothbot.parallax.core.client.gl2.arrays;
 
 import android.opengl.GLES20;
+import android.util.Log;
 
 import java.nio.FloatBuffer;
 
@@ -36,6 +37,7 @@ public final class Float32Array extends TypeArray {
 	protected Float32Array() {
 		buffer = null;
 		floatBuffer = null;
+		resizable = true;
 	}
 
 	/**
@@ -144,15 +146,18 @@ public final class Float32Array extends TypeArray {
 		{
 			FloatBuffer oldbuf = floatBuffer;
 
-			if (oldbuf == null || index >= oldbuf.capacity()) {
+			if (oldbuf == null || index >= oldbuf.capacity())
+			{
 				// Usually floats are added in groups of 3, so add spare capacity
 				createBuffer((index + 4) * 4);
 				createTypedBuffer();
-				if (oldbuf != null) {
+				if (oldbuf != null)
+				{
 					floatBuffer.put(oldbuf);
 				}
 				floatBuffer.limit(index + 1);
-			} else if (index >= floatBuffer.limit()) {
+			} else if (index >= floatBuffer.limit())
+			{
 				floatBuffer.limit(index + 1);
 			}
 		}
