@@ -35,20 +35,19 @@ public final class Duration
         startTime = java.lang.System.currentTimeMillis();
     }
 
-    static double currentTimeMillis()
+    public static double currentTimeMillis()
     {
         return java.lang.System.currentTimeMillis();
     }
 
-    int	elapsedMillis()
+    public int	elapsedMillis()
     {
         return (int) (System.currentTimeMillis() - startTime);
     }
 
-    double getStartMillis()
+    public double getStartMillis()
     {
         return startTime;
     }
-
 
 }
