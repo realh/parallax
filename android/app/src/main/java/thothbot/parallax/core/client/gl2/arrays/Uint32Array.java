@@ -154,6 +154,12 @@ public final class Uint32Array extends TypeArray {
         super.set(array, offset * BYTES_PER_ELEMENT);
     }
 
+	@Override
+	public int getLength()
+	{
+		return intBuffer.limit();
+	}
+
 	/**
 	 * slice methods were not used.
      */

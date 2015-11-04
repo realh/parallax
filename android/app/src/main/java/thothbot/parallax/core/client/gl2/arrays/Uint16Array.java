@@ -155,6 +155,12 @@ public final class Uint16Array extends IndexTypeArray {
         super.set(array, offset * BYTES_PER_ELEMENT);
     }
 
+	@Override
+	public int getLength()
+	{
+		return shortBuffer.limit();
+	}
+
 	/**
 	 * slice methods were not used.
      */

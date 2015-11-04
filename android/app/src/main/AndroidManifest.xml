@@ -23,6 +23,8 @@
 
     <activity android:name="uk.co.realh.parallax3d.CubeTextureActivity" />
 
+    <activity android:name="uk.co.realh.parallax3d.GeometriesActivity" />
+
     </application>
 
 </manifest>

@@ -100,15 +100,6 @@ public final class Float32Array extends TypeArray {
 	}
 
 	/**
-	 * {@link thothbot.parallax.core.client.shaders.UniformsLib} needs to
-     * generate Float32Arrays of unknown size for FV and FV1 types, deal with
-     * this by returning null.
-	 */
-    public static Float32Array createArray() {
-        return null;
-    }
-
-	/**
 	 * Returns the element at the given numeric index.
 	 *
 	 * @param index
@@ -149,7 +140,13 @@ public final class Float32Array extends TypeArray {
         super.set(array, offset * BYTES_PER_ELEMENT);
     }
 
-    /**
+	@Override
+	public int getLength()
+	{
+		return floatBuffer.limit();
+	}
+
+	/**
      * slice methods were not used.
      */
 }

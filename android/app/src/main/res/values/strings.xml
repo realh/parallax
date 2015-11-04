@@ -2,4 +2,5 @@
     <string name="app_name">Parallax3D</string>
     <string name="Demos">Demos</string>
     <string name="cube_texture">Cube and texture</string>
+    <string name="different_geometries">Different Geometries</string>
 </resources>

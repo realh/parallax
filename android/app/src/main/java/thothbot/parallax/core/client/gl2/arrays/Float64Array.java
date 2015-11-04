@@ -114,6 +114,12 @@ public final class Float64Array extends TypeArray {
         super.set(array, offset * BYTES_PER_ELEMENT);
     }
 
+	@Override
+	public int getLength()
+	{
+		return doubleBuffer.limit();
+	}
+
 	/**
 	 * slice methods were not used.
      */

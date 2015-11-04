@@ -31,6 +31,12 @@ public final class Int8Array extends TypeArray {
 	}
 
 	@Override
+	public int getLength()
+	{
+		return buffer.limit();
+	}
+
+	@Override
 	protected void createTypedBuffer() {
 	}
 

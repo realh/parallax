@@ -13,6 +13,8 @@ import thothbot.parallax.core.shared.objects.Mesh;
 
 public class CubeTextureDemo extends DemoAnimatedScene {
 
+    private static final String imageAsset = "textures/crate.gif";
+
     private AndroidImage crateImage;
 
     private PerspectiveCamera camera;
@@ -24,11 +26,10 @@ public class CubeTextureDemo extends DemoAnimatedScene {
     {
         try {
             crateImage = ImageAssetLoader.createImageFromAsset(
-                    activity.getAssets(), "textures/crate.gif");
+                    activity.getAssets(), imageAsset);
         } catch (Throwable e) {
             Log.e(TAG, "Exception in onCreate", e);
         }
-
     }
 
     @Override

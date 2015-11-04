@@ -33,6 +33,12 @@ public final class Uint8Array extends IndexTypeArray {
 	}
 
 	@Override
+	public int getLength()
+	{
+		return buffer.limit();
+	}
+
+	@Override
 	protected void createTypedBuffer() {
 	}
 

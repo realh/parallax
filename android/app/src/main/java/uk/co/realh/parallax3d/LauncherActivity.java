@@ -21,4 +21,9 @@ public class LauncherActivity extends AppCompatActivity
     {
         startActivity(new Intent(this, CubeTextureActivity.class));
     }
+
+    public void onGeometriesClick(View view)
+    {
+        startActivity(new Intent(this, GeometriesActivity.class));
+    }
 }

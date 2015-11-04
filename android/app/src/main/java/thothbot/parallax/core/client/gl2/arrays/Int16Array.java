@@ -113,6 +113,12 @@ public final class Int16Array extends TypeArray {
         super.set(array, offset * BYTES_PER_ELEMENT);
     }
 
+	@Override
+	public int getLength()
+	{
+		return shortBuffer.limit();
+	}
+
 	/**
 	 * slice methods were not used.
      */

@@ -23,7 +23,7 @@ import java.nio.ByteOrder;
  */
 public abstract class TypeArray  {
 
-    private ByteBuffer buffer;
+    protected ByteBuffer buffer;
 	
 	protected TypeArray(int capacity) {
 		buffer = ByteBuffer.allocateDirect(capacity).order(ByteOrder.nativeOrder());
@@ -87,9 +87,7 @@ public abstract class TypeArray  {
     /**
      * Gets the length of this array in elements of subclass' type.
      */
-    public int getLength() {
-        return buffer.limit() * getElementSize();
-    }
+    public abstract int getLength();
 
     /**
      * Disused reverse() method elided.
