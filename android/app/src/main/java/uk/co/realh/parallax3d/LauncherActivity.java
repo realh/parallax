@@ -31,4 +31,9 @@ public class LauncherActivity extends AppCompatActivity
     {
         startActivity(new Intent(this, ParametricGeometryActivity.class));
     }
+
+    public void onMovingVerticesClick(View view)
+    {
+        startActivity(new Intent(this, MovingVerticesActivity.class));
+    }
 }

@@ -27,6 +27,8 @@
 
     <activity android:name="uk.co.realh.parallax3d.ParametricGeometryActivity" />
 
+    <activity android:name="uk.co.realh.parallax3d.MovingVerticesActivity" />
+
     </application>
 
 </manifest>

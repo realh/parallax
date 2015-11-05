@@ -4,4 +4,5 @@
     <string name="cube_texture">Cube and texture</string>
     <string name="different_geometries">Different Geometries</string>
     <string name="parametric_geometry">Parametric Geometry</string>
+    <string name="moving_vertices">Moving Vertices</string>
 </resources>

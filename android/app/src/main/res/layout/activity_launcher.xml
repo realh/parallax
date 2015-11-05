@@ -46,5 +46,12 @@
             android:id="@+id/parametric_geometry"
             android:text="@string/parametric_geometry"
             android:onClick="onParametricGeometryClick"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/moving_vertices"
+            android:text="@string/moving_vertices"
+            android:onClick="onMovingVerticesClick"/>
     </LinearLayout>
 </RelativeLayout>

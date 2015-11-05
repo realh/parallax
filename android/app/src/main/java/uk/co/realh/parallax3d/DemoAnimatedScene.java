@@ -56,9 +56,7 @@ public abstract class DemoAnimatedScene {
         }
         else
         {
-            int dur = duration.elapsedMillis();
-            duration.reset();
-            onUpdate((double) dur);
+            onUpdate((double) duration.elapsedMillis());
         }
     }
 
