@@ -5,4 +5,5 @@
     <string name="different_geometries">Different Geometries</string>
     <string name="parametric_geometry">Parametric Geometry</string>
     <string name="moving_vertices">Moving Vertices</string>
+    <string name="buffer_geometry">Buffer Geometry</string>
 </resources>

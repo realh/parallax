@@ -60,7 +60,8 @@ public abstract class DemoAnimatedScene {
         }
     }
 
-    protected abstract void onCreate(Activity activity);
+    protected void onCreate(Activity activity)
+    {}
 
     protected abstract void onStart();
 

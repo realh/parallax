@@ -29,6 +29,8 @@
 
     <activity android:name="uk.co.realh.parallax3d.MovingVerticesActivity" />
 
+    <activity android:name="uk.co.realh.parallax3d.BufferGeometryActivity" />
+
     </application>
 
 </manifest>

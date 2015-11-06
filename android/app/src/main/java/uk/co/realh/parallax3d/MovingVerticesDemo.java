@@ -37,6 +37,7 @@ import thothbot.parallax.core.shared.scenes.FogExp2;
 public class MovingVerticesDemo extends DemoAnimatedScene
 {
     private static final String imageAsset = "textures/water.jpg";
+    private static final int FOG_COLOR = 0xAACCFF;
 
     private Image waterImage;
     PerspectiveCamera camera;
@@ -72,7 +73,8 @@ public class MovingVerticesDemo extends DemoAnimatedScene
 
         camera.getPosition().setY(200);
 
-        getScene().setFog(new FogExp2(0xAACCFF, 0.0007));
+        getScene().setFog(new FogExp2(FOG_COLOR, 0.0007));
+        getRenderer().setClearColor(FOG_COLOR);
 
         this.geometry = new PlaneGeometry( 20000, 20000, worldWidth - 1, worldDepth - 1 );
         this.geometry.applyMatrix(new Matrix4().makeRotationX(-Math.PI / 2.0));

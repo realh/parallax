@@ -36,4 +36,9 @@ public class LauncherActivity extends AppCompatActivity
     {
         startActivity(new Intent(this, MovingVerticesActivity.class));
     }
+
+    public void onBufferGeometryClick(View view)
+    {
+        startActivity(new Intent(this, BufferGeometryActivity.class));
+    }
 }
