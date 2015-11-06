@@ -12,63 +12,64 @@
     >
 
     <ScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:id="@+id/scrollView"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
+        android:layout_alignParentStart="true">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/scrollView"
-        android:layout_toRightOf="@+id/scrollView"
-        android:layout_toEndOf="@+id/scrollView">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="@string/Demos"
-            android:id="@+id/textView2"
-            android:textStyle="bold"/>
-
-        <Button
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/button"
-            android:text="@string/cube_texture"
-            android:onClick="onCubeTextureClick"/>
+            android:layout_height="match_parent"
+            android:layout_below="@+id/scrollView"
+            android:layout_toRightOf="@+id/scrollView"
+            android:layout_toEndOf="@+id/scrollView">
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/button2"
-            android:text="@string/different_geometries"
-            android:onClick="onGeometriesClick"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="@string/Demos"
+                android:id="@+id/textView2"
+                android:textStyle="bold"/>
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/button3"
-            android:text="@string/parametric_geometry"
-            android:onClick="onParametricGeometryClick"/>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/button"
+                android:text="@string/cube_texture"
+                android:onClick="onCubeTextureClick"/>
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/button4"
-            android:text="@string/moving_vertices"
-            android:onClick="onMovingVerticesClick"/>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/button2"
+                android:text="@string/different_geometries"
+                android:onClick="onGeometriesClick"/>
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/button5"
-            android:text="@string/buffer_geometry"
-            android:onClick="onBufferGeometryClick"/>
-    </LinearLayout>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/button3"
+                android:text="@string/parametric_geometry"
+                android:onClick="onParametricGeometryClick"/>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/button4"
+                android:text="@string/moving_vertices"
+                android:onClick="onMovingVerticesClick"/>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/button5"
+                android:text="@string/buffer_geometry"
+                android:onClick="onBufferGeometryClick"/>
+        </LinearLayout>
+    </ScrollView>
 
 </RelativeLayout>
