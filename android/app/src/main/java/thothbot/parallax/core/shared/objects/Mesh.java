@@ -715,7 +715,7 @@ public class Mesh extends GeometryObject
 	// setMeshBuffers
 	public void setBuffers(GeometryGroup geometryGroup, int bufferUsageHint, boolean dispose, Material material)
 	{
-		Log.d(TAG, "Called Mesh.setBuffers() - material=" + material.getId() + ", " + material.getClass().getName());
+		//Log.d(TAG, "Called Mesh.setBuffers() - material=" + material.getId() + ", " + material.getClass().getName());
 
 		if ( ! geometryGroup.__inittedArrays )
 			 return;
