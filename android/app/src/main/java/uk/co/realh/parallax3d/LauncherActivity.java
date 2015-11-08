@@ -41,4 +41,9 @@ public class LauncherActivity extends AppCompatActivity
     {
         startActivity(new Intent(this, BufferGeometryActivity.class));
     }
+
+    public void onBufferedParticlesClick(View view)
+    {
+        startActivity(new Intent(this, BufferedParticlesActivity.class));
+    }
 }

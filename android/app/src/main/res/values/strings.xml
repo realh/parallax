@@ -6,4 +6,5 @@
     <string name="parametric_geometry">Parametric Geometry</string>
     <string name="moving_vertices">Moving Vertices</string>
     <string name="buffer_geometry">Buffer Geometry</string>
+    <string name="buffered_particles">Buffered Particles</string>
 </resources>

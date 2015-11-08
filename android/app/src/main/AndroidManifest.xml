@@ -31,6 +31,8 @@
 
     <activity android:name="uk.co.realh.parallax3d.BufferGeometryActivity" />
 
+    <activity android:name="uk.co.realh.parallax3d.BufferedParticlesActivity" />
+
     </application>
 
 </manifest>
