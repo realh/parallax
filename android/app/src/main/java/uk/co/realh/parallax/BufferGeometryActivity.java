@@ -1,4 +1,4 @@
-package uk.co.realh.parallax3d;
+package uk.co.realh.parallax;
 
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
 import thothbot.parallax.core.client.gl2.arrays.Uint16Array;

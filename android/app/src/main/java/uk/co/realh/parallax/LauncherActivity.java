@@ -1,4 +1,4 @@
-package uk.co.realh.parallax3d;
+package uk.co.realh.parallax;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;

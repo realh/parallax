@@ -17,7 +17,7 @@
  */
 
 
-package uk.co.realh.parallax3d;
+package uk.co.realh.parallax;
 
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;

@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
 
-        <activity android:name="uk.co.realh.parallax3d.LauncherActivity" >
+        <activity android:name="uk.co.realh.parallax.LauncherActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,17 +21,17 @@
             </intent-filter>
         </activity>
 
-    <activity android:name="uk.co.realh.parallax3d.CubeTextureActivity" />
+    <activity android:name="uk.co.realh.parallax.CubeTextureActivity" />
 
-    <activity android:name="uk.co.realh.parallax3d.GeometriesActivity" />
+    <activity android:name="uk.co.realh.parallax.GeometriesActivity" />
 
-    <activity android:name="uk.co.realh.parallax3d.ParametricGeometryActivity" />
+    <activity android:name="uk.co.realh.parallax.ParametricGeometryActivity" />
 
-    <activity android:name="uk.co.realh.parallax3d.MovingVerticesActivity" />
+    <activity android:name="uk.co.realh.parallax.MovingVerticesActivity" />
 
-    <activity android:name="uk.co.realh.parallax3d.BufferGeometryActivity" />
+    <activity android:name="uk.co.realh.parallax.BufferGeometryActivity" />
 
-    <activity android:name="uk.co.realh.parallax3d.BufferedParticlesActivity" />
+    <activity android:name="uk.co.realh.parallax.BufferedParticlesActivity" />
 
     </application>
 
