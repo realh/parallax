@@ -3,6 +3,7 @@ package uk.co.realh.parallax;
 import android.app.Activity;
 import android.util.Log;
 
+import thothbot.parallax.core.client.android.AndroidAssetLoader;
 import thothbot.parallax.core.client.gl2.Image;
 import thothbot.parallax.core.client.gl2.enums.TextureWrapMode;
 import thothbot.parallax.core.client.renderers.Duration;
@@ -44,8 +45,7 @@ public class MovingVerticesActivity extends DemoActivity
             {
                 try
                 {
-                    waterImage = ImageAssetLoader.createImageFromAsset(
-                            activity.getAssets(), imageAsset);
+                    waterImage = new AndroidAssetLoader(activity.getAssets(), ".").loadImage(imageAsset);
                 } catch (Throwable e)
                 {
                     Log.e(TAG, "Exception in onCreate", e);

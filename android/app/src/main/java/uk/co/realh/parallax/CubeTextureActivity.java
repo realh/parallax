@@ -3,7 +3,9 @@ package uk.co.realh.parallax;
 import android.app.Activity;
 import android.util.Log;
 
+import thothbot.parallax.core.client.android.AndroidAssetLoader;
 import thothbot.parallax.core.client.android.AndroidImage;
+import thothbot.parallax.core.client.gl2.Image;
 import thothbot.parallax.core.client.textures.Texture;
 import thothbot.parallax.core.shared.cameras.PerspectiveCamera;
 import thothbot.parallax.core.shared.geometries.BoxGeometry;
@@ -21,7 +23,7 @@ public class CubeTextureActivity extends DemoActivity {
 
             private static final String imageAsset = "textures/crate.gif";
 
-            private AndroidImage crateImage;
+            private Image crateImage;
 
             private PerspectiveCamera camera;
 
@@ -32,11 +34,10 @@ public class CubeTextureActivity extends DemoActivity {
             {
                 try
                 {
-                    crateImage = ImageAssetLoader.createImageFromAsset(
-                            activity.getAssets(), imageAsset);
+                    crateImage = new AndroidAssetLoader(activity.getAssets(), ".").loadImage(imageAsset);
                 } catch (Throwable e)
                 {
-                    Log.e(TAG, "Exception in onCreate", e);
+                    Log.e(TAG, "Exception loading crate image", e);
                 }
             }
 

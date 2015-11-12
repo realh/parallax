@@ -6,6 +6,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+import thothbot.parallax.core.client.android.AndroidAssetLoader;
 import thothbot.parallax.core.client.gl2.Image;
 import thothbot.parallax.core.client.gl2.enums.TextureWrapMode;
 import thothbot.parallax.core.client.textures.Texture;
@@ -51,8 +52,7 @@ public class GeometriesActivity extends DemoActivity {
             {
                 try
                 {
-                    gridImage = ImageAssetLoader.createImageFromAsset(
-                            activity.getAssets(), imageAsset);
+                    gridImage = new AndroidAssetLoader(activity.getAssets(), ".").loadImage(imageAsset);
                 } catch (Throwable e)
                 {
                     Log.e(TAG, "Exception in onCreate", e);
