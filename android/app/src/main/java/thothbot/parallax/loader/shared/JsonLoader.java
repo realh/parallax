@@ -87,20 +87,28 @@ public class JsonLoader
 		
 		Geometry geometry = new Geometry();
 
-		parseMaterials();
-		parseModel(geometry);
+		try
+		{
+			parseMaterials();
 
-		parseSkin(geometry);
-		parseMorphing(geometry);
+			parseModel(geometry);
 
-		geometry.computeFaceNormals();
-		geometry.computeBoundingSphere();
+			parseSkin(geometry);
+			parseMorphing(geometry);
 
-		if ( hasNormals() ) 
-			geometry.computeTangents();
-		
-		geometry.computeMorphNormals();
-		
+			geometry.computeFaceNormals();
+			geometry.computeBoundingSphere();
+
+			if ( hasNormals() )
+				geometry.computeTangents();
+
+			geometry.computeMorphNormals();
+		} catch (JSONException e)
+		{
+			Log.e(TAG, "Error parsing JSON model", e);
+			geometry = null;
+		}
+
 		return geometry;
 	}
 
@@ -432,20 +440,23 @@ public class JsonLoader
 		return material;
 	}
 	
-	private void parseModel(Geometry geometry)
+	private void parseModel(Geometry geometry) throws JSONException
 	{
-		if(object.getFaces() == null) 
+		List<Integer> faces = getArrayAsList("faces");
+
+		if (faces == null)
 			return;
 
 		Log.d(TAG, "JSON parseFaces()");
-		
-		double scale = object.getScale() > 0 ? 1.0 / object.getScale() : 1.0;
 
-		List<Integer> faces = object.getFaces();
-		List<Double> vertices = object.getVertices();
-		List<List<Double>> uvs = object.getUvs();
-		List<Double> normals = object.getNormals();
-		List<Integer> colors = object.getColors();
+		double scale = object.optDouble("scale");
+		if (scale > 0)
+			scale = 1;
+
+		List<Double> vertices = getArrayAsList("vertices");
+		List<List<Double>> uvs = getNestedArrayAsLists("uvs");
+		List<Double> normals = getArrayAsList("normals");
+		List<Integer> colors = getArrayAsList("colors");
 	
 		int nUvLayers = 0;
 
@@ -700,6 +711,45 @@ public class JsonLoader
 
 			}
 		}
+	}
+
+	private <T> List<T> getArrayAsList(String name) throws JSONException
+	{
+		JSONArray jsonArray = object.optJSONArray(name);
+
+		return (jsonArray != null) ? (List<T>) jsonArrayToList(jsonArray) : null;
+	}
+
+	private <T> List<List<T>> getNestedArrayAsLists(String name) throws JSONException
+	{
+		JSONArray jsonArray = object.optJSONArray(name);
+
+		if (jsonArray == null)
+			return null;
+
+		List<JSONArray> outerList = getArrayAsList(name);
+		int len = outerList.size();
+		List<List<T>> nestedList = new ArrayList<List<T>>(len);
+
+		for (int i = 0; i < len; ++i)
+		{
+			nestedList.set(i, (List<T>) jsonArrayToList(outerList.get(i)));
+		}
+
+		return nestedList;
+	}
+
+	private static <T> List<T> jsonArrayToList(JSONArray jsonArray) throws JSONException
+	{
+		int len = jsonArray.length();
+		List<T> list = new ArrayList<T>(len);
+
+		for (int i = 0; i < len; ++i)
+		{
+			list.set(i, (T) jsonArray.get(i));
+		}
+
+		return list;
 	}
 	
 	private void parseSkin(Geometry geometry) 
