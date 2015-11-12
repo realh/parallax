@@ -19,6 +19,7 @@
 package thothbot.parallax.loader.shared;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import thothbot.parallax.core.client.gl2.Image;
 
@@ -29,4 +30,6 @@ import thothbot.parallax.core.client.gl2.Image;
 public interface ImageLoader
 {
 	public Image loadImage(String leafname) throws IOException;
+
+	public ByteBuffer loadData(String leafname) throws IOException;
 }

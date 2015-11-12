@@ -19,18 +19,11 @@
 package thothbot.parallax.core.client.android;
 
 import android.content.res.AssetManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import thothbot.parallax.core.client.gl2.Image;
-import thothbot.parallax.loader.shared.AssetLoader;
-import thothbot.parallax.loader.shared.ImageLoader;
-
-public class AndroidAssetLoader extends AssetLoader implements ImageLoader
+public class AndroidAssetLoader extends AndroidLoader
 {
 	private static final String TAG = "Parallax";
 
@@ -46,29 +39,11 @@ public class AndroidAssetLoader extends AssetLoader implements ImageLoader
 		this.assets = assets;
 	}
 
-	public InputStream open(String filename) throws IOException
+	@Override
+	public InputStream openInputStream(String filename) throws IOException
 	{
 		if (filename.charAt(0) != '/')
 			filename = getPathname(filename);
 		return assets.open(filename);
-	}
-
-	@Override
-	public Image loadImage(String leafname) throws IOException
-	{
-		InputStream strm = open(leafname);
-		Bitmap bmp = BitmapFactory.decodeStream(strm);
-		strm.close();
-		if (null == bmp) {
-			throw new RuntimeException("Unable to create bitmap from asset '" +
-					leafname + "'");
-		}
-		if (null == bmp.getConfig()) {
-			Log.d(TAG, "Bitmap has unsupported format, converting");
-			Bitmap orig = bmp;
-			bmp = bmp.copy(Bitmap.Config.RGB_565, true);
-			orig.recycle();
-		}
-		return new AndroidImage(bmp);
 	}
 }
