@@ -105,7 +105,7 @@ public abstract class AndroidLoader extends AssetLoader implements ImageLoader
 			if (numRead != -1)
 				offset += numRead;
 		} while (numRead != -1);
-		
+
 		strm.close();
 
 		ByteBuffer bbuf = ByteBuffer.allocate(offset);

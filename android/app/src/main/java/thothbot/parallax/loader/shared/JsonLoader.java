@@ -24,6 +24,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +54,6 @@ import thothbot.parallax.core.shared.materials.MeshLambertMaterial;
 import thothbot.parallax.core.shared.materials.MeshPhongMaterial;
 import thothbot.parallax.core.shared.materials.ShaderMaterial;
 import thothbot.parallax.core.shared.math.Color;
-import thothbot.parallax.core.shared.math.Mathematics;
 import thothbot.parallax.core.shared.math.Vector2;
 import thothbot.parallax.core.shared.math.Vector3;
 import thothbot.parallax.core.shared.math.Vector4;
@@ -65,6 +65,8 @@ public class JsonLoader
 	private JSONObject object;
 	
 	private List<Material> materials;
+
+	private ImageLoader imageLoader;
 
 	private enum JsoBlending
 	{
@@ -78,7 +80,17 @@ public class JsonLoader
 		public abstract Material.BLENDING getValue();
 	}
 
-	protected AbstractGeometry parse(String string)
+	public JsonLoader(ImageLoader loader)
+	{
+		this.imageLoader = loader;
+	}
+
+	public void setImageLoader(ImageLoader loader)
+	{
+		this.imageLoader = loader;
+	}
+
+	public AbstractGeometry parse(String string)
 	{		 
 		if(!isThisJsonStringValid(string))
 			return null;
@@ -168,15 +180,15 @@ public class JsonLoader
 			{
 				this.materials.add( createMaterial( materials.getJSONObject(i) ) );
 			}
-			catch (JSONException e)
+			catch (Throwable e)
 			{
-				Log.e(TAG, "Unabe to read material from JSON");
+				Log.e(TAG, "Unable to read material from JSON");
 			}
 		}
 //		geometry.setMaterials(this.materials);
 	}
 	
-	private Material createMaterial(JSONObject jsonMaterial) throws JSONException
+	private Material createMaterial(JSONObject jsonMaterial) throws JSONException, IOException
 	{
 		// defaults
 		Material material;
@@ -854,67 +866,51 @@ public class JsonLoader
 	}
 
 	private Texture create_texture( String sourceFile, JSONArray repeat, JSONArray offset, JSONArray wrap, int anisotropy )
+			throws IOException, JSONException
 	{
 		boolean isCompressed = sourceFile.toLowerCase().endsWith(".dds");
-		final String fullPath =  getTexturePath() + sourceFile;
 
 		final Texture texture;
 		
 		if ( isCompressed ) 
 		{
-			texture = new CompressedTexture(fullPath);
+			texture = new CompressedTexture(imageLoader.loadData(sourceFile), true);
 		} 
 		else 
 		{
-			texture = new Texture(fullPath, new Texture.ImageLoadHandler() {
-
-				@Override
-				public void onImageLoad(Texture texture) 
-				{
-					int oWidth =  texture.getImage().getOffsetWidth();
-					int oHeight = texture.getImage().getOffsetHeight();
-							
-					if ( !Mathematics.isPowerOfTwo( oWidth ) || !Mathematics.isPowerOfTwo( oHeight ) ) 
-					{
-						CanvasElement canvas = Document.get().createElement("canvas").cast();
-						int width = Mathematics.getNextHighestPowerOfTwo(oWidth);
-						int height = Mathematics.getNextHighestPowerOfTwo(oHeight);
-						canvas.setWidth(width);
-						canvas.setHeight(height);
-
-						Context2d context = canvas.getContext2d();
-						context.drawImage( (ImageElement)texture.getImage(), 0, 0, width, height );
-
-						texture.setImage(canvas);
-					} 
-
-					texture.setNeedsUpdate(true);
-				}
-			});
+			texture = new Texture(imageLoader.loadImage(sourceFile));
 			texture.setNeedsUpdate(false);
 		}
 
 		if( repeat != null) 
 		{
-			texture.getRepeat().set(repeat.get(0), repeat.get(1));
+			int x = repeat.getInt(0);
+			int y = repeat.getInt(1);
+			texture.getRepeat().set(x, y);
 
-			if ( repeat.get( 0 ) != 1 )
+			if ( x != 1 )
 				texture.setWrapS(TextureWrapMode.REPEAT);
-			if ( repeat.get( 1 ) != 1 )
+			if ( y != 1 )
 				texture.setWrapT(TextureWrapMode.REPEAT);
 		}
 
 		if ( offset != null) 
 		{
-			texture.getOffset().set(offset.get(0), offset.get(1));
+			texture.getOffset().set(offset.getInt(0), offset.getInt(1));
 		}
 
 		if ( wrap != null) 
 		{
-			if ( wrap.get(0) != null )
-				texture.setWrapS(wrap.get(0).getValue());
-			if ( wrap.get(1) != null ) 
-				texture.setWrapT(wrap.get(1).getValue());
+			String w = wrap.optString(0, null);
+			if (w != null && w.compareToIgnoreCase("repeat") == 0)
+				texture.setWrapS(TextureWrapMode.REPEAT);
+			else if (w != null && w.compareToIgnoreCase("mirror") == 0)
+				texture.setWrapS(TextureWrapMode.MIRRORED_REPEAT);
+			w = wrap.optString(0, null);
+			if (w != null && w.compareToIgnoreCase("repeat") == 0)
+				texture.setWrapT(TextureWrapMode.REPEAT);
+			else if (w != null && w.compareToIgnoreCase("mirror") == 0)
+				texture.setWrapT(TextureWrapMode.MIRRORED_REPEAT);
 		}
 
 		if ( anisotropy > 0) 
