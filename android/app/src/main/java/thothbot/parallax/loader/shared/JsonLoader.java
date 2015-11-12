@@ -449,9 +449,8 @@ public class JsonLoader
 
 		Log.d(TAG, "JSON parseFaces()");
 
-		double scale = object.optDouble("scale");
-		if (scale > 0)
-			scale = 1;
+		double scale = object.optDouble("scale", 0);
+		scale = scale > 0 ? 1 / scale : 1;
 
 		List<Double> vertices = getArrayAsList("vertices");
 		List<List<Double>> uvs = getNestedArrayAsLists("uvs");
@@ -752,16 +751,18 @@ public class JsonLoader
 		return list;
 	}
 	
-	private void parseSkin(Geometry geometry) 
+	private void parseSkin(Geometry geometry) throws JSONException
 	{
-		int influencesPerVertex = ( object.getInfluencesPerVertex() > 0 ) ? object.getInfluencesPerVertex() : 2;
-		
+		int influencesPerVertex = object.optInt("influencesPerVertex");
+		if (influencesPerVertex <= 0)
+			influencesPerVertex = 2;
+
 		Log.d(TAG, "JSON parseSkin()");
-		
-		if ( object.getSkinWeights() != null ) 
+
+		List<Double> skinWeights = getArrayAsList("skinWeights");
+		if ( skinWeights != null )
 		{
-			List<Double> skinWeights = object.getSkinWeights();
-			for ( int i = 0, l = skinWeights.size(); i < l; i += influencesPerVertex ) 
+			for ( int i = 0, l = skinWeights.size(); i < l; i += influencesPerVertex )
 			{
 				double x =                               skinWeights.get( i     );
 				double y = ( influencesPerVertex > 1 ) ? skinWeights.get( i + 1 ) : 0;
@@ -773,9 +774,9 @@ public class JsonLoader
 
 		}
 
-		if ( object.getSkinIndices() != null) 
+		List<Integer> skinIndices = getArrayAsList("skinIndices");
+		if ( skinIndices != null)
 		{
-			List<Integer> skinIndices = object.getSkinIndices();
 
 			for ( int i = 0, l = skinIndices.size(); i < l; i += 2 ) 
 			{
@@ -792,51 +793,53 @@ public class JsonLoader
 //		geometry.animation = json.animation;
 	}
 
-	private void parseMorphing(Geometry geometry) 
+	private void parseMorphing(Geometry geometry) throws JSONException
 	{
 		Log.d(TAG, "JSON parseMorphing()");
-		
-		double scale = object.getScale() > 0 ? 1.0 / object.getScale() : 1.0;
-				
-		if ( object.getMorphTargets() != null) 
+
+		double scale = object.optDouble("scale", 0);
+		scale = scale > 0 ? 1 / scale : 1;
+
+		JSONArray morphTargets = object.getJSONArray("morphTargets");
+		if ( morphTargets != null)
 		{
-			List<JsoMorphTargets> morphTargets = object.getMorphTargets();
-			
-			for ( int i = 0, l = morphTargets.size(); i < l; i ++ ) 
+			for ( int i = 0, l = morphTargets.length(); i < l; i ++ )
 			{
+				JSONObject jsonTarget = morphTargets.getJSONObject(i);
+
 				Geometry.MorphTarget morphTarget = geometry.new MorphTarget();
-				morphTarget.name = morphTargets.get(i).getName();
+				morphTarget.name = jsonTarget.getString("name");
 				morphTarget.vertices = new ArrayList<Vector3>();
-				
-				List<Double> srcVertices = morphTargets.get(i).getVertices();
-				for( int v = 0, vl = srcVertices.size(); v < vl; v += 3 ) 
+
+				JSONArray srcVertices = jsonTarget.getJSONArray("vertices");
+				for( int v = 0, vl = srcVertices.length(); v < vl; v += 3 )
 				{
 					morphTarget.vertices.add( 
 							new Vector3(
-									srcVertices.get(v) * scale, 
-									srcVertices.get(v + 1) * scale,
-									srcVertices.get(v + 2) * scale));
+									srcVertices.getDouble(v) * scale,
+									srcVertices.getDouble(v + 1) * scale,
+									srcVertices.getDouble(v + 2) * scale));
 				}
 
 				geometry.getMorphTargets().add(morphTarget);
 			}
 		}
 
-		if ( object.getMorphColors() != null ) 
+		JSONArray morphColors = object.getJSONArray("morphColors");
+		if ( morphColors != null )
 		{
-			List<JsoMorphColors> morphColors = object.getMorphColors();
-			
-			for ( int i = 0, l = morphColors.size(); i < l; i++ ) 
+			for ( int i = 0, l = morphColors.length(); i < l; i++ )
 			{
+				JSONObject jsonColor = morphColors.getJSONObject(i);
 				Geometry.MorphColor morphColor = geometry.new MorphColor();
-				morphColor.name = morphColors.get(i).getName();
+				morphColor.name = jsonColor.getString("name");
 				morphColor.colors = new ArrayList<Color>();
-								
-				List<Double> srcColors = morphColors.get(i).getColors();
-				for ( int c = 0, cl = srcColors.size(); c < cl; c += 3 ) 
+
+				JSONArray srcColors = jsonColor.getJSONArray("colors");
+				for ( int c = 0, cl = srcColors.length(); c < cl; c += 3 )
 				{
 					Color color = new Color( 0xffaa00 );
-					color.setRGB(srcColors.get(c), srcColors.get(c + 1), srcColors.get(c + 2));
+					color.setRGB(srcColors.getDouble(c), srcColors.getDouble(c + 1), srcColors.getDouble(c + 2));
 					morphColor.colors.add(color);
 				}
 				
