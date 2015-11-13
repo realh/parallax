@@ -25,6 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -115,7 +116,7 @@ public class JsonLoader
 				geometry.computeTangents();
 
 			geometry.computeMorphNormals();
-		} catch (JSONException e)
+		} catch (Throwable e)
 		{
 			Log.e(TAG, "Error parsing JSON model", e);
 			geometry = null;
@@ -150,40 +151,28 @@ public class JsonLoader
 		}
 		catch ( JSONException e)
 		{
-			Log.e(TAG, "Could not parser JSON data");
+			Log.e(TAG, "Could not parse JSON data");
 			return false;
 		}  
 
 		return true;
 	}
 		
-	private void parseMaterials()
+	private void parseMaterials() throws JSONException, IOException
 	{
 		JSONArray materials;
 
-		try
-		{
-			materials = object.getJSONArray("materials");
-		}
-		catch (JSONException e)
-		{
-			Log.e(TAG, "Unable to read materials from JSON", e);
+		materials = object.optJSONArray("materials");
+
+		if (materials == null)
 			return;
-		}
 
 		Log.d(TAG, "JSON parseMaterials()");
 		
 		this.materials = new ArrayList<Material>(); 
 		for ( int i = 0; i < materials.length(); ++i)
 		{
-			try
-			{
-				this.materials.add( createMaterial( materials.getJSONObject(i) ) );
-			}
-			catch (Throwable e)
-			{
-				Log.e(TAG, "Unable to read material from JSON");
-			}
+			this.materials.add( createMaterial( materials.getJSONObject(i) ) );
 		}
 //		geometry.setMaterials(this.materials);
 	}
@@ -744,7 +733,7 @@ public class JsonLoader
 
 		for (int i = 0; i < len; ++i)
 		{
-			nestedList.set(i, (List<T>) jsonArrayToList(outerList.get(i)));
+			nestedList.add((List<T>) jsonArrayToList(outerList.get(i)));
 		}
 
 		return nestedList;
@@ -757,7 +746,7 @@ public class JsonLoader
 
 		for (int i = 0; i < len; ++i)
 		{
-			list.set(i, (T) jsonArray.get(i));
+			list.add((T) jsonArray.get(i));
 		}
 
 		return list;
@@ -812,7 +801,7 @@ public class JsonLoader
 		double scale = object.optDouble("scale", 0);
 		scale = scale > 0 ? 1 / scale : 1;
 
-		JSONArray morphTargets = object.getJSONArray("morphTargets");
+		JSONArray morphTargets = object.optJSONArray("morphTargets");
 		if ( morphTargets != null)
 		{
 			for ( int i = 0, l = morphTargets.length(); i < l; i ++ )
@@ -837,7 +826,7 @@ public class JsonLoader
 			}
 		}
 
-		JSONArray morphColors = object.getJSONArray("morphColors");
+		JSONArray morphColors = object.optJSONArray("morphColors");
 		if ( morphColors != null )
 		{
 			for ( int i = 0, l = morphColors.length(); i < l; i++ )
@@ -874,7 +863,12 @@ public class JsonLoader
 		
 		if ( isCompressed ) 
 		{
-			texture = new CompressedTexture(imageLoader.loadData(sourceFile), true);
+			byte[] data = imageLoader.loadData(sourceFile);
+			ByteBuffer bbuf = ByteBuffer.allocate(data.length);
+			bbuf.put(data);
+			bbuf.flip();
+
+			texture = new CompressedTexture(bbuf, true);
 		} 
 		else 
 		{
@@ -930,7 +924,7 @@ public class JsonLoader
 
 	private Color getColor(JSONObject jsonMaterial, String name ) throws JSONException
 	{
-		JSONArray color = jsonMaterial.getJSONArray(name);
+		JSONArray color = jsonMaterial.optJSONArray(name);
 		return (color != null) ? getColor(color) : null;
 	}
 

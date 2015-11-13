@@ -33,6 +33,8 @@
 
     <activity android:name="uk.co.realh.parallax.BufferedParticlesActivity" />
 
+    <activity android:name="uk.co.realh.parallax.BumpMappingActivity" />
+
     </application>
 
 </manifest>

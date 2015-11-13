@@ -31,5 +31,5 @@ public interface ImageLoader
 {
 	public Image loadImage(String leafname) throws IOException;
 
-	public ByteBuffer loadData(String leafname) throws IOException;
+	public byte[] loadData(String leafname) throws IOException;
 }

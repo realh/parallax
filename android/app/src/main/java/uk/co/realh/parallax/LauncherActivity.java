@@ -46,4 +46,9 @@ public class LauncherActivity extends AppCompatActivity
     {
         startActivity(new Intent(this, BufferedParticlesActivity.class));
     }
+
+    public void onBumpMappingClick(View view)
+    {
+        startActivity(new Intent(this, BumpMappingActivity.class));
+    }
 }

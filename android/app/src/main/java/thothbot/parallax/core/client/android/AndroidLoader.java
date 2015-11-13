@@ -24,9 +24,10 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import thothbot.parallax.core.client.gl2.Image;
+//import thothbot.parallax.core.client.renderers.Duration;
 import thothbot.parallax.loader.shared.AssetLoader;
 import thothbot.parallax.loader.shared.ImageLoader;
 
@@ -34,7 +35,7 @@ public abstract class AndroidLoader extends AssetLoader implements ImageLoader
 {
 	private static final String TAG = "Parallax";
 
-	private static final int CHUNK_SIZE = 1024;
+	private static final int CHUNK_SIZE = 8192;
 
 	/**
 	 * @param dirName Use a trailing / if this is a directory, otherwise
@@ -50,9 +51,20 @@ public abstract class AndroidLoader extends AssetLoader implements ImageLoader
 	@Override
 	public Image loadImage(String leafname) throws IOException
 	{
-		InputStream strm = openInputStream(leafname);
-		Bitmap bmp = BitmapFactory.decodeStream(strm);
-		strm.close();
+		InputStream strm = null;
+		Bitmap bmp = null;
+
+		try
+		{
+			strm = openInputStream(leafname);
+			bmp = BitmapFactory.decodeStream(strm);
+		}
+		finally
+		{
+			if (strm != null)
+				strm.close();
+		}
+
 		if (null == bmp) {
 			throw new RuntimeException("Unable to create bitmap from asset '" +
 					leafname + "'");
@@ -67,50 +79,83 @@ public abstract class AndroidLoader extends AssetLoader implements ImageLoader
 	}
 
 	@Override
-	public ByteBuffer loadData(String leafname) throws IOException
+	public byte[] loadData(String leafname) throws IOException
 	{
 		// AssetManager doesn't provide a reliable way to find the length of an
 		// asset, so just keep reading from an InputStream until we get -1.
-		InputStream strm = openInputStream(leafname);
+		InputStream strm = null;
+
 		byte[] buf = null;
-		int numRead = -1;
 		int offset = 0;
 
-		do
-		{
-			// At least we can make a good guess
-			int available = strm.available();
-			if (available < CHUNK_SIZE)
-				available = CHUNK_SIZE;
-			if (buf == null)
-			{
-				buf = new byte[available];
-			}
-			else if (available <= buf.length - offset)
-			{
-				available = buf.length - offset;
-			}
-			else
-			{
-				byte[] oldBuf = buf;
+		//Duration dur = new Duration();
 
-				available -= oldBuf.length - offset;
+		try
+		{
+			int numRead = 0;
+
+			strm = openInputStream(leafname);
+
+			do
+			{
+				// At least we can try to make a good guess at size
+				int available = strm.available();
 				if (available < CHUNK_SIZE)
 					available = CHUNK_SIZE;
-				offset = oldBuf.length;
-				buf = new byte[offset + available];
-				System.arraycopy(oldBuf, 0, buf, 0, offset);
-			}
-			numRead = strm.read(buf, offset, available);
-			if (numRead != -1)
-				offset += numRead;
-		} while (numRead != -1);
+				if (buf == null)
+				{
+					buf = new byte[available];
+				} else if (available <= buf.length - offset)
+				{
+					available = buf.length - offset;
+				} else
+				{
+					byte[] oldBuf = buf;
 
-		strm.close();
+					available -= oldBuf.length - offset;
+					if (available < CHUNK_SIZE)
+						available = CHUNK_SIZE;
+					offset = oldBuf.length;
+					buf = new byte[offset + available];
+					System.arraycopy(oldBuf, 0, buf, 0, offset);
+				}
+				numRead = strm.read(buf, offset, available);
+				if (numRead != -1)
+					offset += numRead;
+			} while (numRead != -1);
+		}
+		finally
+		{
+			if (strm != null)
+				strm.close();
+		}
 
-		ByteBuffer bbuf = ByteBuffer.allocate(offset);
-		bbuf.put(buf, 0, offset);
-		bbuf.flip();
-		return bbuf;
+		//Log.d(TAG, "Loaded data '" + leafname + "' in " +
+		//		((double) dur.elapsedMillis() / 1000) + "s");
+
+		if (offset < buf.length)
+		{
+			//dur.reset();
+			buf = Arrays.copyOf(buf, offset);
+			//Log.d(TAG, "Took another " +
+			//		((double) dur.elapsedMillis() / 1000) + "s" +
+			//		" to truncate array");
+		}
+
+		return buf;
+	}
+
+	public String loadText(String leafname) throws IOException
+	{
+		byte[] buf = loadData(leafname);
+
+		//Duration dur = new Duration();
+
+		String text = new String(buf);
+
+		//Log.d(TAG, "Converted '" + leafname + "' to text in " +
+		//		((double) dur.elapsedMillis() / 1000) + "s");
+
+		return text;
 	}
 }
