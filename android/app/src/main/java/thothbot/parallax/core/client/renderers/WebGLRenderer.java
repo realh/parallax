@@ -312,7 +312,7 @@ public class WebGLRenderer extends AbstractRenderer
 		
 		if ( _logarithmicDepthBuffer ) 
 		{
-			WebGLExtensions.get(WebGLExtensions.Id.EXT_frag_depth);
+			_logarithmicDepthBuffer = WebGLExtensions.get(WebGLExtensions.Id.EXT_frag_depth);
 		}
 
 		WebGLExtensions.get(WebGLExtensions.Id.EXT_compressed_texture_s3tc);
