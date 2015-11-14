@@ -20,14 +20,14 @@ public class logdepthbuf_par
     public static final String fragment =
 "#ifdef USE_LOGDEPTHBUF\n" +
 "\n" +
-"	uniform float logDepthBufFC;\n" +
-"\n" +
 "	#ifdef USE_LOGDEPTHBUF_EXT\n" +
 "\n" +
 "		#extension GL_EXT_frag_depth : enable\n" +
 "		varying float vFragDepth;\n" +
 "\n" +
 "	#endif\n" +
+"\n" +
+"	uniform float logDepthBufFC;\n" +
 "\n" +
 "#endif\n";
 }
