@@ -24,6 +24,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+import thothbot.parallax.core.client.gl2.DummyImage;
 import thothbot.parallax.core.client.gl2.GLES20Ext;
 import thothbot.parallax.core.client.gl2.arrays.Uint8Array;
 
@@ -35,10 +36,13 @@ public class CompressedTexture extends Texture
 	private List<DataTexture> mipmaps;
 
     public CompressedTexture()
-    {}
+    {
+		super(new DummyImage(0, 0));
+	}
 	
     public CompressedTexture ( ByteBuffer buffer, boolean loadMipmaps )
 	{
+		this();
         parseDDS(buffer, loadMipmaps);
 	}
 
@@ -181,6 +185,9 @@ public class CompressedTexture extends Texture
 
 		int width = buffer.getInt(off_width) ;
 		int height = buffer.getInt(off_height);
+
+		((DummyImage) getImage()).setWidth(width);
+		((DummyImage) getImage()).setHeight(height);
 
 		for ( int i = 0; i < mipmapCount; i ++ ) 
 		{

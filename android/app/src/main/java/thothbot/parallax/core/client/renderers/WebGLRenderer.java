@@ -2599,11 +2599,11 @@ public class WebGLRenderer extends AbstractRenderer
 	@SuppressWarnings("unchecked")
 	private void loadUniformsGeneric( Map<String, Uniform> materialUniforms ) 
 	{
+//		for ( String key: materialUniforms.keySet() )
+//		{
+//			Uniform uniform = materialUniforms.get(key);
 		for ( Uniform uniform : materialUniforms.values() )
 		{
-//			for ( String key: materialUniforms.keySet() ) 
-//			{
-//				 Uniform uniform = materialUniforms.get(key);
 			int location = uniform.getLocation();
 		
 			if ( location == -1 ) continue;
@@ -3006,8 +3006,9 @@ public class WebGLRenderer extends AbstractRenderer
                         texture.getType(),
                         texData.getByteLength(),
                         texData.getBuffer());
-			} 
-			else 
+			}
+			// glTexImage2D does not apply to render target textures
+			else if (!(texture instanceof RenderTargetTexture))
 			{
 				image.glTexImage2D(GLES20.GL_TEXTURE_2D );
 			}

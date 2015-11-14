@@ -21,7 +21,9 @@ package thothbot.parallax.core.client.textures;
 
 import android.opengl.GLES20;
 
+import thothbot.parallax.core.client.gl2.DummyImage;
 import thothbot.parallax.core.client.gl2.GLES20Ext;
+import thothbot.parallax.core.client.gl2.Image;
 import thothbot.parallax.core.shared.math.Mathematics;
 
 public class RenderTargetTexture extends Texture
@@ -50,7 +52,8 @@ public class RenderTargetTexture extends Texture
 			int magFilter,	int minFilter,
 			int format,     int type)
 	{
-		super(); // call super Texture
+		// Create a dummy Image so that WebGLRenderer can get size
+		super(new DummyImage(width, height));
 
 		this.width = width;
 		this.height = height;
@@ -68,6 +71,8 @@ public class RenderTargetTexture extends Texture
 	public void setSize(int width, int height) {
 		setWidth(width);
 		setHeight(height);
+		((DummyImage) getImage()).setWidth(width);
+		((DummyImage) getImage()).setHeight(height);
 	}
 	
 	public int getWidth() {
