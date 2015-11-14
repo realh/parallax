@@ -513,12 +513,20 @@ public abstract class Material
 	{
 		Shader shader = getShader();
 
+		shader.setVertexExtensions(getExtensionsVertex(parameters));
+		shader.setFragmentExtensions(getExtensionsFragment(parameters));
+
 		shader.setVertexSource(getPrefixVertex(parameters) + "\n" + shader.getVertexSource());
 		shader.setFragmentSource(getPrefixFragment(parameters) + "\n" + shader.getFragmentSource());
 
 		this.shader = shader.buildProgram( parameters.useVertexTexture, parameters.maxMorphTargets, parameters.maxMorphNormals);
 
 		return this.shader;
+	}
+
+	private String getExtensionsVertex(ProgramParameters parameters)
+	{
+		return "";
 	}
 
 	private String getPrefixVertex(ProgramParameters parameters)
@@ -659,15 +667,20 @@ public abstract class Material
 		return retval;
 	}
 
+	private String getExtensionsFragment(ProgramParameters parameters)
+	{
+		if (parameters.bumpMap || parameters.normalMap)
+			return "#extension GL_OES_standard_derivatives : enable\n\n";
+		else
+			return "";
+	}
+
 	private String getPrefixFragment(ProgramParameters parameters)
 	{
 		List<String> options = new ArrayList<String>();
 
 		options.add("");
 		
-		if(parameters.bumpMap || parameters.normalMap)
-			options.add("#extension GL_OES_standard_derivatives : enable");
-
 		options.add(SHADER_DEFINE.MAX_DIR_LIGHTS.getValue(parameters.maxDirLights));
 		options.add(SHADER_DEFINE.MAX_POINT_LIGHTS.getValue(parameters.maxPointLights));
 		options.add(SHADER_DEFINE.MAX_SPOT_LIGHTS.getValue(parameters.maxSpotLights));

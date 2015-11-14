@@ -79,6 +79,9 @@ public abstract class Shader
 	private String vertexShaderSource = "";
 	private String fragmentShaderSource = "";
 
+	private String vertexExtensions = "";
+	private String fragmentExtensions = "";
+
 	private boolean cache_areCustomAttributesDirty;
 
 	private int id;
@@ -197,8 +200,8 @@ public abstract class Shader
 
 		this.program = GLES20.glCreateProgram();
 
-		String vertex = getShaderPrecisionDefinition() + "\n" + getVertexSource();
-		String fragment = getShaderPrecisionDefinition() + "\n" + getFragmentSource();
+		String vertex = vertexExtensions + getShaderPrecisionDefinition() + "\n" + getVertexSource();
+		String fragment = fragmentExtensions + getShaderPrecisionDefinition() + "\n" + getFragmentSource();
 		
 		int glVertexShader = getShaderProgram(ChunksVertexShader.class, vertex);
 		int glFragmentShader = getShaderProgram(ChunksFragmentShader.class, fragment);
@@ -268,8 +271,13 @@ public abstract class Shader
 		return this.vertexShaderSource;
 	}
 
+	public void setVertexExtensions(String vertexExtensions)
+	{
+		this.vertexExtensions = vertexExtensions;
+	}
+
 	public void setVertexSource(String src) {
-		this.vertexShaderSource = src;		
+		this.vertexShaderSource = src;
 	}
 	
 	protected void updateVertexSource(String src) {
@@ -288,7 +296,12 @@ public abstract class Shader
 	public void setFragmentSource(String src) {
 		this.fragmentShaderSource = src;		
 	}
-	
+
+	public void setFragmentExtensions(String fragmentExtensions)
+	{
+		this.fragmentExtensions = fragmentExtensions;
+	}
+
 	protected void updateFragmentSource(String src) {
 		setFragmentSource(src);		
 	}
