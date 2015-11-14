@@ -23,7 +23,7 @@ chunk_re = re.compile( \
 source_re = re.compile( \
         '^(\s*)@Source\("source/([A-Za-z_]+)\.([fv])s"\)')
 
-pkg_name = 'thothbot.parallax.core.client.shaders'
+pkg_name = 'thothbot.parallax.plugins.postprocessing.shaders'
 
 
 def process_java(filename):
@@ -61,7 +61,7 @@ def process_java(filename):
                 ln = ln.replace('TextResource ', 'String ').replace(';', '')
                 lines_out.append(ln)
                 lines_out.append("%s{\n" % spc)
-                lines_out.append("%s    return %s.chunk.%s.%s;\n" % \
+                lines_out.append("%s\treturn %s.chunk.%s.%s;\n" % \
                         (spc, pkg_name, sname, stype))
                 lines_out.append("%s}\n" % spc)
             if source_match:
@@ -74,9 +74,11 @@ def process_java(filename):
                 if sname == 'default':
                     sname = 'default_shader'
                 spc = source_match.group(1)
-                lines_out.append('%sString get%sShader()\n' % (spc, mstub))
+                lines_out.append('%s@Override\n' % spc)
+                lines_out.append('%spublic String get%sShader()\n' % \
+                        (spc, mstub))
                 lines_out.append("%s{\n" % spc)
-                lines_out.append("%s    return %s.source.%s.%s;\n" % \
+                lines_out.append("%s\treturn %s.source.%s.%s;\n" % \
                         (spc, pkg_name, sname, stype))
                 lines_out.append("%s}\n" % spc)
         elif ln.startswith(' * This file is part of Parallax project.'):

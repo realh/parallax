@@ -18,10 +18,11 @@
 
 import os, sys
 
+# package thothbot.parallax.core.client.shaders.%s;
 TEMPLATE_BOTH = \
 """// Generated from %s and %s
 
-package thothbot.parallax.core.client.shaders.%s;
+package thothbot.parallax.plugins.postprocessing.shaders.%s;
 
 public class %s
 {
@@ -36,7 +37,7 @@ public class %s
 TEMPLATE_VERT = \
 """// Generated from %s
 
-package thothbot.parallax.core.client.shaders.%s;
+package thothbot.parallax.plugins.postprocessing.shaders.%s;
 
 public class %s
 {
@@ -48,7 +49,8 @@ public class %s
 TEMPLATE_FRAG = \
 """// Generated from %s
 
-package thothbot.parallax.core.client.shaders.%s;
+package thothbot.parallax.plugins.postprocessing.shaders.%s;
+
 
 public class %s
 {
@@ -60,9 +62,13 @@ public class %s
 opj = os.path.join
 
 
+#dest_dir = opj(os.path.dirname(os.path.dirname(sys.argv[0])),
+#        'src', 'thothbot', 'parallax', 'core', 'client', 'shaders')
 dest_dir = opj(os.path.dirname(os.path.dirname(sys.argv[0])),
-        'src', 'thothbot', 'parallax', 'core', 'client', 'shaders')
-src_dir = opj(os.path.dirname(os.path.dirname(sys.argv[0])), 'shaders')
+        'android', 'app', 'src', 'main', 'java',
+        'thothbot', 'parallax', 'plugins', 'postprocessing', 'shaders')
+src_dir = opj(os.path.dirname(os.path.dirname(sys.argv[0])),
+        'src', 'thothbot', 'parallax', 'plugins', 'postprocessing', 'shaders')
 
 
 def make_jstring(dir_name, src_name):
@@ -140,5 +146,5 @@ def scan_directory(dirname):
         glsl_to_java(f)
 
 
-scan_directory(os.path.join(src_dir, 'chunk'))
+#scan_directory(os.path.join(src_dir, 'chunk'))
 scan_directory(os.path.join(src_dir, 'source'))
