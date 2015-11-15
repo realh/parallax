@@ -19,7 +19,7 @@
 
 package thothbot.parallax.core.client.textures;
 
-import android.util.Log;
+import thothbot.parallax.core.shared.Log;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -30,7 +30,6 @@ import thothbot.parallax.core.client.gl2.arrays.Uint8Array;
 
 public class CompressedTexture extends Texture
 {
-	private static final String TAG = "Parallax";
 
 	private int compressedFormat;
 	private List<DataTexture> mipmaps;
@@ -134,13 +133,13 @@ public class CompressedTexture extends Texture
 
         if ( buffer.getInt(off_magic) != DDS_MAGIC )
         {
-            Log.e(TAG, "ImageUtils.parseDDS(): Invalid magic number in DDS header");
+            Log.error("ImageUtils.parseDDS(): Invalid magic number in DDS header");
             return;
         }
 
         if ( (buffer.getInt(off_pfFlags) & DDPF_FOURCC) == 0 )
         {
-            Log.e(TAG, "ImageUtils.parseDDS(): Unsupported format, must contain a FourCC code");
+            Log.error("ImageUtils.parseDDS(): Unsupported format, must contain a FourCC code");
             return;
         }
 
@@ -165,7 +164,7 @@ public class CompressedTexture extends Texture
 		}
 		else
 		{
-			Log.e(TAG, "ImageUtils.parseDDS(): Unsupported FourCC code: " + int32ToFourCC( fourCC ) );
+			Log.error("ImageUtils.parseDDS(): Unsupported FourCC code: " + int32ToFourCC( fourCC ) );
 			return;
 		}
 

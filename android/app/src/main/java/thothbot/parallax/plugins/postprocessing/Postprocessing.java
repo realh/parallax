@@ -19,7 +19,7 @@
 package thothbot.parallax.plugins.postprocessing;
 
 import android.opengl.GLES20;
-import android.util.Log;
+import thothbot.parallax.core.shared.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +40,6 @@ import thothbot.parallax.plugins.postprocessing.shaders.CopyShader;
 public class Postprocessing extends Plugin
 {
 
-	private static final String TAG = "Parallax";
 
 	private RenderTargetTexture renderTarget1;
 	private RenderTargetTexture renderTarget2;
@@ -155,7 +154,7 @@ public class Postprocessing extends Plugin
 		{	
 			if ( !pass.isEnabled() ) continue;
 			
-			Log.i(TAG, " ----> Postprocessing.render(): pass " + pass.getClass().getSimpleName()
+			Log.info(" ----> Postprocessing.render(): pass " + pass.getClass().getSimpleName()
 					+ (pass.getClass().equals(ShaderPass.class) ?
 					"(" + ((ShaderPass) pass).getMaterial().getShader().getClass().getSimpleName() + ")" : ""));
 

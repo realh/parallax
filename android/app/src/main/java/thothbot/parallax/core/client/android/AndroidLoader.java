@@ -20,7 +20,7 @@ package thothbot.parallax.core.client.android;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
+import thothbot.parallax.core.shared.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +33,6 @@ import thothbot.parallax.loader.shared.ImageLoader;
 
 public abstract class AndroidLoader extends AssetLoader implements ImageLoader
 {
-	private static final String TAG = "Parallax";
 
 	private static final int CHUNK_SIZE = 8192;
 
@@ -70,7 +69,7 @@ public abstract class AndroidLoader extends AssetLoader implements ImageLoader
 					leafname + "'");
 		}
 		if (null == bmp.getConfig()) {
-			Log.d(TAG, "Bitmap has unsupported format, converting");
+			Log.debug("Bitmap has unsupported format, converting");
 			Bitmap orig = bmp;
 			bmp = bmp.copy(Bitmap.Config.RGB_565, true);
 			orig.recycle();
@@ -130,14 +129,14 @@ public abstract class AndroidLoader extends AssetLoader implements ImageLoader
 				strm.close();
 		}
 
-		//Log.d(TAG, "Loaded data '" + leafname + "' in " +
+		//Log.debug("Loaded data '" + leafname + "' in " +
 		//		((double) dur.elapsedMillis() / 1000) + "s");
 
 		if (offset < buf.length)
 		{
 			//dur.reset();
 			buf = Arrays.copyOf(buf, offset);
-			//Log.d(TAG, "Took another " +
+			//Log.debug("Took another " +
 			//		((double) dur.elapsedMillis() / 1000) + "s" +
 			//		" to truncate array");
 		}
@@ -153,7 +152,7 @@ public abstract class AndroidLoader extends AssetLoader implements ImageLoader
 
 		String text = new String(buf);
 
-		//Log.d(TAG, "Converted '" + leafname + "' to text in " +
+		//Log.debug("Converted '" + leafname + "' to text in " +
 		//		((double) dur.elapsedMillis() / 1000) + "s");
 
 		return text;

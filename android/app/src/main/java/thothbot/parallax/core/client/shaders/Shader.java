@@ -20,7 +20,7 @@
 package thothbot.parallax.core.client.shaders;
 
 import android.opengl.GLES20;
-import android.util.Log;
+import thothbot.parallax.core.shared.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +39,6 @@ import thothbot.parallax.core.shared.math.Mathematics;
  */
 public abstract class Shader
 {
-	private static final String TAG = "Parallax";
 
 	/**
 	 * Sets the Shader's precision value.
@@ -140,7 +139,7 @@ public abstract class Shader
 	
 	public Shader buildProgram(boolean useVertexTexture, int maxMorphTargets, int maxMorphNormals)
 	{
-		Log.d(TAG, "Building new program...");
+		Log.debug("Building new program...");
 
 		initShaderProgram();
 
@@ -196,7 +195,7 @@ public abstract class Shader
 
 	private void initShaderProgram()
 	{
-		Log.d(TAG, "Called initProgram()");
+		Log.debug("Called initProgram()");
 
 		this.program = GLES20.glCreateProgram();
 
@@ -221,7 +220,7 @@ public abstract class Shader
 			);
 
 		else
-			Log.i(TAG, "initProgram(): shader has been initialised");
+			Log.info("initProgram(): shader has been initialised");
 
 		// clean up
 		GLES20.glDeleteShader(glVertexShader);
@@ -472,6 +471,6 @@ public abstract class Shader
 	{
 		String[] lines = s.split("\n");
 		for (String l: lines)
-			Log.e(TAG, l);
+			Log.error(l);
 	}
 }

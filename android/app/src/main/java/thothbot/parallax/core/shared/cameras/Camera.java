@@ -18,7 +18,7 @@
 
 package thothbot.parallax.core.shared.cameras;
 
-import android.util.Log;
+import thothbot.parallax.core.shared.Log;
 
 import thothbot.parallax.core.client.events.ViewportResizeBus;
 import thothbot.parallax.core.client.events.ViewportResizeListener;
@@ -35,7 +35,6 @@ import thothbot.parallax.core.shared.math.Vector3;
  */
 public class Camera extends Object3D implements ViewportResizeListener
 {
-	private static final String TAG = "Parallax";
 
 	protected Matrix4 matrixWorldInverse;
 	protected Matrix4 projectionMatrix;
@@ -141,7 +140,7 @@ public class Camera extends Object3D implements ViewportResizeListener
 		}
 		catch (Throwable throwable)
 		{
-			Log.e(TAG, "Exception in Camera.finalize:", throwable);
+			Log.error("Exception in Camera.finalize:", throwable);
 		}
 	}
 }

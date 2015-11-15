@@ -18,7 +18,7 @@
 
 package thothbot.parallax.core.shared.math;
 
-import android.util.Log;
+import thothbot.parallax.core.shared.Log;
 
 import thothbot.parallax.core.client.gl2.arrays.Float32Array;
 
@@ -40,7 +40,6 @@ import thothbot.parallax.core.client.gl2.arrays.Float32Array;
  */
 public class Matrix4
 {
-	private static final String TAG = "Parallax";
 
 	private Float32Array elements;
 	
@@ -745,7 +744,7 @@ public class Matrix4
 
 			String msg = "Matrix4.getInverse(): can't invert matrix, determinant is 0";
 
-			Log.e(TAG, msg);
+			Log.error(msg);
 			
 			this.identity();
 			return this;

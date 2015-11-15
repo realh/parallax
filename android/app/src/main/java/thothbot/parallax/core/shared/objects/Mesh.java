@@ -20,7 +20,7 @@
 package thothbot.parallax.core.shared.objects;
 
 import android.opengl.GLES20;
-import android.util.Log;
+import thothbot.parallax.core.shared.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,7 +66,6 @@ import thothbot.parallax.core.shared.math.Vector4;
  */
 public class Mesh extends GeometryObject
 {
-	private static final String TAG = "Parallax";
 
 	//	private Boolean overdraw;
 	public Integer morphTargetBase = null;
@@ -715,7 +714,7 @@ public class Mesh extends GeometryObject
 	// setMeshBuffers
 	public void setBuffers(GeometryGroup geometryGroup, int bufferUsageHint, boolean dispose, Material material)
 	{
-		//Log.d(TAG, "Called Mesh.setBuffers() - material=" + material.getId() + ", " + material.getClass().getName());
+		//Log.debug("Called Mesh.setBuffers() - material=" + material.getId() + ", " + material.getClass().getName());
 
 		if ( ! geometryGroup.__inittedArrays )
 			 return;

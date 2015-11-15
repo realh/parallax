@@ -18,7 +18,7 @@
 
 package thothbot.parallax.core.shared.objects;
 
-import android.util.Log;
+import thothbot.parallax.core.shared.Log;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +33,6 @@ import thothbot.parallax.core.shared.math.Mathematics;
 
 public class MorphAnimMesh extends Mesh
 {
-    private static final String TAG = "Parallax";
 
     public class Animation {
 		public int start;
@@ -169,7 +168,7 @@ public class MorphAnimMesh extends Mesh
 		} 
 		else 
 		{
-			Log.e(TAG, "animation[" + label + "] undefined");
+			Log.error("animation[" + label + "] undefined");
 		}
 	}
 

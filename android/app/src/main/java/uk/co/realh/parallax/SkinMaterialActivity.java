@@ -21,6 +21,7 @@ import thothbot.parallax.core.shared.materials.MeshPhongMaterial;
 import thothbot.parallax.core.shared.math.Color;
 import thothbot.parallax.core.shared.objects.Mesh;
 import thothbot.parallax.loader.shared.JsonLoader;
+import thothbot.parallax.plugins.postprocessing.Postprocessing;
 
 public class SkinMaterialActivity extends DemoActivity
 {

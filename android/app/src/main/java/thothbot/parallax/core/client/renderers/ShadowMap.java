@@ -20,7 +20,7 @@
 package thothbot.parallax.core.client.renderers;
 
 import android.opengl.GLES20;
-import android.util.Log;
+import thothbot.parallax.core.shared.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +55,6 @@ import thothbot.parallax.core.shared.scenes.Scene;
 
 public final class ShadowMap extends Plugin 
 {
-	private static final String TAG = "Parallax";
 
 	private boolean isAutoUpdate = true;
 	private boolean isSoft = true;
@@ -216,7 +215,7 @@ public final class ShadowMap extends Plugin
 
 						shadowCascadeArray.add( n, virtualLight );
 
-						Log.d(TAG, "Shadowmap plugin: Created virtualLight");
+						Log.debug("Shadowmap plugin: Created virtualLight");
 					} 
 					else 
 					{
@@ -273,7 +272,7 @@ public final class ShadowMap extends Plugin
 				} 
 				else 
 				{
-					Log.e(TAG, "Shadowmap plugin: Unsupported light class for shadow: " +
+					Log.error("Shadowmap plugin: Unsupported light class for shadow: " +
 							light.getClass().getName());
 					continue;
 				}

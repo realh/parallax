@@ -46,7 +46,6 @@ import thothbot.parallax.core.shared.math.Vector4;
  */
 public abstract class Material
 {
-	private static final String TAG = "Parallax";
 
 	private static int MaterialCount;
 

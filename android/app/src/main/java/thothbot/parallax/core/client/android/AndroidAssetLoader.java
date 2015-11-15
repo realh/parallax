@@ -25,7 +25,6 @@ import java.io.InputStream;
 
 public class AndroidAssetLoader extends AndroidLoader
 {
-	private static final String TAG = "Parallax";
 
 	protected AssetManager assets;
 

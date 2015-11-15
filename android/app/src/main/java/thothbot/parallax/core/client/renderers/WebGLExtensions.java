@@ -20,11 +20,10 @@
 package thothbot.parallax.core.client.renderers;
 
 import android.opengl.GLES20;
-import android.util.Log;
+import thothbot.parallax.core.shared.Log;
 
 public final class WebGLExtensions {
 
-    private static final String TAG = "Parallax";
 
     public static enum Id {
 		OES_texture_float,
@@ -45,14 +44,14 @@ public final class WebGLExtensions {
         if (allExtensions == null)
 		{
 			allExtensions = GLES20.glGetString(GLES20.GL_EXTENSIONS);
-			Log.d(TAG, "OpenGL ES Extensions: " + allExtensions);
+			Log.debug("OpenGL ES Extensions: " + allExtensions);
 		}
 
         boolean result = allExtensions.contains(id.toString());
 
 		if ( !result ) {
 
-			Log.w(TAG, "WebGLRenderer: " + id.toString() + " extension not supported.");
+			Log.warn("WebGLRenderer: " + id.toString() + " extension not supported.");
 
 		}
 		

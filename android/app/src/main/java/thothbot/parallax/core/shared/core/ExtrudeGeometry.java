@@ -18,7 +18,7 @@
 
 package thothbot.parallax.core.shared.core;
 
-import android.util.Log;
+import thothbot.parallax.core.shared.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +43,6 @@ import thothbot.parallax.core.shared.utils.ShapeUtils;
  */
 public class ExtrudeGeometry extends Geometry
 {
-	private static final String TAG = "Parallax";
 
 	public static class ExtrudeGeometryParameters
 	{
@@ -127,7 +126,7 @@ public class ExtrudeGeometry extends Geometry
 	
 	public void addShape( Shape shape, ExtrudeGeometryParameters options ) 
 	{
-		Log.d(TAG, "ExtrudeGeometry: Called addShape() shape=" + shape);
+		Log.debug("ExtrudeGeometry: Called addShape() shape=" + shape);
 
 		List<Vector2> extrudePts = null;
 		boolean extrudeByPath = false;
@@ -448,13 +447,13 @@ public class ExtrudeGeometry extends Geometry
 
 		if ( v_dot_w_hat == 0 ) 
 		{
-			Log.i(TAG, "getBevelVec2() Either infinite or no solutions!");
+			Log.info("getBevelVec2() Either infinite or no solutions!");
 
 			if ( q_sub_p_dot_w_hat == 0 )
-				Log.i(TAG, "getBevelVec2() Its finite solutions.");
+				Log.info("getBevelVec2() Its finite solutions.");
 
 			else
-				Log.e(TAG, "getBevelVec2() Too bad, no solutions.");
+				Log.error("getBevelVec2() Too bad, no solutions.");
 		}
 
 		double s = q_sub_p_dot_w_hat / v_dot_w_hat;
@@ -472,7 +471,7 @@ public class ExtrudeGeometry extends Geometry
 	private void buildLidFaces() 
 	{
 		int flen = this.localFaces.size();
-		Log.d(TAG, "ExtrudeGeometry: buildLidFaces() faces=" + flen);
+		Log.debug("ExtrudeGeometry: buildLidFaces() faces=" + flen);
 
 		if ( this.options.bevelEnabled ) 
 		{

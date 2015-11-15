@@ -18,7 +18,7 @@
 
 package thothbot.parallax.core.shared.utils;
 
-import android.util.Log;
+import thothbot.parallax.core.shared.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +40,6 @@ import thothbot.parallax.core.shared.math.Vector2;
 public class ShapeUtils
 {
 
-	private static final String TAG = "Parallax";
 
 	/**
 	 * Remove holes from the Shape
@@ -179,7 +178,7 @@ public class ShapeUtils
 			} 
 			else 
 			{
-				Log.e(TAG, "ShapeUtils: removeHoles() ERROR");
+				Log.error("ShapeUtils: removeHoles() ERROR");
 			}
 
 			List<Vector2> tmpShape1 = new ArrayList<Vector2>(shape.subList(0, shapeIndex));
@@ -246,7 +245,7 @@ public class ShapeUtils
 			String key = allpoints.get( i ).getX() + ":" + allpoints.get( i ).getY();
 
 			if ( allPointsMap.containsKey(key))
-				Log.w(TAG, "ShapeUtils: triangulateShape() - Duplicate point " + key);
+				Log.warn("ShapeUtils: triangulateShape() - Duplicate point " + key);
 
 			allPointsMap.put(key, i);
 		}

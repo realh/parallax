@@ -18,7 +18,7 @@
 
 package thothbot.parallax.core.shared.utils;
 
-import android.util.Log;
+import thothbot.parallax.core.shared.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +31,6 @@ public class FontUtils
 {
 	public static final double EPSILON = 0.0000000001;
 
-	private static final String TAG = "Parallax";
 
 	/*
 	 * @param contour
@@ -75,7 +74,7 @@ public class FontUtils
 				//throw ( "Warning, unable to triangulate polygon!" );
 				//return null;
 				// Sometimes warning is fine, especially polygons are triangulated in reverse.
-				Log.w(TAG, "FontUtils: triangulate() - Warning, unable to triangulate polygon!");
+				Log.warn("FontUtils: triangulate() - Warning, unable to triangulate polygon!");
 
 				return;
 			}

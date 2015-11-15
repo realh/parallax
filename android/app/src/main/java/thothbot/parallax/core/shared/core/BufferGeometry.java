@@ -19,7 +19,7 @@
 package thothbot.parallax.core.shared.core;
 
 import android.opengl.GLES20;
-import android.util.Log;
+import thothbot.parallax.core.shared.Log;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -71,7 +71,6 @@ import thothbot.parallax.core.shared.math.Vector3;
  */
 public class BufferGeometry extends AbstractGeometry
 {
-	private static final String TAG = "Parallax";
 
 	public static class DrawCall
 	{
@@ -584,7 +583,7 @@ public class BufferGeometry extends AbstractGeometry
 			 getAttribute("normal") == null ||
 			 getAttribute("uv") == null ) {
 
-			Log.w(TAG, "Missing required attributes (index, position, normal or uv) in BufferGeometry.computeTangents()");
+			Log.warn("Missing required attributes (index, position, normal or uv) in BufferGeometry.computeTangents()");
 			return;
 
 		}

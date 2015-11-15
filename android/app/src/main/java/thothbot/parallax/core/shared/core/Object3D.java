@@ -18,7 +18,7 @@
 
 package thothbot.parallax.core.shared.core;
 
-import android.util.Log;
+import thothbot.parallax.core.shared.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,7 +42,6 @@ public class Object3D
 {
 	public static final Vector3 DefaultUp = new Vector3( 0, 1, 0 );
 
-	private static final String TAG = "Parallax";
 
 	public static interface ObjectHandler 
 	{
@@ -610,11 +609,11 @@ public class Object3D
 	public Object3D add(Object3D object)
 	{
 		if(object.equals(this)) {
-			Log.e(TAG, "Object3D.add: " + object + " can't be added as a child of itself.");
+			Log.error("Object3D.add: " + object + " can't be added as a child of itself.");
 			return this;
 		}
 			  
-		Log.i(TAG, "Adding for ID " + this.getId() + " = " + this.getClass().getName()
+		Log.info("Adding for ID " + this.getId() + " = " + this.getClass().getName()
 				+ " child ID " + object.getId() + " = " + object.getClass().getName());
 				
 

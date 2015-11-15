@@ -19,7 +19,7 @@
 
 package thothbot.parallax.core.shared.materials;
 
-import android.util.Log;
+import thothbot.parallax.core.shared.Log;
 
 import java.util.Map;
 
@@ -35,7 +35,6 @@ import thothbot.parallax.core.shared.math.Color;
 public final class PointCloudMaterial extends Material implements HasFog,
 		HasColor, HasMap, HasVertexColors, ViewportResizeListener
 {
-    private static final String TAG = "Parallax";
 
     private boolean isFog;
 
@@ -174,7 +173,7 @@ public final class PointCloudMaterial extends Material implements HasFog,
         try {
             super.finalize();
         } catch (Throwable throwable) {
-            Log.e(TAG, "Exception in PointCloudMaterial.finalize:", throwable);
+            Log.error("Exception in PointCloudMaterial.finalize:", throwable);
         }
     }
 }

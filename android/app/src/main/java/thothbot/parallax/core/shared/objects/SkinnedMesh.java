@@ -18,7 +18,7 @@
 
 package thothbot.parallax.core.shared.objects;
 
-import android.util.Log;
+import thothbot.parallax.core.shared.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,6 @@ import thothbot.parallax.core.shared.math.Vector4;
 
 public class SkinnedMesh extends Mesh {
 
-	private static final String TAG = "Parallax";
 
 	public Texture boneTexture;
 	public Float32Array boneMatrices = (Float32Array) Float32Array.createArray();
@@ -185,7 +184,7 @@ public class SkinnedMesh extends Mesh {
 
 		} else {
 
-			Log.w(TAG, "SkinnedMesh unrecognized bindMode: " + this.bindMode);
+			Log.warn("SkinnedMesh unrecognized bindMode: " + this.bindMode);
 
 		}
 

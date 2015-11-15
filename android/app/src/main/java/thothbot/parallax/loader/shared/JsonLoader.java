@@ -18,7 +18,7 @@
 
 package thothbot.parallax.loader.shared;
 
-import android.util.Log;
+import thothbot.parallax.core.shared.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,7 +61,6 @@ import thothbot.parallax.core.shared.math.Vector4;
 
 public class JsonLoader
 {
-	private static final String TAG = "Parallax";
 
 	private JSONObject object;
 	
@@ -96,7 +95,7 @@ public class JsonLoader
 		if(!isThisJsonStringValid(string))
 			return null;
 		
-		Log.d(TAG, "JSON parse()");
+		Log.debug("JSON parse()");
 		
 		Geometry geometry = new Geometry();
 
@@ -118,7 +117,7 @@ public class JsonLoader
 			geometry.computeMorphNormals();
 		} catch (Throwable e)
 		{
-			Log.e(TAG, "Error parsing JSON model", e);
+			Log.error("Error parsing JSON model", e);
 			geometry = null;
 		}
 
@@ -151,7 +150,7 @@ public class JsonLoader
 		}
 		catch ( JSONException e)
 		{
-			Log.e(TAG, "Could not parse JSON data");
+			Log.error("Could not parse JSON data");
 			return false;
 		}  
 
@@ -167,7 +166,7 @@ public class JsonLoader
 		if (materials == null)
 			return;
 
-		Log.d(TAG, "JSON parseMaterials()");
+		Log.debug("JSON parseMaterials()");
 		
 		this.materials = new ArrayList<Material>(); 
 		for ( int i = 0; i < materials.length(); ++i)
@@ -448,7 +447,7 @@ public class JsonLoader
 		if (faces == null)
 			return;
 
-		Log.d(TAG, "JSON parseFaces()");
+		Log.debug("JSON parseFaces()");
 
 		double scale = object.optDouble("scale", 0);
 		scale = scale > 0 ? 1 / scale : 1;
@@ -758,7 +757,7 @@ public class JsonLoader
 		if (influencesPerVertex <= 0)
 			influencesPerVertex = 2;
 
-		Log.d(TAG, "JSON parseSkin()");
+		Log.debug("JSON parseSkin()");
 
 		List<Double> skinWeights = getArrayAsList("skinWeights");
 		if ( skinWeights != null )
@@ -796,7 +795,7 @@ public class JsonLoader
 
 	private void parseMorphing(Geometry geometry) throws JSONException
 	{
-		Log.d(TAG, "JSON parseMorphing()");
+		Log.debug("JSON parseMorphing()");
 
 		double scale = object.optDouble("scale", 0);
 		scale = scale > 0 ? 1 / scale : 1;

@@ -20,7 +20,7 @@
 package thothbot.parallax.core.client.renderers;
 
 import android.opengl.GLES20;
-import android.util.Log;
+import thothbot.parallax.core.shared.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -96,7 +96,6 @@ import thothbot.parallax.core.shared.scenes.Scene;
  */
 public class WebGLRenderer extends AbstractRenderer
 {
-	private static final String TAG = "Parallax";
 
 	private WebGlRendererInfo info;
 					
@@ -288,12 +287,12 @@ public class WebGLRenderer extends AbstractRenderer
 			if ( mediumpAvailable ) {
 
 				this._precision = Shader.PRECISION.MEDIUMP;
-				Log.w(TAG, "WebGLRenderer: highp not supported, using mediump.");
+				Log.warn("WebGLRenderer: highp not supported, using mediump.");
 
 			} else {
 
 				this._precision = Shader.PRECISION.LOWP;
-				Log.w(TAG, "WebGLRenderer: highp and mediump not supported, using lowp.");
+				Log.warn("WebGLRenderer: highp and mediump not supported, using lowp.");
 
 			}
 
@@ -302,7 +301,7 @@ public class WebGLRenderer extends AbstractRenderer
 		if ( this._precision == Shader.PRECISION.MEDIUMP && ! mediumpAvailable ) {
 
 			this._precision = Shader.PRECISION.LOWP;
-			Log.w(TAG, "THREE.WebGLRenderer: mediump not supported, using lowp.");
+			Log.warn("THREE.WebGLRenderer: mediump not supported, using lowp.");
 		}
 
 				
@@ -1729,7 +1728,7 @@ public class WebGLRenderer extends AbstractRenderer
 		if(renderPlugins( this.plugins, scene, camera, Plugin.TYPE.BASIC_RENDER ))
 			return;
 		
-		//Log.d(TAG, "Called render()");
+		//Log.debug("Called render()");
 				
 		AbstractFog fog = scene.getFog();
 
@@ -1837,7 +1836,7 @@ public class WebGLRenderer extends AbstractRenderer
 		}
 
 		/*
-		Log.d(TAG, "  -- render() overrideMaterial : " + (scene.getOverrideMaterial() != null)
+		Log.debug("  -- render() overrideMaterial : " + (scene.getOverrideMaterial() != null)
 				+ ", lights: " + lights.size()
 				+ ", opaqueObjects: " + opaqueObjects.size()
 				+ ", transparentObjects: " + transparentObjects.size());
@@ -1979,7 +1978,7 @@ public class WebGLRenderer extends AbstractRenderer
 				continue;
 			
 			plugin.setRendering(true);
-			Log.d(TAG, "Called renderPlugins(): " + plugin.getClass().getName());
+			Log.debug("Called renderPlugins(): " + plugin.getClass().getName());
 
 			// reset state for plugin (to start from clean slate)
 			this._currentProgram = 0;
@@ -2259,7 +2258,7 @@ public class WebGLRenderer extends AbstractRenderer
 		
 		disableUnusedAttributes();
 
-		//Log.d(TAG, "  ----> renderBuffer() ID " + object.getId() + " (" +
+		//Log.debug("  ----> renderBuffer() ID " + object.getId() + " (" +
         //        object.getClass().getSimpleName() + ")");
 
 		// Render object's buffers
@@ -2269,7 +2268,7 @@ public class WebGLRenderer extends AbstractRenderer
 	private void initMaterial ( Material material, List<Light> lights,
                                 AbstractFog fog, GeometryObject object )
 	{
-		Log.d(TAG, "Called initMaterial for material: " + material.getClass().getName() +
+		Log.debug("Called initMaterial for material: " + material.getClass().getName() +
                 " and object " + object.getClass().getName());
 
 		// heuristics to create shader parameters according to lights in the scene
@@ -2324,7 +2323,7 @@ public class WebGLRenderer extends AbstractRenderer
 		}
 
 		material.updateProgramParameters(parameters);
-		Log.d(TAG, "initMaterial() called new Program");
+		Log.debug("initMaterial() called new Program");
 
 		String cashKey = material.getShader().getFragmentSource() 
 				+ material.getShader().getVertexSource()
@@ -2785,7 +2784,7 @@ public class WebGLRenderer extends AbstractRenderer
 
 		if ( textureUnit >= this._maxTextures ) 
 		{
-			Log.w(TAG, "Trying to use " + textureUnit +
+			Log.warn("Trying to use " + textureUnit +
                     " texture units while this GPU supports only " + this._maxTextures);
 		}
 
@@ -3140,7 +3139,7 @@ public class WebGLRenderer extends AbstractRenderer
 	 */
 	public void setRenderTarget( RenderTargetTexture renderTarget ) 
 	{
-		//Log.d(TAG, "  ----> Called setRenderTarget(params)");
+		//Log.debug("  ----> Called setRenderTarget(params)");
 		int framebuffer = 0;
 		
 		int width, height, vx, vy;
@@ -3218,7 +3217,7 @@ public class WebGLRenderer extends AbstractRenderer
 
 				if ( maxBones < ((SkinnedMesh)object).getBones().size() )
 				{
-					Log.w(TAG, "WebGLRenderer: too many bones - " +
+					Log.warn("WebGLRenderer: too many bones - " +
 							((SkinnedMesh) object).getBones().size() +
 							", this GPU supports just " + maxBones +
 							" (try OpenGL instead of ANGLE)");
