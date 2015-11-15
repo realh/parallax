@@ -23,7 +23,7 @@ public class vignette
 "\n" +
 "\n" +
 "	// alternative version from glfx.js\n" +
-"	// this one makes more "dusty" look (as opposed to "burned")\n" +
+"	// this one makes more 'dusty' look (as opposed to 'burned')\n" +
 "\n" +
 "	// vec4 color = texture2D( tDiffuse, vUv );\n" +
 "	// float dist = distance( vUv, vec2( 0.5 ) );\n" +
