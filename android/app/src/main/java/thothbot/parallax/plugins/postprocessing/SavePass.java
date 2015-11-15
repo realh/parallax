@@ -18,9 +18,8 @@
 
 package thothbot.parallax.plugins.postprocessing;
 
-import thothbot.parallax.core.client.gl2.enums.PixelFormat;
-import thothbot.parallax.core.client.gl2.enums.TextureMagFilter;
-import thothbot.parallax.core.client.gl2.enums.TextureMinFilter;
+import android.opengl.GLES20;
+
 import thothbot.parallax.core.client.textures.RenderTargetTexture;
 import thothbot.parallax.core.shared.materials.ShaderMaterial;
 import thothbot.parallax.plugins.postprocessing.shaders.CopyShader;
@@ -37,9 +36,9 @@ public class SavePass extends Pass
 	{
 		this(new RenderTargetTexture( width, height ));
 		
-		renderTarget.setMinFilter(TextureMinFilter.LINEAR);
-		renderTarget.setMagFilter(TextureMagFilter.LINEAR);
-		renderTarget.setFormat(PixelFormat.RGB);
+		renderTarget.setMinFilter(GLES20.GL_LINEAR);
+		renderTarget.setMagFilter(GLES20.GL_LINEAR);
+		renderTarget.setFormat(GLES20.GL_RGB);
 		renderTarget.setStencilBuffer(true);
 	}
 

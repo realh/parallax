@@ -18,9 +18,9 @@
 
 package thothbot.parallax.plugins.postprocessing;
 
-import thothbot.parallax.core.client.gl2.enums.EnableCap;
+import android.opengl.GLES20;
 
-public class ClearMaskPass extends Pass 
+public class ClearMaskPass extends Pass
 {	
 	public ClearMaskPass() 
 	{
@@ -31,6 +31,6 @@ public class ClearMaskPass extends Pass
 	@Override
 	public void render(Postprocessing postprocessing, double delta, boolean maskActive ) 
 	{
-		postprocessing.getRenderer().getGL().disable( EnableCap.STENCIL_TEST );
+		GLES20.glDisable( GLES20.GL_STENCIL_TEST );
 	}
 }

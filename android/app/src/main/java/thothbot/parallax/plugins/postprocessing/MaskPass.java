@@ -18,9 +18,8 @@
 
 package thothbot.parallax.plugins.postprocessing;
 
-import thothbot.parallax.core.client.gl2.enums.EnableCap;
-import thothbot.parallax.core.client.gl2.enums.StencilFunction;
-import thothbot.parallax.core.client.gl2.enums.StencilOp;
+import android.opengl.GLES20;
+
 import thothbot.parallax.core.shared.cameras.Camera;
 import thothbot.parallax.core.shared.scenes.Scene;
 
@@ -44,11 +43,11 @@ public class MaskPass extends Pass
 	}
 			
 	@Override
-	public void render (Postprocessing ecffectComposer, double delta, boolean maskActive) 
+	public void render (Postprocessing effectComposer, double delta, boolean maskActive)
 	{
 		// don't update color or depth
-		ecffectComposer.getRenderer().getGL().colorMask( false, false, false, false );
-		ecffectComposer.getRenderer().getGL().depthMask( false );
+		GLES20.glColorMask(false, false, false, false);
+		GLES20.glDepthMask( false );
 
 		// set up stencil
 
@@ -65,22 +64,22 @@ public class MaskPass extends Pass
 			clearValue = 0;
 		}
 
-		ecffectComposer.getRenderer().getGL().enable( EnableCap.STENCIL_TEST );
-		ecffectComposer.getRenderer().getGL().stencilOp( StencilOp.REPLACE, StencilOp.REPLACE, StencilOp.REPLACE );
-		ecffectComposer.getRenderer().getGL().stencilFunc( StencilFunction.ALWAYS, writeValue, 0xffffffff );
-		ecffectComposer.getRenderer().getGL().clearStencil( clearValue );
+		GLES20.glEnable(GLES20.GL_STENCIL_TEST);
+		GLES20.glStencilOp(GLES20.GL_REPLACE, GLES20.GL_REPLACE, GLES20.GL_REPLACE);
+		GLES20.glStencilFunc(GLES20.GL_ALWAYS, writeValue, 0xffffffff);
+		GLES20.glClearStencil( clearValue );
 
 		// draw into the stencil buffer
-		ecffectComposer.getRenderer().render( this.scene, this.camera, ecffectComposer.getReadBuffer(), this.clear );
-		ecffectComposer.getRenderer().render( this.scene, this.camera, ecffectComposer.getWriteBuffer(), this.clear );
+		effectComposer.getRenderer().render( this.scene, this.camera, effectComposer.getReadBuffer(), this.clear );
+		effectComposer.getRenderer().render( this.scene, this.camera, effectComposer.getWriteBuffer(), this.clear );
 
 		// re-enable update of color and depth
-		ecffectComposer.getRenderer().getGL().colorMask( true, true, true, true );
-		ecffectComposer.getRenderer().getGL().depthMask( true );
+		GLES20.glColorMask( true, true, true, true );
+		GLES20.glDepthMask( true );
 
 		// only render where stencil is set to 1
-		ecffectComposer.getRenderer().getGL().stencilFunc( StencilFunction.EQUAL, 1, 0xffffffff );  // draw if == 1
-		ecffectComposer.getRenderer().getGL().stencilOp( StencilOp.KEEP, StencilOp.KEEP, StencilOp.KEEP );
+		GLES20.glStencilFunc( GLES20.GL_EQUAL, 1, 0xffffffff );  // draw if == 1
+		GLES20.glStencilOp( GLES20.GL_KEEP, GLES20.GL_KEEP, GLES20.GL_KEEP );
 	}
 	
 	@Override

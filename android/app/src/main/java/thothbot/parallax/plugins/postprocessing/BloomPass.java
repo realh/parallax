@@ -18,10 +18,8 @@
 
 package thothbot.parallax.plugins.postprocessing;
 
-import thothbot.parallax.core.client.gl2.enums.EnableCap;
-import thothbot.parallax.core.client.gl2.enums.PixelFormat;
-import thothbot.parallax.core.client.gl2.enums.TextureMagFilter;
-import thothbot.parallax.core.client.gl2.enums.TextureMinFilter;
+import android.opengl.GLES20;
+
 import thothbot.parallax.core.client.shaders.Shader;
 import thothbot.parallax.core.client.textures.RenderTargetTexture;
 import thothbot.parallax.core.shared.materials.Material;
@@ -59,14 +57,14 @@ public class BloomPass extends Pass
 
 		// render targets
 		this.renderTargetX = new RenderTargetTexture( resolution, resolution );
-		this.renderTargetX.setMinFilter(TextureMinFilter.LINEAR);
-		this.renderTargetX.setMagFilter(TextureMagFilter.LINEAR);
-		this.renderTargetX.setFormat(PixelFormat.RGB);
+		this.renderTargetX.setMinFilter(GLES20.GL_LINEAR);
+		this.renderTargetX.setMagFilter(GLES20.GL_LINEAR);
+		this.renderTargetX.setFormat(GLES20.GL_RGB);
 		
 		this.renderTargetY = new RenderTargetTexture( resolution, resolution );
-		this.renderTargetY.setMinFilter(TextureMinFilter.LINEAR);
-		this.renderTargetY.setMagFilter(TextureMagFilter.LINEAR);
-		this.renderTargetY.setFormat(PixelFormat.RGB);
+		this.renderTargetY.setMinFilter(GLES20.GL_LINEAR);
+		this.renderTargetY.setMagFilter(GLES20.GL_LINEAR);
+		this.renderTargetY.setFormat(GLES20.GL_RGB);
 
 		// screen material
 
@@ -91,32 +89,32 @@ public class BloomPass extends Pass
 	public void render(Postprocessing postprocessing, double delta, boolean maskActive)
 	{
 		if ( maskActive ) 
-			postprocessing.getRenderer().getGL().disable( EnableCap.STENCIL_TEST );
+			GLES20.glDisable(GLES20.GL_STENCIL_TEST);
 
 		// Render quad with blured scene into texture (convolution pass 1)
 		postprocessing.getQuad().setMaterial(this.materialConvolution);
 
 		this.materialConvolution.getShader().getUniforms().get("tDiffuse" ).setValue( postprocessing.getReadBuffer() );
-		this.materialConvolution.getShader().getUniforms().get("uImageIncrement").setValue( BloomPass.blurX );
+		this.materialConvolution.getShader().getUniforms().get("uImageIncrement").setValue(BloomPass.blurX);
 
-		postprocessing.getRenderer().render( 
-				postprocessing.getScene(), postprocessing.getCamera(), this.renderTargetX, true );
+		postprocessing.getRenderer().render(
+				postprocessing.getScene(), postprocessing.getCamera(), this.renderTargetX, true);
 
 
 		// Render quad with blured scene into texture (convolution pass 2)
 		this.materialConvolution.getShader().getUniforms().get("tDiffuse").setValue( this.renderTargetX );
-		this.materialConvolution.getShader().getUniforms().get("uImageIncrement").setValue( BloomPass.blurY );
+		this.materialConvolution.getShader().getUniforms().get("uImageIncrement").setValue(BloomPass.blurY);
 
-		postprocessing.getRenderer().render( 
-				postprocessing.getScene(), postprocessing.getCamera(), this.renderTargetY, true );
+		postprocessing.getRenderer().render(
+				postprocessing.getScene(), postprocessing.getCamera(), this.renderTargetY, true);
 
 		// Render original scene with superimposed blur to texture
 		postprocessing.getQuad().setMaterial(this.materialScreen);
 
-		this.materialScreen.getShader().getUniforms().get("tDiffuse").setValue( this.renderTargetY );
+		this.materialScreen.getShader().getUniforms().get("tDiffuse").setValue(this.renderTargetY);
 
 		if ( maskActive ) 
-			postprocessing.getRenderer().getGL().enable( EnableCap.STENCIL_TEST );
+			GLES20.glEnable( GLES20.GL_STENCIL_TEST );
 
 		postprocessing.getRenderer().render( 
 				postprocessing.getScene(), postprocessing.getCamera(), postprocessing.getReadBuffer(), this.clear );
