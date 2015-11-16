@@ -18,12 +18,13 @@
 
 package thothbot.parallax.core.shared.materials;
 
+import thothbot.parallax.core.client.shaders.ProgramParameters;
 import thothbot.parallax.core.client.shaders.Shader;
 import thothbot.parallax.core.shared.math.Color;
 
 public class ShaderMaterial extends Material 
 	implements HasWireframe, HasFog, HasColor, HasVertexColors, HasSkinning, HasShading
-{ 
+{
 	class ShaderMaterialShader extends Shader
 	{
 
@@ -65,24 +66,52 @@ public class ShaderMaterial extends Material
 	private boolean isLights;
 	
 	private Shader shader;
-	
+
+	private String vertexExtensions;
+	private String fragmentExtensions;
+
 	public ShaderMaterial(Shader.DefaultResources resource) 
 	{
 		this(resource.getVertexShader(), resource.getFragmentShader());
 	}
 
-	public ShaderMaterial(String vertexShader, String fragmentShader) 
+	public ShaderMaterial(Shader.DefaultResources resource,
+						  String vertexExtensions, String fragmentExtensions)
+	{
+		this(resource.getVertexShader(), resource.getFragmentShader(),
+				vertexExtensions, fragmentExtensions);
+	}
+
+	public ShaderMaterial(String vertexShader, String fragmentShader)
 	{		
+		this(vertexShader, fragmentShader, null, null);
+	}
+
+	public ShaderMaterial(String vertexShader, String fragmentShader,
+						  String vertexExtensions, String fragmentExtensions)
+	{
 		this();
 		this.shader = new ShaderMaterialShader(vertexShader, fragmentShader);
+		this.vertexExtensions = vertexExtensions;
+		this.fragmentExtensions = fragmentExtensions;
 	}
-	
+
+	/**
+	 * If shader already has extensions at this point they will override the
+	 * ones created dynamically from ProgramParameters.
+	 *
+	 * @param shader
+	 */
 	public ShaderMaterial(Shader shader)
 	{
 		this();
 		this.shader = shader;
+		if (shader.getVertexExtensions() != null)
+			this.vertexExtensions = shader.getVertexExtensions();
+		if (shader.getFragmentExtensions() != null)
+			this.fragmentExtensions = shader.getFragmentExtensions();
 	}
-	
+
 	private ShaderMaterial()
 	{
 		setWireframe(false);
@@ -221,7 +250,21 @@ public class ShaderMaterial extends Material
 	public void setShading(Material.SHADING shading) {
 		this.shading = shading;
 	}
-	
+
+	@Override
+	protected String getExtensionsVertex(ProgramParameters params)
+	{
+		return vertexExtensions == null ?
+				super.getExtensionsVertex(params) : vertexExtensions;
+	}
+
+	@Override
+	protected String getExtensionsFragment(ProgramParameters params)
+	{
+		return fragmentExtensions == null ?
+				super.getExtensionsFragment(params) : fragmentExtensions;
+	}
+
 	public ShaderMaterial clone() {
 
 		ShaderMaterial material = new ShaderMaterial();

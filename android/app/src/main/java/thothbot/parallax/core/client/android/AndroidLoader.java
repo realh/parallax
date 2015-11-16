@@ -20,6 +20,8 @@ package thothbot.parallax.core.client.android;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+
 import thothbot.parallax.core.shared.Log;
 
 import java.io.IOException;
@@ -34,8 +36,9 @@ import thothbot.parallax.loader.shared.ImageLoader;
 
 public abstract class AndroidLoader extends AssetLoader implements ImageLoader
 {
-
 	private static final int CHUNK_SIZE = 8192;
+
+	private static Matrix flipYMatrix;
 
 	/**
 	 * @param dirName Use a trailing / if this is a directory, otherwise
@@ -50,6 +53,11 @@ public abstract class AndroidLoader extends AssetLoader implements ImageLoader
 
 	@Override
 	public Image loadImage(String leafname) throws IOException
+	{
+		return loadImage(leafname, true);
+	}
+
+	public Image loadImage(String leafname, boolean flipY) throws IOException
 	{
 		InputStream strm = null;
 		Bitmap bmp = null;
@@ -75,6 +83,19 @@ public abstract class AndroidLoader extends AssetLoader implements ImageLoader
 			bmp = bmp.copy(Bitmap.Config.RGB_565, true);
 			orig.recycle();
 		}
+
+		if (flipY)
+		{
+			Log.debug("Flipping Bitmap vertically");
+			if (flipYMatrix == null)
+			{
+				flipYMatrix = new Matrix();
+				flipYMatrix.setScale(1, -1);
+			}
+			bmp = Bitmap.createBitmap(bmp, 0, 0,
+					bmp.getWidth(), bmp.getHeight(), flipYMatrix, false);
+		}
+
 		return new AndroidImage(bmp);
 	}
 

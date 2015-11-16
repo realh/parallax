@@ -84,14 +84,12 @@
                 android:text="@string/bump_mapping"
                 android:onClick="onBumpMappingClick"/>
 
-            <!--
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/button8"
                 android:text="@string/skin_material"
                 android:onClick="onSkinMaterialClick"/>
-            -->
         </LinearLayout>
     </ScrollView>
 

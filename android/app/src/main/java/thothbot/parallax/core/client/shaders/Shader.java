@@ -275,6 +275,11 @@ public abstract class Shader
 		this.vertexExtensions = vertexExtensions;
 	}
 
+	public String getVertexExtensions()
+	{
+		return vertexExtensions;
+	}
+
 	public void setVertexSource(String src) {
 		this.vertexShaderSource = src;
 	}
@@ -299,6 +304,11 @@ public abstract class Shader
 	public void setFragmentExtensions(String fragmentExtensions)
 	{
 		this.fragmentExtensions = fragmentExtensions;
+	}
+
+	public String getFragmentExtensions()
+	{
+		return fragmentExtensions;
 	}
 
 	protected void updateFragmentSource(String src) {

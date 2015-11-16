@@ -523,7 +523,7 @@ public abstract class Material
 		return this.shader;
 	}
 
-	private String getExtensionsVertex(ProgramParameters parameters)
+	protected String getExtensionsVertex(ProgramParameters parameters)
 	{
 		return "";
 	}
@@ -666,7 +666,7 @@ public abstract class Material
 		return retval;
 	}
 
-	private String getExtensionsFragment(ProgramParameters parameters)
+	protected String getExtensionsFragment(ProgramParameters parameters)
 	{
 		String s = "";
 		if (parameters.logarithmicDepthBuffer)

@@ -82,7 +82,6 @@ public class Texture
 
 	private boolean isGenerateMipmaps = true;
 	private boolean isPremultiplyAlpha = false;
-	private boolean isFlipY = true;
 	private int unpackAlignment = 4; // valid values: 1, 2, 4, 8
 									 // (see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glPixelStorei.xml)
 
@@ -385,14 +384,6 @@ public class Texture
 		this.isPremultiplyAlpha = premultiplyAlpha;
 	}
 	
-	public boolean isFlipY() {
-		return this.isFlipY;
-	}
-	
-	public void setFlipY(boolean isFlipY) {
-		this.isFlipY = isFlipY;
-	}
-	
 	public int getUnpackAlignment() {
 		return unpackAlignment;
 	}
@@ -473,7 +464,6 @@ public class Texture
 		
 		texture.setGenerateMipmaps(this.isGenerateMipmaps);
 		texture.setPremultiplyAlpha(this.isPremultiplyAlpha);
-		texture.setFlipY(this.isFlipY);
 
 		return texture;
 	}
