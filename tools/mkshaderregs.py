@@ -64,11 +64,8 @@ opj = os.path.join
 
 #dest_dir = opj(os.path.dirname(os.path.dirname(sys.argv[0])),
 #        'src', 'thothbot', 'parallax', 'core', 'client', 'shaders')
-dest_dir = opj(os.path.dirname(os.path.dirname(sys.argv[0])),
-        'android', 'app', 'src', 'main', 'java',
-        'thothbot', 'parallax', 'plugins', 'postprocessing', 'shaders')
-src_dir = opj(os.path.dirname(os.path.dirname(sys.argv[0])),
-        'src', 'thothbot', 'parallax', 'plugins', 'postprocessing', 'shaders')
+dest_dir = '/home/tony/Dev/parallax/android/app/src/main/java/uk/co/realh/parallax/shaders/'
+src_dir = '/home/tony/Dev/parallax/android/app/src/main/java/uk/co/realh/parallax/shaders/'
 
 
 def make_jstring(dir_name, src_name):

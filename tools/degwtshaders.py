@@ -19,9 +19,9 @@
 import os, re, sys
 
 chunk_re = re.compile( \
-        '^(\s*)@Source\("chunk/([a-z_]+)_(fragment|vertex)\.glsl"\)')
+        '^(\s*)@Source\("shaders/([a-z_]+)_(fragment|vertex)\.glsl"\)')
 source_re = re.compile( \
-        '^(\s*)@Source\("source/([A-Za-z_]+)\.([fv])s"\)')
+        '^(\s*)@Source\("shaders/([A-Za-z_]+)\.([fv])s"\)')
 
 pkg_name = 'thothbot.parallax.plugins.postprocessing.shaders'
 
@@ -32,6 +32,7 @@ def process_java(filename):
     fp = open(filename, 'r')
     lines_in = fp.readlines()
     fp.close()
+    print("Read ", filename)
     l = len(lines_in)
 
     lines_out = []
@@ -95,6 +96,7 @@ def process_java(filename):
     fp = open(filename, 'w')
     fp.writelines(lines_out)
     fp.close()
+    print("Wrote ", filename)
 
 
 for f in sys.argv[1:]:

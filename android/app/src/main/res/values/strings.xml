@@ -8,4 +8,5 @@
     <string name="buffer_geometry">Buffer Geometry</string>
     <string name="buffered_particles">Buffered Particles</string>
     <string name="bump_mapping">Bump Mapping</string>
+    <string name="skin_material">Skin Material</string>
 </resources>

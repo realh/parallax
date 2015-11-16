@@ -51,4 +51,11 @@ public class LauncherActivity extends AppCompatActivity
     {
         startActivity(new Intent(this, BumpMappingActivity.class));
     }
+
+	/*
+    public void onSkinMaterialClick(View view)
+    {
+        startActivity(new Intent(this, SkinMaterialActivity.class));
+    }
+    */
 }

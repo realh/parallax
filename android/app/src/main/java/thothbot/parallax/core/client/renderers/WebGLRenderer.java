@@ -1978,7 +1978,7 @@ public class WebGLRenderer extends AbstractRenderer
 				continue;
 			
 			plugin.setRendering(true);
-			Log.debug("Called renderPlugins(): " + plugin.getClass().getName());
+			//Log.debug("Called renderPlugins(): " + plugin.getClass().getName());
 
 			// reset state for plugin (to start from clean slate)
 			this._currentProgram = 0;

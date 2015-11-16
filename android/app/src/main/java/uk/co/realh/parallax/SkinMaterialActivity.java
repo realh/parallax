@@ -4,10 +4,14 @@ import android.app.Activity;
 import android.opengl.GLES20;
 import android.util.Log;
 
+import java.util.Map;
+
 import thothbot.parallax.core.client.android.AndroidAssetLoader;
 import thothbot.parallax.core.client.gl2.Image;
 import thothbot.parallax.core.client.gl2.enums.TextureWrapMode;
 import thothbot.parallax.core.client.renderers.ShadowMap;
+import thothbot.parallax.core.client.shaders.Uniform;
+import thothbot.parallax.core.client.textures.RenderTargetTexture;
 import thothbot.parallax.core.client.textures.Texture;
 import thothbot.parallax.core.shared.cameras.PerspectiveCamera;
 import thothbot.parallax.core.shared.core.AbstractGeometry;
@@ -18,10 +22,14 @@ import thothbot.parallax.core.shared.lights.PointLight;
 import thothbot.parallax.core.shared.lights.SpotLight;
 import thothbot.parallax.core.shared.materials.Material;
 import thothbot.parallax.core.shared.materials.MeshPhongMaterial;
+import thothbot.parallax.core.shared.materials.ShaderMaterial;
 import thothbot.parallax.core.shared.math.Color;
+import thothbot.parallax.core.shared.math.Vector4;
 import thothbot.parallax.core.shared.objects.Mesh;
 import thothbot.parallax.loader.shared.JsonLoader;
 import thothbot.parallax.plugins.postprocessing.Postprocessing;
+import thothbot.parallax.plugins.postprocessing.ShaderPass;
+import thothbot.parallax.plugins.postprocessing.shaders.CopyShader;
 
 public class SkinMaterialActivity extends DemoActivity
 {
@@ -30,15 +38,15 @@ public class SkinMaterialActivity extends DemoActivity
     protected DemoAnimatedScene getDemo()
     {
         return new DemoAnimatedScene()
-        {
+		{
 			private static final String folder =
 					"models/obj/leeperrysmith/";
 
 			private static final String texture =
 					"Infinite-Level_02_Disp_NoSmoothUV-4096.jpg";
 			private static final String model = "LeePerrySmith.js";
-		    private static final String textureSpec = "Map-SPEC.jpg";
-		    private static final String textureCol = "Map-COL.jpg";
+			private static final String textureSpec = "Map-SPEC.jpg";
+			private static final String textureCol = "Map-COL.jpg";
 
 			PerspectiveCamera camera;
 
@@ -57,6 +65,7 @@ public class SkinMaterialActivity extends DemoActivity
 			int mouseX = 0, mouseY = 0;
 
 			boolean firstPass = true;
+
 			@Override
 			protected void onCreate(Activity activity)
 			{
@@ -64,6 +73,8 @@ public class SkinMaterialActivity extends DemoActivity
 				{
 					loader = new AndroidAssetLoader(activity.getAssets(), folder);
 					textureImage = loader.loadImage(texture);
+					specImage = loader.loadImage(textureSpec);
+					colImage = loader.loadImage(textureCol);
 					jsonModel = loader.loadText(model);
 				} catch (Throwable e)
 				{
@@ -85,28 +96,24 @@ public class SkinMaterialActivity extends DemoActivity
 
 				// LIGHTS
 
-				getScene().add( new AmbientLight( 0x444444 ) );
-
-				//
+				getScene().add( new AmbientLight( 0x555555 ) );
 
 				PointLight pointLight = new PointLight( 0xffffff, 1.5, 1000 );
-				pointLight.getColor().setHSL( 0.05, 1.0, 0.95 );
 				pointLight.getPosition().set( 0, 0, 600 );
 
 				getScene().add( pointLight );
 
 				// shadow for PointLight
 
-				SpotLight spotLight = new SpotLight( 0xffffff, 1.5 );
+				SpotLight spotLight = new SpotLight( 0xffffff, 1 );
 				spotLight.getPosition().set( 0.05, 0.05, 1 );
-				spotLight.getColor().setHSL( 0.6, 1.0, 0.95 );
 				getScene().add( spotLight );
 
 				spotLight.getPosition().multiply( 700 );
 
 				spotLight.setCastShadow(true);
 				spotLight.setOnlyShadow(true);
-//         spotLight.setShadowCameraVisible(true);
+				//spotLight.shadowCameraVisible = true;
 
 				spotLight.setShadowMapWidth( 2048 );
 				spotLight.setShadowMapHeight( 2048 );
@@ -117,19 +124,19 @@ public class SkinMaterialActivity extends DemoActivity
 				spotLight.setShadowCameraFov( 40 );
 
 				spotLight.setShadowBias( -0.005 );
-				spotLight.setShadowDarkness( 0.35 );
+				spotLight.setShadowDarkness( 0.15 );
 
 				//
 
-				DirectionalLight directionalLight = new DirectionalLight( 0xffffff, 1.5 );
+				DirectionalLight directionalLight = new DirectionalLight( 0xffffff, 0.85 );
 				directionalLight.getPosition().set( 1, -0.5, 1 );
-				directionalLight.getColor().setHSL( 0.6, 1, 0.95 );
+				directionalLight.getColor().setHSL( 0.6, 1.0, 0.85 );
 				getScene().add( directionalLight );
 
 				directionalLight.getPosition().multiply( 500 );
 
-				directionalLight.setCastShadow( true );
-//         directionalLight.setShadowCameraVisible(true);
+				directionalLight.setCastShadow(true);
+				//directionalLight.shadowCameraVisible = true;
 
 				directionalLight.setShadowMapWidth( 2048 );
 				directionalLight.setShadowMapHeight( 2048 );
@@ -143,52 +150,100 @@ public class SkinMaterialActivity extends DemoActivity
 				directionalLight.setShadowCameraBottom( -500 );
 
 				directionalLight.setShadowBias( -0.005 );
-				directionalLight.setShadowDarkness( 0.35 );
+				directionalLight.setShadowDarkness( 0.15 );
 
 				//
 
-				DirectionalLight directionalLight2 = new DirectionalLight( 0xffffff, 1.2 );
-				directionalLight2.getPosition().set(1, -0.5, -1);
-				directionalLight2.getColor().setHSL(0.08, 1.0, 0.825);
-				getScene().add(directionalLight2);
+				DirectionalLight directionalLight2 = new DirectionalLight( 0xffffff, 0.85 );
+				directionalLight2.getPosition().set( 1, -0.5, -1 );
+				getScene().add( directionalLight2 );
 
-				Texture mapHeight = new Texture( textureImage );
+				// COMPOSER BECKMANN
 
-				mapHeight.setAnisotropy(4);
-				mapHeight.getRepeat().set(0.998, 0.998);
-				mapHeight.getOffset().set(0.001, 0.001);
-				mapHeight.setWrapS(TextureWrapMode.REPEAT);
-				mapHeight.setWrapT(TextureWrapMode.REPEAT);
-				mapHeight.setFormat(GLES20.GL_RGB);
+				ShaderPass effectBeckmann = new ShaderPass( new BeckmannShader() );
+				ShaderPass effectCopy = new ShaderPass( new CopyShader() );
 
-				final MeshPhongMaterial material = new MeshPhongMaterial();
-				material.setAmbient(new Color(0x552811));
-				material.setColor(new Color(0x552811));
-				material.setSpecular(new Color(0x333333));
-				material.setShininess(25);
-				material.setBumpMap(mapHeight);
-				material.setBumpScale(19);
-				material.setMetal(false);
+				effectCopy.setRenderToScreen(true);
+
+				RenderTargetTexture target = new RenderTargetTexture( 512, 512 );
+				target.setMinFilter(GLES20.GL_LINEAR);
+				target.setMagFilter(GLES20.GL_LINEAR);
+				target.setFormat(GLES20.GL_RGB);
+				target.setStencilBuffer(false);
+				composerBeckmann = new Postprocessing( getRenderer(), getScene(), target );
+//         		composerBeckmann.addPass( effectBeckmann );
+//         		composerBeckmann.addPass( effectScreen );
+
+				//
 
 				AbstractGeometry geometry = new JsonLoader(loader).parse(jsonModel);
+				createScene( (Geometry) geometry, 100 );
 
-				createScene((Geometry) geometry, 100, material );
+				getRenderer().setClearColor(0x4c5159);
 
 				ShadowMap shadowMap = new ShadowMap(getRenderer(), getScene());
 				shadowMap.setCullFrontFaces(false);
 
-				//
-
-				getRenderer().setClearColor(0x060708);
+				getRenderer().setAutoClear(false);
 				getRenderer().setGammaInput(true);
 				getRenderer().setGammaOutput(true);
 			}
 
-			private void createScene( Geometry geometry, double scale, Material material )
+			private void createScene( Geometry geometry, double scale )
 			{
+				Texture mapHeight = new Texture( textureImage );
+
+				mapHeight.setAnisotropy(4);
+				mapHeight.getRepeat().set( 0.998, 0.998 );
+				mapHeight.getOffset().set( 0.001, 0.001 );
+				mapHeight.setWrapS(TextureWrapMode.REPEAT);
+				mapHeight.setWrapT(TextureWrapMode.REPEAT);
+				mapHeight.setFormat(GLES20.GL_RGB);
+
+				Texture mapSpecular = new Texture( specImage );
+				mapSpecular.getRepeat().set( 0.998, 0.998 );
+				mapSpecular.getOffset().set( 0.001, 0.001 );
+				mapSpecular.setWrapS(TextureWrapMode.REPEAT);
+				mapSpecular.setWrapT(TextureWrapMode.REPEAT);
+				mapSpecular.setFormat(GLES20.GL_RGB);
+
+				Texture mapColor = new Texture( colImage );
+				mapColor.getRepeat().set( 0.998, 0.998 );
+				mapColor.getOffset().set( 0.001, 0.001 );
+				mapColor.setWrapS(TextureWrapMode.REPEAT);
+				mapColor.setWrapT(TextureWrapMode.REPEAT);
+				mapColor.setFormat(GLES20.GL_RGB);
+
+				SkinSimpleShader shader = new SkinSimpleShader();
+
+				Map<String, Uniform> uniforms = shader.getUniforms();
+
+				uniforms.get( "enableBump" ).setValue( true );
+				uniforms.get( "enableSpecular" ).setValue( true );
+
+				uniforms.get( "tBeckmann" ).setValue( composerBeckmann.getRenderTarget1() );
+				uniforms.get( "tDiffuse" ).setValue( mapColor );
+
+				uniforms.get( "bumpMap" ).setValue( mapHeight );
+				uniforms.get( "specularMap" ).setValue( mapSpecular );
+
+				((Color)uniforms.get( "ambient" ).getValue()).setHex( 0xa0a0a0 );
+				((Color)uniforms.get( "diffuse" ).getValue()).setHex( 0xa0a0a0 );
+				((Color)uniforms.get( "specular" ).getValue()).setHex( 0xa0a0a0 );
+
+				uniforms.get( "uRoughness" ).setValue( 0.145 );
+				uniforms.get( "uSpecularBrightness" ).setValue( 0.75 );
+
+				uniforms.get( "bumpScale" ).setValue( 16.0 );
+
+				((Vector4)uniforms.get( "offsetRepeat" ).getValue()).set( 0.001, 0.001, 0.998, 0.998 );
+
+				ShaderMaterial material = new ShaderMaterial( shader );
+				material.setLights(true);
+
 				mesh = new Mesh( geometry, material );
 
-				mesh.getPosition().setY( - 50 );
+				mesh.getPosition().setY(- 50 );
 				mesh.getScale().set( scale );
 
 				mesh.setCastShadow(true);
@@ -200,6 +255,7 @@ public class SkinMaterialActivity extends DemoActivity
 			@Override
 			protected void onUpdate(double duration)
 			{
+				/*
 				double targetX = mouseX * .001;
 				double targetY = mouseY * .001;
 
@@ -208,9 +264,17 @@ public class SkinMaterialActivity extends DemoActivity
 					mesh.getRotation().addY( 0.05 * ( targetX - mesh.getRotation().getY() ) );
 					mesh.getRotation().addX( 0.05 * ( targetY - mesh.getRotation().getX() ) );
 				}
+				*/
 
+//         		if ( firstPass )
+//         		{
+//            		composerBeckmann.render();
+//            		firstPass = false;
+//         		}
+
+				getRenderer().clear();
 				getRenderer().render(getScene(), camera);
 			}
-        };
+		};
     }
 }

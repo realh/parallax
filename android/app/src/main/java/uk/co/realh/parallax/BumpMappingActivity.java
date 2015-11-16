@@ -192,6 +192,7 @@ public class BumpMappingActivity extends DemoActivity
 			@Override
 			protected void onUpdate(double duration)
 			{
+				/*
 				double targetX = mouseX * .001;
 				double targetY = mouseY * .001;
 
@@ -200,6 +201,7 @@ public class BumpMappingActivity extends DemoActivity
 					mesh.getRotation().addY( 0.05 * ( targetX - mesh.getRotation().getY() ) );
 					mesh.getRotation().addX( 0.05 * ( targetY - mesh.getRotation().getX() ) );
 				}
+				*/
 
 				getRenderer().render(getScene(), camera);
 			}

@@ -35,6 +35,10 @@
 
     <activity android:name="uk.co.realh.parallax.BumpMappingActivity" />
 
+    <!--
+    <activity android:name="uk.co.realh.parallax.SkinMaterialActivity" />
+    -->
+
     </application>
 
 </manifest>
