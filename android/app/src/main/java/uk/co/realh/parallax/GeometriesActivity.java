@@ -41,7 +41,7 @@ public class GeometriesActivity extends DemoActivity {
     {
         return new DemoAnimatedScene()
         {
-            private static final String imageAsset = "textures/UV_Grid_Sm.jpg";
+            private static final String imageAsset = "UV_Grid_Sm.jpg";
 
             private Image gridImage;
 
@@ -52,7 +52,7 @@ public class GeometriesActivity extends DemoActivity {
             {
                 try
                 {
-                    gridImage = new AndroidAssetLoader(activity.getAssets(), ".").loadImage(imageAsset);
+                    gridImage = new AndroidAssetLoader(activity.getAssets(), "textures/").loadImage(imageAsset);
                 } catch (Throwable e)
                 {
                     Log.e(TAG, "Exception in onCreate", e);

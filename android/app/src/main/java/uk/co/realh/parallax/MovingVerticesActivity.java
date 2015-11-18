@@ -26,7 +26,7 @@ public class MovingVerticesActivity extends DemoActivity
     {
         return new DemoAnimatedScene()
         {
-            private static final String imageAsset = "textures/water.jpg";
+            private static final String imageAsset = "water.jpg";
             private static final int FOG_COLOR = 0xAACCFF;
 
             private Image waterImage;
@@ -45,7 +45,7 @@ public class MovingVerticesActivity extends DemoActivity
             {
                 try
                 {
-                    waterImage = new AndroidAssetLoader(activity.getAssets(), ".").loadImage(imageAsset);
+                    waterImage = new AndroidAssetLoader(activity.getAssets(), "textures/").loadImage(imageAsset);
                 } catch (Throwable e)
                 {
                     Log.e(TAG, "Exception in onCreate", e);

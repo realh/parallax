@@ -21,7 +21,7 @@ public class CubeTextureActivity extends DemoActivity {
         return new DemoAnimatedScene()
         {
 
-            private static final String imageAsset = "textures/crate.gif";
+            private static final String imageAsset = "crate.gif";
 
             private Image crateImage;
 
@@ -34,7 +34,7 @@ public class CubeTextureActivity extends DemoActivity {
             {
                 try
                 {
-                    crateImage = new AndroidAssetLoader(activity.getAssets(), ".").loadImage(imageAsset);
+                    crateImage = new AndroidAssetLoader(activity.getAssets(), "textures/").loadImage(imageAsset);
                 } catch (Throwable e)
                 {
                     Log.e(TAG, "Exception loading crate image", e);
