@@ -18,6 +18,8 @@
 
 package org.parallax3d.renderer;
 
+import com.badlogic.gdx.graphics.GL20;
+
 import java.util.List;
 
 import org.parallax3d.cameras.Camera;
@@ -75,7 +77,8 @@ public abstract class Plugin
 
 	public abstract Plugin.TYPE getType();
 
-	public abstract void render( Camera camera, List<Light> lights, int currentWidth, int currentHeight );
+	public abstract void render( GL20 gl, Camera camera, List<Light> lights,
+								 int currentWidth, int currentHeight );
 
 	public void deallocate() {
 		

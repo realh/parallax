@@ -2021,7 +2021,7 @@ public class WebGLRenderer extends AbstractRenderer
 
 			this._lightsNeedUpdate = true;
 
-			plugin.render( camera, lights, _currentWidth, _currentHeight );
+			plugin.render( gl, camera, lights, _currentWidth, _currentHeight );
 
 			// reset state after plugin (anything could have changed)
 

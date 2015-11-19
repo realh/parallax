@@ -154,7 +154,7 @@ public final class ShadowMap extends Plugin
 	}
 
 	@Override
-	public void render(Camera camera, List<Light> sceneLights,
+	public void render(GL20 gl, Camera camera, List<Light> sceneLights,
 					   int currentWidth, int currentHeight)
 	{
 		if ( ! ( isEnabled() && isAutoUpdate() ) ) return;
