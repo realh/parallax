@@ -521,6 +521,14 @@ public class WebGLRenderer extends AbstractRenderer
 		this.info = info;
 	}
 
+	/**
+	 * @return the underlying GL20 context implementation from libGDX.
+	 */
+	public GL20 getGL()
+	{
+		return this.gl;
+	}
+
 	private void setDefaultGLState()
 	{
 		gl.glClearColor(0, 0, 0, 1);
@@ -1176,7 +1184,7 @@ public class WebGLRenderer extends AbstractRenderer
 
 			int mode = ( ((Line)object).getMode() == Line.MODE.STRIPS ) ?
                     GL20.GL_LINE_STRIP : GL20.GL_LINES;
-			object.setLineWidth(((LineBasicMaterial)material).getLinewidth());
+			object.setLineWidth(gl, ((LineBasicMaterial)material).getLinewidth());
 
 			BufferAttribute index = geometry.getAttribute("index");
 
@@ -1670,7 +1678,7 @@ public class WebGLRenderer extends AbstractRenderer
 			if ( geometry.isVerticesNeedUpdate() || geometry.isColorsNeedUpdate() ||
                     geometry.isLineDistancesNeedUpdate() || customAttributesDirty ) {
 
-				((Line)object).setBuffers( GL20.GL_DYNAMIC_DRAW );
+				((Line)object).setBuffers( gl, GL20.GL_DYNAMIC_DRAW );
 
 			}
 

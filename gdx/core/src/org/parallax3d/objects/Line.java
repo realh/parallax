@@ -189,12 +189,13 @@ public class Line extends GeometryObject
 	public void renderBuffer(WebGLRenderer renderer, WebGLGeometry geometryBuffer, boolean updateBuffers)
 	{
 		WebGlRendererInfo info = renderer.getInfo();
+		GL20 gl = renderer.getGL();
 		
 		int primitives = ( this.getType() == Line.MODE.STRIPS)
 				? GL20.GL_LINE_STRIP
 				: GL20.GL_LINES;
 
-		setLineWidth( ((LineBasicMaterial)getMaterial()).getLinewidth() );
+		setLineWidth( gl, ((LineBasicMaterial)getMaterial()).getLinewidth() );
 
 		gl.glDrawArrays(primitives, 0, geometryBuffer.__webglLineCount);
 
@@ -218,16 +219,15 @@ public class Line extends GeometryObject
 	
 	public void createBuffers ( WebGLRenderer renderer ) 
 	{
+		GL20 gl = renderer.getGL();
+
 		Geometry geometry = (Geometry)getGeometry();
 		
 		WebGlRendererInfo info = renderer.getInfo();
 
-		gl.glGenBuffers(1, tmpBufArray, 0);
-		geometry.__webglVertexBuffer = tmpBufArray[0];
-		gl.glGenBuffers(1, tmpBufArray, 0);
-		geometry.__webglColorBuffer = tmpBufArray[0];
-		gl.glGenBuffers(1, tmpBufArray, 0);
-		geometry.__webglLineDistanceBuffer = tmpBufArray[0];
+		geometry.__webglVertexBuffer = gl.glGenBuffer();
+		geometry.__webglColorBuffer = gl.glGenBuffer();
+		geometry.__webglLineDistanceBuffer = gl.glGenBuffer();
 
 		info.getMemory().geometries ++;
 	}
@@ -269,7 +269,7 @@ public class Line extends GeometryObject
 //	}
 
 	// setLineBuffers
-	public void setBuffers(int bufferUsageHint)
+	public void setBuffers(GL20 gl, int bufferUsageHint)
 	{		
 		Geometry geometry = (Geometry)this.getGeometry();
 		
