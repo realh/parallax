@@ -1461,7 +1461,7 @@ public class WebGLRenderer extends AbstractRenderer
 				if ( geometry.__webglVertexBuffer == 0 ) {
 					
 					((PointCloud)object).createBuffers(this);
-					((PointCloud)object).initBuffers();
+					((PointCloud)object).initBuffers(gl);
 
 					geometry.setVerticesNeedUpdate( true );
 					geometry.setColorsNeedUpdate( true );

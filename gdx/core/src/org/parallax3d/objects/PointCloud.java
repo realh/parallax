@@ -52,8 +52,6 @@ public class PointCloud extends GeometryObject
 	
 	private boolean sortParticles = false;
 
-	private int[] workBufArray = { 0, 0 };
-	
 	private static PointCloudMaterial defaultMaterial = new PointCloudMaterial();
 	static {
 		defaultMaterial.setColor( new Color((int)(Math.random() * 0xffffff)) );
@@ -115,7 +113,8 @@ public class PointCloud extends GeometryObject
 
 				if ( offsets.size() == 0 ) {
 
-					BufferGeometry.DrawCall offset = new BufferGeometry.DrawCall(0, indices.getLength(), 0 );
+					BufferGeometry.DrawCall offset = new
+							BufferGeometry.DrawCall(0, indices.getLength(), 0 );
 
 					offsets.add( offset );
 
@@ -170,10 +169,13 @@ public class PointCloud extends GeometryObject
 		}
 	}
 	
-	private void testPoint(Raycaster raycaster, List<Intersect> intersects, Ray ray, Vector3 point, int index ) {
+	private void testPoint(Raycaster raycaster, List<Intersect> intersects, Ray ray,
+						   Vector3 point, int index )
+	{
 
 		double rayPointDistance = ray.distanceToPoint( point );
-		double localThreshold = RAYCASTER_THRESHOLD / ( ( this.scale.getX() + this.scale.getY() + this.scale.getZ() ) / 3.0 );
+		double localThreshold = RAYCASTER_THRESHOLD /
+				( ( this.scale.getX() + this.scale.getY() + this.scale.getZ() ) / 3.0 );
 
 		if ( rayPointDistance < localThreshold ) {
 
@@ -192,7 +194,7 @@ public class PointCloud extends GeometryObject
 	}
 	
 	public PointCloud clone() {
-		return clone(new PointCloud( (Geometry) this.getGeometry(), (PointCloudMaterial) this.getMaterial() ));
+		return clone(new PointCloud(this.getGeometry(), this.getMaterial()));
 	}
 	
 	public PointCloud clone( PointCloud object ) {
@@ -210,13 +212,13 @@ public class PointCloud extends GeometryObject
 	{
 		WebGlRendererInfo info = renderer.getInfo();
 
-		gl.glDrawArrays(GL20.GL_POINTS, 0, geometryBuffer.__webglParticleCount);
+		renderer.getGL().glDrawArrays(GL20.GL_POINTS, 0, geometryBuffer.__webglParticleCount);
 
 		info.getRender().calls ++;
 		info.getRender().points += geometryBuffer.__webglParticleCount;
 	}
 	
-	public void initBuffers ()
+	public void initBuffers (GL20 gl)
 	{
 		Geometry geometry = (Geometry)getGeometry();
 		int nvertices = geometry.getVertices().size();
@@ -226,17 +228,17 @@ public class PointCloud extends GeometryObject
 	
 		geometry.__webglParticleCount = nvertices;
 
-		initCustomAttributes ( geometry );
+		initCustomAttributes ( gl, geometry );
 	}
 	
 	public void createBuffers ( WebGLRenderer renderer) 
 	{
 		Geometry geometry = (Geometry)getGeometry();
 		WebGlRendererInfo info = renderer.getInfo();
+		GL20 gl = renderer.getGL();
 
-		gl.glGenBuffers(2, workBufArray, 0);
-		geometry.__webglVertexBuffer = workBufArray[0];
-		geometry.__webglColorBuffer = workBufArray[1];
+		geometry.__webglVertexBuffer = gl.glGenBuffer();
+		geometry.__webglColorBuffer = gl.glGenBuffer();
 
 		info.getMemory().geometries ++;
 	}
@@ -244,6 +246,7 @@ public class PointCloud extends GeometryObject
 	public void setBuffers(WebGLRenderer renderer, int bufferUsageHint)
 	{
 		Geometry geometry = (Geometry)getGeometry();
+		GL20 gl = renderer.getGL();
 		
 		List<Vector3> vertices = geometry.getVertices();
 		int vl = vertices.size();
@@ -312,7 +315,9 @@ public class PointCloud extends GeometryObject
 
 					Attribute customAttribute = customAttributes.get( i );
 
-					if ( ! ( customAttribute.getBoundTo() == null || customAttribute.getBoundTo() == BOUND_TO.VERTICES ) ) continue;
+					if ( ! ( customAttribute.getBoundTo() == null ||
+							customAttribute.getBoundTo() == BOUND_TO.VERTICES ) )
+						continue;
 
 					int offset = 0;
 
