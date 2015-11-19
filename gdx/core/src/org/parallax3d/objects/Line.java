@@ -232,7 +232,7 @@ public class Line extends GeometryObject
 		info.getMemory().geometries ++;
 	}
 
-	public void initBuffers ()
+	public void initBuffers (GL20 gl)
 	{
 		Geometry geometry = (Geometry)getGeometry();
 		
@@ -244,7 +244,7 @@ public class Line extends GeometryObject
 
 		geometry.__webglLineCount = nvertices;
 
-		initCustomAttributes ( geometry );
+		initCustomAttributes ( gl, geometry );
 	}
 
 //	@Override

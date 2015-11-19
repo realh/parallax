@@ -1438,7 +1438,7 @@ public class WebGLRenderer extends AbstractRenderer
 				if ( geometry.__webglVertexBuffer == 0 ) {
 
 					((Line)object).createBuffers(this);
-					((Line)object).initBuffers();
+					((Line)object).initBuffers(gl);
 
 					geometry.setVerticesNeedUpdate( true );
 					geometry.setColorsNeedUpdate( true );

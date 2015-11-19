@@ -40,8 +40,6 @@ public abstract class GeometryObject extends Object3D
 	
 	private float _oldLineWidth = -1;
 
-	private int[] tmpBufArray = {0};
-	
 	public GeometryObject(AbstractGeometry geometry, Material material) {
 		this.geometry = geometry;
 		this.material = material;
@@ -101,15 +99,15 @@ public abstract class GeometryObject extends Object3D
 	
 	public void deleteBuffers(WebGLRenderer renderer) 
 	{
-		tmpBufArray[0] = geometry.__webglVertexBuffer;
-		gl.glDeleteBuffers(1, tmpBufArray, 0);
-		tmpBufArray[0] = geometry.__webglColorBuffer ;
-		gl.glDeleteBuffers(1, tmpBufArray, 0);
+		GL20 gl = renderer.getGL();
+
+		gl.glDeleteBuffer(geometry.__webglVertexBuffer);
+		gl.glDeleteBuffer(geometry.__webglColorBuffer);
 
 		renderer.getInfo().getMemory().geometries --;
 	}
 
-	public void setLineWidth ( float width )
+	public void setLineWidth ( GL20 gl, float width )
 	{
 		if ( width != this._oldLineWidth ) 
 		{
@@ -118,7 +116,7 @@ public abstract class GeometryObject extends Object3D
 		}
 	}
 		
-	protected void initCustomAttributes (Geometry geometry )
+	protected void initCustomAttributes (GL20 gl, Geometry geometry )
 	{		
 		int nvertices = geometry.getVertices().size();
 		Material material = this.getMaterial();
@@ -148,8 +146,7 @@ public abstract class GeometryObject extends Object3D
 
 					attribute.array = Float32Array.create( nvertices * size );
 
-					gl.glGenBuffers(1, tmpBufArray, 0);
-					attribute.buffer = tmpBufArray[0];
+					attribute.buffer = gl.glGenBuffer();
 					attribute.belongsToAttribute = a;
 
 					attribute.needsUpdate = true;
