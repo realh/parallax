@@ -937,7 +937,7 @@ public abstract class Material
 		if ( deleteProgram == true ) 
 		{
 
-			gl.glDeleteProgram( program );
+			renderer.getGL().glDeleteProgram( program );
 
 			renderer.getInfo().getMemory().programs --;
 		}
