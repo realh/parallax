@@ -1,6 +1,7 @@
 /*
  * Copyright 2012 Alex Usachev, thothbot@gmail.com
- * 
+ * Copyright 2015 Tony Houghton, h@realh.co.uk
+ *
  * This file is part of Parallax project.
  * 
  * Parallax is free software: you can redistribute it and/or modify it 
@@ -900,7 +901,9 @@ public class BufferGeometry extends AbstractGeometry
 
 	}
 
-	private void handleTriangle(Vector3[] tan1, Vector3[] tan2, Float32Array positions, Float32Array uvs, int a, int b, int c ) {
+	private void handleTriangle(Vector3[] tan1, Vector3[] tan2,
+								Float32Array positions, Float32Array uvs,
+								int a, int b, int c ) {
 
 		Vector3 vA = new Vector3(),
 			vB = new Vector3(),
@@ -959,7 +962,7 @@ public class BufferGeometry extends AbstractGeometry
 
 	}
 	
-	public void setDirectBuffers() {
+	public void setDirectBuffers(GL20 gl) {
 
 		for ( int i = 0, l = this.attributesKeys.size(); i < l; i ++ ) {
 
@@ -968,9 +971,7 @@ public class BufferGeometry extends AbstractGeometry
 
 			if ( attribute.getBuffer() == 0 ) {
 
-				int[] buffer = new int[1];
-				GL20.glGenBuffers(1, buffer, 0);
-				attribute.setBuffer(buffer[0]);
+				attribute.setBuffer(gl.glGenBuffer());
 				attribute.setNeedsUpdate(true);
 
 			}
@@ -981,8 +982,8 @@ public class BufferGeometry extends AbstractGeometry
 						GL20.GL_ELEMENT_ARRAY_BUFFER : GL20.GL_ARRAY_BUFFER;
 				ByteBuffer buf = attribute.getArray().getBuffer();
 				buf.rewind();
-				GL20.glBindBuffer(bufferType, attribute.getBuffer());
-				GL20.glBufferData(bufferType, buf.limit(), buf,
+				gl.glBindBuffer(bufferType, attribute.getBuffer());
+				gl.glBufferData(bufferType, buf.limit(), buf,
 						GL20.GL_STATIC_DRAW);
 
 				attribute.setNeedsUpdate(false);
