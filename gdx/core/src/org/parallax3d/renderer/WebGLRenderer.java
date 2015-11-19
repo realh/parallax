@@ -238,6 +238,8 @@ public class WebGLRenderer extends AbstractRenderer
 
     private IntBuffer tmpGLResult = ByteBuffer.allocateDirect(4).asIntBuffer();
 
+	private final WebGLExtensions extensions;
+
 	/**
 	 * The constructor will create renderer for the current EGL context.
 	 * 
@@ -247,6 +249,8 @@ public class WebGLRenderer extends AbstractRenderer
 	public WebGLRenderer(GL20 gl, int width, int height)
 	{
 		this.gl = gl;
+
+		this.extensions = new WebGLExtensions(gl);
 
 		this.setInfo(new WebGlRendererInfo());
 		
@@ -268,7 +272,7 @@ public class WebGLRenderer extends AbstractRenderer
 
 		this._supportsVertexTextures = ( this._maxVertexTextures > 0 ); 
 		this._supportsBoneTextures = this._supportsVertexTextures &&
-                WebGLExtensions.get(gl, WebGLExtensions.Id.OES_texture_float);
+                extensions.get(WebGLExtensions.Id.OES_texture_float);
 		
 		this._vertexShaderPrecisionHighpFloat = new
                 WebGLShaderPrecisionFormat(gl, GL20.GL_VERTEX_SHADER, GL20.GL_HIGH_FLOAT);
@@ -312,16 +316,16 @@ public class WebGLRenderer extends AbstractRenderer
 		}
 
 				
-		WebGLExtensions.get(gl, WebGLExtensions.Id.OES_texture_float);
-		WebGLExtensions.get(gl, WebGLExtensions.Id.OES_texture_float_linear);
-		WebGLExtensions.get(gl, WebGLExtensions.Id.OES_standard_derivatives);
+		extensions.get(WebGLExtensions.Id.OES_texture_float);
+		extensions.get(WebGLExtensions.Id.OES_texture_float_linear);
+		extensions.get(WebGLExtensions.Id.OES_standard_derivatives);
 		
 		if ( _logarithmicDepthBuffer ) 
 		{
-			_logarithmicDepthBuffer = WebGLExtensions.get(gl, WebGLExtensions.Id.EXT_frag_depth);
+			_logarithmicDepthBuffer = extensions.get(WebGLExtensions.Id.EXT_frag_depth);
 		}
 
-		WebGLExtensions.get(gl, WebGLExtensions.Id.EXT_compressed_texture_s3tc);
+		extensions.get(WebGLExtensions.Id.EXT_compressed_texture_s3tc);
 
 		setSize(width, height);
 		setDefaultGLState();
@@ -355,37 +359,37 @@ public class WebGLRenderer extends AbstractRenderer
 	@SuppressWarnings("unused")
 	public boolean supportsFloatTextures()
 	{
-		return WebGLExtensions.get( gl, WebGLExtensions.Id.OES_texture_float );
+		return extensions.get( WebGLExtensions.Id.OES_texture_float );
 	}
 
 	@SuppressWarnings("unused")
 	public boolean supportsStandardDerivatives()
 	{
-		return WebGLExtensions.get( gl, WebGLExtensions.Id.OES_standard_derivatives );
+		return extensions.get( WebGLExtensions.Id.OES_standard_derivatives );
 	}
 
 	@SuppressWarnings("unused")
 	public boolean supportsCompressedTextureS3TC()
 	{
-		return WebGLExtensions.get( gl, WebGLExtensions.Id.EXT_compressed_texture_s3tc );
+		return extensions.get( WebGLExtensions.Id.EXT_compressed_texture_s3tc );
 	}
 
 	@SuppressWarnings("unused")
 	public boolean supportsCompressedTexturePVRTC()
 	{
-		return WebGLExtensions.get( gl, WebGLExtensions.Id.EXT_compressed_texture_pvrtc );
+		return extensions.get( WebGLExtensions.Id.EXT_compressed_texture_pvrtc );
 	}
 
 	@SuppressWarnings("unused")
 	public boolean supportsBlendMinMax()
 	{
-		return WebGLExtensions.get( gl, WebGLExtensions.Id.EXT_blend_minmax );
+		return extensions.get( WebGLExtensions.Id.EXT_blend_minmax );
 	}
 
 	@SuppressWarnings("unused")
 	public int getMaxAnisotropy()
 	{
-		if (WebGLExtensions.get( gl, WebGLExtensions.Id.EXT_texture_filter_anisotropic )) {
+		if (extensions.get( WebGLExtensions.Id.EXT_texture_filter_anisotropic )) {
 			tmpGLResult.reset();
             gl.glGetIntegerv(GL20Ext.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT,
                     tmpGLResult);
@@ -1290,7 +1294,7 @@ public class WebGLRenderer extends AbstractRenderer
 	
 	public List<GeometryGroup> makeGroups( Geometry geometry, boolean usesFaceMaterial ) {
 		
-		long maxVerticesInGroup = WebGLExtensions.get(gl, WebGLExtensions.Id.OES_element_index_uint)
+		long maxVerticesInGroup = extensions.get(WebGLExtensions.Id.OES_element_index_uint)
                 ? 4294967296L : 65535L;
 		
 		int numMorphTargets = geometry.getMorphTargets().size();

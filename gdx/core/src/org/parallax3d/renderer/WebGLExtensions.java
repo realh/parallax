@@ -24,7 +24,6 @@ import org.parallax3d.core.Log;
 
 public final class WebGLExtensions {
 
-
     public static enum Id {
 		OES_texture_float,
 		OES_texture_float_linear,
@@ -37,15 +36,18 @@ public final class WebGLExtensions {
 		EXT_frag_depth
 	};
 
-	private static String allExtensions = null;
+	private final String allExtensions;
 
-	public static boolean get(GL20 gl, Id id) {
+	private GL20 gl;
 
-        if (allExtensions == null)
-		{
-			allExtensions = gl.glGetString(GL20.GL_EXTENSIONS);
-			Log.debug("OpenGL ES Extensions: " + allExtensions);
-		}
+	public WebGLExtensions(GL20 gl)
+	{
+		this.gl = gl;
+		allExtensions = gl.glGetString(GL20.GL_EXTENSIONS);
+		Log.debug("OpenGL Extensions: " + allExtensions);
+	}
+
+	public boolean get(Id id) {
 
         boolean result = allExtensions.contains(id.toString());
 
