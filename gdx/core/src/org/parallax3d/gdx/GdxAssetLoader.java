@@ -18,31 +18,28 @@
 
 package org.parallax3d.gdx;
 
-import android.content.res.AssetManager;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 public class GdxAssetLoader extends GdxLoader
 {
-
-	protected AssetManager assets;
 
 	/**
 	 * @param dirName Use a trailing / if this is a directory, otherwise
 	 *                the directory containing the named file is used.
 	 */
-	public GdxAssetLoader(AssetManager assets, String dirName)
+	public GdxAssetLoader(String dirName)
 	{
 		super(dirName);
-		this.assets = assets;
 	}
 
 	@Override
-	public InputStream openInputStream(String filename) throws IOException
+	public FileHandle openFileHandle(String filename) throws IOException
 	{
 		if (filename.charAt(0) != '/')
 			filename = getPathname(filename);
-		return assets.open(filename);
+		return Gdx.files.internal(filename);
 	}
 }

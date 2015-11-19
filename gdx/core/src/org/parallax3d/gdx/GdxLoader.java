@@ -18,10 +18,10 @@
 
 package org.parallax3d.gdx;
 
-import org.parallax3d.core.Log;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Pixmap;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.parallax3d.renderer.Image;
 import org.parallax3d.loader.AssetLoader;
@@ -38,90 +38,22 @@ public abstract class GdxLoader extends AssetLoader implements ImageLoader
 		super(dirName);
 	}
 
-	public abstract InputStream openInputStream(String filename) throws IOException;
+	public abstract FileHandle openFileHandle(String filename) throws IOException;
 
 	@Override
 	public Image loadImage(String leafname) throws IOException
 	{
-		return loadImage(leafname, true);
-	}
-
-	public Image loadImage(String leafname, boolean flipY) throws IOException
-	{
-		InputStream strm = null;
-		Bitmap bmp = null;
-
-		try
-		{
-			strm = openInputStream(leafname);
-			bmp = BitmapFactory.decodeStream(strm);
-		}
-		finally
-		{
-			if (strm != null)
-				strm.close();
-		}
-
-		if (null == bmp) {
-			throw new RuntimeException("Unable to create bitmap from asset '" +
-					leafname + "'");
-		}
-		if (null == bmp.getConfig()) {
-			Log.debug("Bitmap has unsupported format, converting");
-			Bitmap orig = bmp;
-			bmp = bmp.copy(Bitmap.Config.RGB_565, true);
-			orig.recycle();
-		}
-
-		if (flipY)
-		{
-			Log.debug("Flipping Bitmap vertically");
-			if (flipYMatrix == null)
-			{
-				flipYMatrix = new Matrix();
-				flipYMatrix.setScale(1, -1);
-			}
-			bmp = Bitmap.createBitmap(bmp, 0, 0,
-					bmp.getWidth(), bmp.getHeight(), flipYMatrix, false);
-		}
-
-		return new GdxImage(bmp);
+		return new GdxImage(new Pixmap(openFileHandle(getPathname(leafname))));
 	}
 
 	@Override
 	public byte[] loadData(String leafname) throws IOException
 	{
-		InputStream strm = null;
-
-		byte[] buf = null;
-
-		try
-		{
-			strm = openInputStream(leafname);
-			buf = loadData(strm);
-		}
-		finally
-		{
-			if (strm != null)
-				strm.close();
-		}
-
-		return buf;
+		return openFileHandle(getPathname(leafname)).readBytes();
 	}
 
 	public String loadText(String leafname) throws IOException
 	{
-		InputStream strm = null;
-
-		try
-		{
-			strm = openInputStream(leafname);
-		} finally
-		{
-			if (strm != null)
-				strm.close();
-		}
-
-		return loadText(strm);
+		return openFileHandle(getPathname(leafname)).readString();
 	}
 }
