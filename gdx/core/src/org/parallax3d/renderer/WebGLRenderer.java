@@ -22,6 +22,8 @@ package org.parallax3d.renderer;
 import com.badlogic.gdx.graphics.GL20;
 import org.parallax3d.core.Log;
 
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -91,6 +93,7 @@ import org.parallax3d.scenes.Scene;
  */
 public class WebGLRenderer extends AbstractRenderer
 {
+	private GL20 gl;
 
 	private WebGlRendererInfo info;
 					
@@ -230,7 +233,7 @@ public class WebGLRenderer extends AbstractRenderer
 	private boolean isAutoUpdateObjects = true;
 	private boolean isAutoUpdateScene = true;
 
-    private int[] tmpGLResult = { 0 };
+    private IntBuffer tmpGLResult = ByteBuffer.allocateDirect(4).asIntBuffer();
 
 	/**
 	 * The constructor will create renderer for the current EGL context.
@@ -238,21 +241,27 @@ public class WebGLRenderer extends AbstractRenderer
 	 * @param width  the viewport width
 	 * @param height the viewport height
 	 */
-	public WebGLRenderer(int width, int height)
+	public WebGLRenderer(GL20 gl, int width, int height)
 	{
+		this.gl = gl;
+
 		this.setInfo(new WebGlRendererInfo());
 		
 		this._lights           = new RendererLights();
 		this._programs         = new HashMap<String, Shader>();
 
-        gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_IMAGE_UNITS, tmpGLResult, 0);
-		this._maxTextures       = tmpGLResult[0];
-        gl.glGetIntegerv(GL20.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, tmpGLResult, 0);
-		this._maxVertexTextures = tmpGLResult[0];
-        gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_SIZE, tmpGLResult, 0);
-		this._maxTextureSize    = tmpGLResult[0];
-        gl.glGetIntegerv(GL20.GL_MAX_CUBE_MAP_TEXTURE_SIZE, tmpGLResult, 0);
-		this._maxCubemapSize    = tmpGLResult[0];
+		tmpGLResult.reset();
+        gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_IMAGE_UNITS, tmpGLResult);
+		this._maxTextures       = tmpGLResult.get(0);
+		tmpGLResult.reset();
+        gl.glGetIntegerv(GL20.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, tmpGLResult);
+		this._maxVertexTextures = tmpGLResult.get(0);
+		tmpGLResult.reset();
+        gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_SIZE, tmpGLResult);
+		this._maxTextureSize    = tmpGLResult.get(0);
+		tmpGLResult.reset();
+        gl.glGetIntegerv(GL20.GL_MAX_CUBE_MAP_TEXTURE_SIZE, tmpGLResult);
+		this._maxCubemapSize    = tmpGLResult.get(0);
 
 		this._supportsVertexTextures = ( this._maxVertexTextures > 0 ); 
 		this._supportsBoneTextures = this._supportsVertexTextures &&
@@ -367,9 +376,10 @@ public class WebGLRenderer extends AbstractRenderer
 	public int getMaxAnisotropy() 
 	{
 		if (WebGLExtensions.get( WebGLExtensions.Id.EXT_texture_filter_anisotropic )) {
+			tmpGLResult.reset();
             gl.glGetIntegerv(GL20Ext.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT,
-                    tmpGLResult, 0);
-            return tmpGLResult[0];
+                    tmpGLResult);
+            return tmpGLResult.get(0);
         } else {
             return 0;
         }
@@ -1595,7 +1605,7 @@ public class WebGLRenderer extends AbstractRenderer
 
 		if ( geometry instanceof BufferGeometry ) {
 
-			((BufferGeometry)geometry).setDirectBuffers();
+			((BufferGeometry)geometry).setDirectBuffers(gl);
 
 		} else if ( object instanceof Mesh ) {
 
@@ -2171,11 +2181,7 @@ public class WebGLRenderer extends AbstractRenderer
                             GL20.GL_FLOAT, false, 0, 0);
 
 				} else {
-
-					float defaultAttributeValues[] = new float[] {1,1,1};
-					
-					gl.glVertexAttrib3fv(attributes.get("color"), defaultAttributeValues, 0);
-
+					gl.glVertexAttrib3f(attributes.get("color"), 1, 1, 1);
 				}
 			}
 
@@ -2205,9 +2211,7 @@ public class WebGLRenderer extends AbstractRenderer
 					gl.glVertexAttribPointer(attributes.get("uv"), 2, GL20.GL_FLOAT, false, 0, 0);
 
 				} else {
-					
-					float defaultAttributeValues[] = new float[] {0,0};
-					gl.glVertexAttrib2fv(attributes.get("uv"), defaultAttributeValues, 0);
+					gl.glVertexAttrib2f(attributes.get("uv"), 0, 0);
 				}
 			}
 
@@ -2220,10 +2224,7 @@ public class WebGLRenderer extends AbstractRenderer
 					gl.glVertexAttribPointer(attributes.get("uv2"), 2, GL20.GL_FLOAT, false, 0, 0);
 
 				} else {
-					
-					float defaultAttributeValues[] = new float[] {0,0};
-					
-					gl.glVertexAttrib2fv(attributes.get("uv2"), defaultAttributeValues, 0);
+					gl.glVertexAttrib2f(attributes.get("uv2"), 0, 0);
 				}
 			}
 
@@ -2952,9 +2953,7 @@ public class WebGLRenderer extends AbstractRenderer
 		{
 			if ( texture.getWebGlTexture() == 0 )
 			{
-				gl.glGenTextures(1, tmpGLResult, 0);
-				texture.setWebGlTexture( tmpGLResult[0] );
-
+				texture.setWebGlTexture(gl.glGenTexture());
 				this.getInfo().getMemory().textures ++;
 			}
 			
@@ -3063,8 +3062,7 @@ public class WebGLRenderer extends AbstractRenderer
 		{
 			if ( texture.getWebGlTexture() == 0 )
 			{
-				gl.glGenTextures(1, tmpGLResult, 0);
-				texture.setWebGlTexture(tmpGLResult[0]);
+				texture.setWebGlTexture(gl.glGenTexture());
 				this.getInfo().getMemory().textures += 6;
 			}
 
@@ -3200,8 +3198,9 @@ public class WebGLRenderer extends AbstractRenderer
 			//  - limit here is ANGLE's 254 max uniform vectors
 			//    (up to 54 should be safe)
 
-            gl.glGetIntegerv( GL20.GL_MAX_VERTEX_UNIFORM_VECTORS, tmpGLResult, 0 );
-			int nVertexUniforms = tmpGLResult[0];
+			tmpGLResult.reset();
+            gl.glGetIntegerv( GL20.GL_MAX_VERTEX_UNIFORM_VECTORS, tmpGLResult );
+			int nVertexUniforms = tmpGLResult.get(0);
 			int nVertexMatrices = (int) Math.floor( ( nVertexUniforms - 20 ) / 4 );
 
 			int maxBones = nVertexMatrices;
