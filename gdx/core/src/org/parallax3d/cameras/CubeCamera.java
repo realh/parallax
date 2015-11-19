@@ -18,7 +18,7 @@
 
 package org.parallax3d.cameras;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 
 import org.parallax3d.renderer.WebGLRenderer;
 import org.parallax3d.textures.RenderTargetCubeTexture;
@@ -90,9 +90,9 @@ public final class CubeCamera extends Object3D
 		this.add( cameraNZ );
 
 		this.renderTarget = new RenderTargetCubeTexture( cubeResolution, cubeResolution );
-		this.renderTarget.setFormat(GLES20.GL_RGB);
-		this.renderTarget.setMagFilter(GLES20.GL_LINEAR);
-		this.renderTarget.setMinFilter(GLES20.GL_LINEAR);
+		this.renderTarget.setFormat(GL20.GL_RGB);
+		this.renderTarget.setMagFilter(GL20.GL_LINEAR);
+		this.renderTarget.setMinFilter(GL20.GL_LINEAR);
 	}
 	
 	/**

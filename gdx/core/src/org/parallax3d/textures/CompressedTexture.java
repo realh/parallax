@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.parallax3d.renderer.DummyImage;
-import org.parallax3d.renderer.GLES20Ext;
+import org.parallax3d.renderer.GL20Ext;
 import org.parallax3d.renderer.Uint8Array;
 
 public class CompressedTexture extends Texture
@@ -150,17 +150,17 @@ public class CompressedTexture extends Texture
 		if ( fourCC == FOURCC_DXT1)
 		{
 			blockBytes = 8;
-			this.compressedFormat = GLES20Ext.GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+			this.compressedFormat = GL20Ext.GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
 		}
 		else if(fourCC == FOURCC_DXT3)
 		{
 			blockBytes = 16;
-			this.compressedFormat = GLES20Ext.GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+			this.compressedFormat = GL20Ext.GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
 		}
 		else if(fourCC == FOURCC_DXT5)
 		{
 			blockBytes = 16;
-			this.compressedFormat = GLES20Ext.GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			this.compressedFormat = GL20Ext.GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 		}
 		else
 		{

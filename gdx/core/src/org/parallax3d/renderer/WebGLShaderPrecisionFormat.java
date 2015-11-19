@@ -19,14 +19,14 @@
 
 package org.parallax3d.renderer;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 
 public final class WebGLShaderPrecisionFormat {
 
 	private int[] precision = new int[3];
 
 	public WebGLShaderPrecisionFormat(int shaderType, int precisionType) {
-		GLES20.glGetShaderPrecisionFormat(shaderType, precisionType,
+		GL20.glGetShaderPrecisionFormat(shaderType, precisionType,
 				precision, 0, precision, 2);
 	}
 	

@@ -18,7 +18,7 @@
 
 package org.parallax3d.plugins.postprocessing;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 import org.parallax3d.core.Log;
 
 import java.util.ArrayList;
@@ -58,9 +58,9 @@ public class Postprocessing extends Plugin
 	{
 		this(renderer, scene, new RenderTargetTexture( renderer.getAbsoluteWidth(), renderer.getAbsoluteHeight() ));
 
-		this.renderTarget1.setMinFilter(GLES20.GL_LINEAR);
-		this.renderTarget1.setMagFilter(GLES20.GL_LINEAR);
-		this.renderTarget1.setFormat(GLES20.GL_RGB);
+		this.renderTarget1.setMinFilter(GL20.GL_LINEAR);
+		this.renderTarget1.setMagFilter(GL20.GL_LINEAR);
+		this.renderTarget1.setFormat(GL20.GL_RGB);
 		this.renderTarget1.setStencilBuffer(true);
 		
 		this.renderTarget2 = this.renderTarget1.clone();
@@ -164,11 +164,11 @@ public class Postprocessing extends Plugin
 			{
 				if ( maskActive ) 
 				{
-					GLES20.glStencilFunc(GLES20.GL_NOTEQUAL, 1, 0xffffffff);
+					GL20.glStencilFunc(GL20.GL_NOTEQUAL, 1, 0xffffffff);
 
 					this.copyPass.render( this, delta, true );
 
-					GLES20.glStencilFunc( GLES20.GL_EQUAL, 1, 0xffffffff );
+					GL20.glStencilFunc( GL20.GL_EQUAL, 1, 0xffffffff );
 				}
 
 				this.swapBuffers();
@@ -186,9 +186,9 @@ public class Postprocessing extends Plugin
 		{
 			this.renderTarget1 = new RenderTargetTexture(getRenderer().getAbsoluteWidth(), getRenderer().getAbsoluteHeight());
 			
-			this.renderTarget1.setMinFilter(GLES20.GL_LINEAR);
-			this.renderTarget1.setMagFilter(GLES20.GL_LINEAR);
-			this.renderTarget1.setFormat(GLES20.GL_RGB);
+			this.renderTarget1.setMinFilter(GL20.GL_LINEAR);
+			this.renderTarget1.setMagFilter(GL20.GL_LINEAR);
+			this.renderTarget1.setFormat(GL20.GL_RGB);
 			this.renderTarget1.setStencilBuffer(true);
 		}
 

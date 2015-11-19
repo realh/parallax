@@ -19,7 +19,7 @@
 
 package org.parallax3d.renderer;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 import org.parallax3d.core.Log;
 
 public final class WebGLExtensions {
@@ -43,7 +43,7 @@ public final class WebGLExtensions {
 
         if (allExtensions == null)
 		{
-			allExtensions = GLES20.glGetString(GLES20.GL_EXTENSIONS);
+			allExtensions = GL20.glGetString(GL20.GL_EXTENSIONS);
 			Log.debug("OpenGL ES Extensions: " + allExtensions);
 		}
 

@@ -18,7 +18,7 @@
 
 package org.parallax3d.plugins.postprocessing;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 
 import org.parallax3d.shaders.Shader;
 import org.parallax3d.textures.RenderTargetTexture;
@@ -57,14 +57,14 @@ public class BloomPass extends Pass
 
 		// render targets
 		this.renderTargetX = new RenderTargetTexture( resolution, resolution );
-		this.renderTargetX.setMinFilter(GLES20.GL_LINEAR);
-		this.renderTargetX.setMagFilter(GLES20.GL_LINEAR);
-		this.renderTargetX.setFormat(GLES20.GL_RGB);
+		this.renderTargetX.setMinFilter(GL20.GL_LINEAR);
+		this.renderTargetX.setMagFilter(GL20.GL_LINEAR);
+		this.renderTargetX.setFormat(GL20.GL_RGB);
 		
 		this.renderTargetY = new RenderTargetTexture( resolution, resolution );
-		this.renderTargetY.setMinFilter(GLES20.GL_LINEAR);
-		this.renderTargetY.setMagFilter(GLES20.GL_LINEAR);
-		this.renderTargetY.setFormat(GLES20.GL_RGB);
+		this.renderTargetY.setMinFilter(GL20.GL_LINEAR);
+		this.renderTargetY.setMagFilter(GL20.GL_LINEAR);
+		this.renderTargetY.setFormat(GL20.GL_RGB);
 
 		// screen material
 
@@ -89,7 +89,7 @@ public class BloomPass extends Pass
 	public void render(Postprocessing postprocessing, double delta, boolean maskActive)
 	{
 		if ( maskActive ) 
-			GLES20.glDisable(GLES20.GL_STENCIL_TEST);
+			GL20.glDisable(GL20.GL_STENCIL_TEST);
 
 		// Render quad with blured scene into texture (convolution pass 1)
 		postprocessing.getQuad().setMaterial(this.materialConvolution);
@@ -114,7 +114,7 @@ public class BloomPass extends Pass
 		this.materialScreen.getShader().getUniforms().get("tDiffuse").setValue(this.renderTargetY);
 
 		if ( maskActive ) 
-			GLES20.glEnable( GLES20.GL_STENCIL_TEST );
+			GL20.glEnable( GL20.GL_STENCIL_TEST );
 
 		postprocessing.getRenderer().render( 
 				postprocessing.getScene(), postprocessing.getCamera(), postprocessing.getReadBuffer(), this.clear );

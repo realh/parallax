@@ -19,7 +19,7 @@
 
 package org.parallax3d.renderer;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 import org.parallax3d.core.Log;
 
 import java.util.ArrayList;
@@ -125,7 +125,7 @@ public class WebGLRenderer extends AbstractRenderer
 
 //	private boolean shadowMapEnabled = false;
 //	shadowMapType = PCFShadowMap;
-	private int shadowMapCullFace = GLES20.GL_FRONT;
+	private int shadowMapCullFace = GL20.GL_FRONT;
 	private boolean shadowMapDebug = false;
 	private boolean shadowMapCascade = false;
 	
@@ -245,13 +245,13 @@ public class WebGLRenderer extends AbstractRenderer
 		this._lights           = new RendererLights();
 		this._programs         = new HashMap<String, Shader>();
 
-        GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_IMAGE_UNITS, tmpGLResult, 0);
+        GL20.glGetIntegerv(GL20.GL_MAX_TEXTURE_IMAGE_UNITS, tmpGLResult, 0);
 		this._maxTextures       = tmpGLResult[0];
-        GLES20.glGetIntegerv(GLES20.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, tmpGLResult, 0);
+        GL20.glGetIntegerv(GL20.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, tmpGLResult, 0);
 		this._maxVertexTextures = tmpGLResult[0];
-        GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_SIZE, tmpGLResult, 0);
+        GL20.glGetIntegerv(GL20.GL_MAX_TEXTURE_SIZE, tmpGLResult, 0);
 		this._maxTextureSize    = tmpGLResult[0];
-        GLES20.glGetIntegerv(GLES20.GL_MAX_CUBE_MAP_TEXTURE_SIZE, tmpGLResult, 0);
+        GL20.glGetIntegerv(GL20.GL_MAX_CUBE_MAP_TEXTURE_SIZE, tmpGLResult, 0);
 		this._maxCubemapSize    = tmpGLResult[0];
 
 		this._supportsVertexTextures = ( this._maxVertexTextures > 0 ); 
@@ -259,18 +259,18 @@ public class WebGLRenderer extends AbstractRenderer
                 WebGLExtensions.get(WebGLExtensions.Id.OES_texture_float);
 		
 		this._vertexShaderPrecisionHighpFloat = new
-                WebGLShaderPrecisionFormat(GLES20.GL_VERTEX_SHADER, GLES20.GL_HIGH_FLOAT);
+                WebGLShaderPrecisionFormat(GL20.GL_VERTEX_SHADER, GL20.GL_HIGH_FLOAT);
 		this._vertexShaderPrecisionMediumpFloat = new
-                WebGLShaderPrecisionFormat(GLES20.GL_VERTEX_SHADER, GLES20.GL_MEDIUM_FLOAT);
+                WebGLShaderPrecisionFormat(GL20.GL_VERTEX_SHADER, GL20.GL_MEDIUM_FLOAT);
 		this._vertexShaderPrecisionLowpFloat = new
-                WebGLShaderPrecisionFormat(GLES20.GL_VERTEX_SHADER, GLES20.GL_LOW_FLOAT);
+                WebGLShaderPrecisionFormat(GL20.GL_VERTEX_SHADER, GL20.GL_LOW_FLOAT);
 
 		this._fragmentShaderPrecisionHighpFloat = new
-                WebGLShaderPrecisionFormat(GLES20.GL_FRAGMENT_SHADER, GLES20.GL_HIGH_FLOAT);
+                WebGLShaderPrecisionFormat(GL20.GL_FRAGMENT_SHADER, GL20.GL_HIGH_FLOAT);
 		this._fragmentShaderPrecisionMediumpFloat =
-                new WebGLShaderPrecisionFormat(GLES20.GL_FRAGMENT_SHADER, GLES20.GL_MEDIUM_FLOAT);
+                new WebGLShaderPrecisionFormat(GL20.GL_FRAGMENT_SHADER, GL20.GL_MEDIUM_FLOAT);
 		this._fragmentShaderPrecisionLowpFloat = new
-                WebGLShaderPrecisionFormat(GLES20.GL_FRAGMENT_SHADER, GLES20.GL_LOW_FLOAT);
+                WebGLShaderPrecisionFormat(GL20.GL_FRAGMENT_SHADER, GL20.GL_LOW_FLOAT);
 		
 		this.highpAvailable = _vertexShaderPrecisionHighpFloat.getPrecision() > 0 &&
                 _fragmentShaderPrecisionHighpFloat.getPrecision() > 0;
@@ -367,7 +367,7 @@ public class WebGLRenderer extends AbstractRenderer
 	public int getMaxAnisotropy() 
 	{
 		if (WebGLExtensions.get( WebGLExtensions.Id.EXT_texture_filter_anisotropic )) {
-            GLES20.glGetIntegerv(GLES20Ext.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT,
+            GL20.glGetIntegerv(GL20Ext.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT,
                     tmpGLResult, 0);
             return tmpGLResult[0];
         } else {
@@ -513,23 +513,23 @@ public class WebGLRenderer extends AbstractRenderer
 
 	private void setDefaultGLState()
 	{
-		GLES20.glClearColor(0, 0, 0, 1);
-		GLES20.glClearDepthf(1);
-		GLES20.glClearStencil(0);
+		GL20.glClearColor(0, 0, 0, 1);
+		GL20.glClearDepthf(1);
+		GL20.glClearStencil(0);
 
-		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-		GLES20.glDepthFunc(GLES20.GL_LEQUAL);
+		GL20.glEnable(GL20.GL_DEPTH_TEST);
+		GL20.glDepthFunc(GL20.GL_LEQUAL);
 
-		GLES20.glFrontFace(GLES20.GL_CCW);
-		GLES20.glCullFace(GLES20.GL_BACK);
-		GLES20.glEnable(GLES20.GL_CULL_FACE);
+		GL20.glFrontFace(GL20.GL_CCW);
+		GL20.glCullFace(GL20.GL_BACK);
+		GL20.glEnable(GL20.GL_CULL_FACE);
 
-		GLES20.glEnable(GLES20.GL_BLEND);
-		GLES20.glBlendEquation(GLES20.GL_FUNC_ADD);
-		GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+		GL20.glEnable(GL20.GL_BLEND);
+		GL20.glBlendEquation(GL20.GL_FUNC_ADD);
+		GL20.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		
-		GLES20.glViewport(_viewportX, _viewportY, _viewportWidth, _viewportHeight);
-		GLES20.glClearColor((float) clearColor.getR(), (float) clearColor.getG(),
+		GL20.glViewport(_viewportX, _viewportY, _viewportWidth, _viewportHeight);
+		GL20.glClearColor((float) clearColor.getR(), (float) clearColor.getG(),
 				(float) clearColor.getB(), (float) clearAlpha);
 	}
 
@@ -560,7 +560,7 @@ public class WebGLRenderer extends AbstractRenderer
 		this._viewportWidth = width;
 		this._viewportHeight = height;
 
-		GLES20.glViewport(this._viewportX, this._viewportY,
+		GL20.glViewport(this._viewportX, this._viewportY,
 				this._viewportWidth, this._viewportHeight);
 
 		fireViewportResizeEvent(width, height);
@@ -571,7 +571,7 @@ public class WebGLRenderer extends AbstractRenderer
 	 */
 	public void setScissor(int x, int y, int width, int height)
 	{
-		GLES20.glScissor(x, y, width, height);
+		GL20.glScissor(x, y, width, height);
 	}
 
 	/**
@@ -582,9 +582,9 @@ public class WebGLRenderer extends AbstractRenderer
 	public void enableScissorTest(boolean enable)
 	{
 		if (enable)
-			GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
+			GL20.glEnable(GL20.GL_SCISSOR_TEST);
 		else
-			GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
+			GL20.glDisable(GL20.GL_SCISSOR_TEST);
 	}
 
 	@Override
@@ -593,7 +593,7 @@ public class WebGLRenderer extends AbstractRenderer
 		this.clearColor.copy(color);
 		this.clearAlpha = alpha;
 
-		GLES20.glClearColor((float) this.clearColor.getR(), (float) this.clearColor.getG(),
+		GL20.glClearColor((float) this.clearColor.getR(), (float) this.clearColor.getG(),
 				(float) this.clearColor.getB(), (float) this.clearAlpha);
 	}
 
@@ -615,26 +615,26 @@ public class WebGLRenderer extends AbstractRenderer
 	{
 		int bits = 0;
 
-		if ( color ) bits |= GLES20.GL_COLOR_BUFFER_BIT;
-		if ( depth ) bits |= GLES20.GL_DEPTH_BUFFER_BIT;
-		if ( stencil ) bits |= GLES20.GL_STENCIL_BUFFER_BIT;
+		if ( color ) bits |= GL20.GL_COLOR_BUFFER_BIT;
+		if ( depth ) bits |= GL20.GL_DEPTH_BUFFER_BIT;
+		if ( stencil ) bits |= GL20.GL_STENCIL_BUFFER_BIT;
 
-		GLES20.glClear(bits);
+		GL20.glClear(bits);
 	}
 	
 	public void clearColor() 
 	{
-		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+		GL20.glClear(GL20.GL_COLOR_BUFFER_BIT);
 	}
 
 	public void clearDepth() 
 	{
-		GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
+		GL20.glClear(GL20.GL_DEPTH_BUFFER_BIT);
 	}
 
 	public void clearStencil() 
 	{
-		GLES20.glClear(GLES20.GL_STENCIL_BUFFER_BIT);
+		GL20.glClear(GL20.GL_STENCIL_BUFFER_BIT);
 	}
 
 	/**
@@ -679,7 +679,7 @@ public class WebGLRenderer extends AbstractRenderer
 
 		if ( _enabledAttributes.get( attribute ) == 0 ) {
 
-			GLES20.glEnableVertexAttribArray(attribute);
+			GL20.glEnableVertexAttribArray(attribute);
 			_enabledAttributes.set( attribute, 1);
 
 		}
@@ -692,7 +692,7 @@ public class WebGLRenderer extends AbstractRenderer
 
 			if ( _enabledAttributes.get( i ) != _newAttributes.get( i ) ) {
 
-				GLES20.glDisableVertexAttribArray(i);
+				GL20.glDisableVertexAttribArray(i);
 				_enabledAttributes.set( i, 0);
 
 			}
@@ -715,19 +715,19 @@ public class WebGLRenderer extends AbstractRenderer
 
 		if ( object.morphTargetBase != - 1 && attributes.get("position") >= 0) 
 		{
-			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER,
+			GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER,
                     geometrybuffer.__webglMorphTargetsBuffers.get(object.morphTargetBase));
 			enableAttribute( attributes.get("position") );
-			GLES20.glVertexAttribPointer(attributes.get("position"), 3,
-                    GLES20.GL_FLOAT, false, 0, 0);
+			GL20.glVertexAttribPointer(attributes.get("position"), 3,
+                    GL20.GL_FLOAT, false, 0, 0);
 
 		} 
 		else if ( attributes.get("position") >= 0 ) 
 		{
-			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometrybuffer.__webglVertexBuffer);
+			GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometrybuffer.__webglVertexBuffer);
 			enableAttribute( attributes.get("position") );
-			GLES20.glVertexAttribPointer(attributes.get("position"), 3,
-                    GLES20.GL_FLOAT, false, 0, 0);
+			GL20.glVertexAttribPointer(attributes.get("position"), 3,
+                    GL20.GL_FLOAT, false, 0, 0);
 		}
 
 		if ( object.morphTargetForcedOrder.size() > 0 ) 
@@ -744,22 +744,22 @@ public class WebGLRenderer extends AbstractRenderer
 			) {
 				if ( attributes.get("morphTarget" + m )  >= 0 ) 
 				{
-					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER,
+					GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER,
                             geometrybuffer.__webglMorphTargetsBuffers.get(order.get(m)));
 					enableAttribute( attributes.get("morphTarget" + m ) );
-					GLES20.glVertexAttribPointer(attributes.get("morphTarget" + m), 3,
-                            GLES20.GL_FLOAT, false, 0, 0);
+					GL20.glVertexAttribPointer(attributes.get("morphTarget" + m), 3,
+                            GL20.GL_FLOAT, false, 0, 0);
 					
 				}
 
 				if (  attributes.get("morphNormal" + m )  >= 0 &&
                         material instanceof HasSkinning && ((HasSkinning)material).isMorphNormals())
 				{
-					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER,
+					GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER,
                             geometrybuffer.__webglMorphNormalsBuffers.get(order.get(m)));
 					enableAttribute( attributes.get("morphNormal" + m ));
-					GLES20.glVertexAttribPointer(attributes.get("morphNormal" + m), 3,
-                            GLES20.GL_FLOAT, false, 0, 0);
+					GL20.glVertexAttribPointer(attributes.get("morphNormal" + m), 3,
+                            GL20.GL_FLOAT, false, 0, 0);
 				}
 
 				object.__webglMorphTargetInfluences.set( m , influences.get( order.get( m ) ));
@@ -823,22 +823,22 @@ public class WebGLRenderer extends AbstractRenderer
 
 					if ( attributes.get( "morphTarget" + m ) >= 0 ) {
 
-						GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER,
+						GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER,
                                 geometrybuffer.__webglMorphTargetsBuffers.get(influenceIndex));
 						enableAttribute( attributes.get( "morphTarget" + m ) );
-						GLES20.glVertexAttribPointer(attributes.get("morphTarget" + m), 3,
-                                GLES20.GL_FLOAT, false, 0, 0);
+						GL20.glVertexAttribPointer(attributes.get("morphTarget" + m), 3,
+                                GL20.GL_FLOAT, false, 0, 0);
 
 					}
 
 					if ( attributes.get( "morphNormal" + m ) >= 0 &&
                             ((HasSkinning)material).isMorphNormals() ) {
 
-						GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER,
+						GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER,
                                 geometrybuffer.__webglMorphNormalsBuffers.get(influenceIndex));
 						enableAttribute( attributes.get( "morphNormal" + m ) );
-						GLES20.glVertexAttribPointer(attributes.get("morphNormal" + m), 3,
-                                GLES20.GL_FLOAT, false, 0, 0);
+						GL20.glVertexAttribPointer(attributes.get("morphNormal" + m), 3,
+                                GL20.GL_FLOAT, false, 0, 0);
 
 					}
 
@@ -870,7 +870,7 @@ public class WebGLRenderer extends AbstractRenderer
 		if( uniforms.get("morphTargetInfluences").getLocation() != -1 )
 		{
 			Float32Array vals = object.__webglMorphTargetInfluences;
-            GLES20.glUniform1fv( uniforms.get("morphTargetInfluences").getLocation(),
+            GL20.glUniform1fv( uniforms.get("morphTargetInfluences").getLocation(),
                     vals.getLength(), vals.getFloatBuffer() );
 		}
 	}
@@ -879,24 +879,24 @@ public class WebGLRenderer extends AbstractRenderer
 
 		initAttributes();
 //
-//		if ( object.hasPositions && ! object.__webglVertexBuffer ) object.__webglVertexBuffer = GLES20.glCreateBuffer();
-//		if ( object.hasNormals && ! object.__webglNormalBuffer ) object.__webglNormalBuffer = GLES20.glCreateBuffer();
-//		if ( object.hasUvs && ! object.__webglUvBuffer ) object.__webglUvBuffer = GLES20.glCreateBuffer();
-//		if ( object.hasColors && ! object.__webglColorBuffer ) object.__webglColorBuffer = GLES20.glCreateBuffer();
+//		if ( object.hasPositions && ! object.__webglVertexBuffer ) object.__webglVertexBuffer = GL20.glCreateBuffer();
+//		if ( object.hasNormals && ! object.__webglNormalBuffer ) object.__webglNormalBuffer = GL20.glCreateBuffer();
+//		if ( object.hasUvs && ! object.__webglUvBuffer ) object.__webglUvBuffer = GL20.glCreateBuffer();
+//		if ( object.hasColors && ! object.__webglColorBuffer ) object.__webglColorBuffer = GL20.glCreateBuffer();
 //
 //		if ( object.hasPositions )
 //		{
 //
-//			GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, object.__webglVertexBuffer );
-//			GLES20.glBufferData( GLES20.GL_ARRAY_BUFFER, object.positionArray, GLES20.GL_DYNAMIC_DRAW );
+//			GL20.glBindBuffer( GL20.GL_ARRAY_BUFFER, object.__webglVertexBuffer );
+//			GL20.glBufferData( GL20.GL_ARRAY_BUFFER, object.positionArray, GL20.GL_DYNAMIC_DRAW );
 //			enableAttribute( program.attributes.position );
-//			GLES20.glVertexAttribPointer( program.attributes.position, 3, getGL().FLOAT, false, 0, 0 );
+//			GL20.glVertexAttribPointer( program.attributes.position, 3, getGL().FLOAT, false, 0, 0 );
 //
 //		}
 //
 //		if ( object.hasNormals ) {
 //
-//			GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, object.__webglNormalBuffer );
+//			GL20.glBindBuffer( GL20.GL_ARRAY_BUFFER, object.__webglNormalBuffer );
 //
 //			if (((HasShading)material).getShading() == Material.SHADING.FLAT ) {
 //
@@ -941,33 +941,33 @@ public class WebGLRenderer extends AbstractRenderer
 //
 //			}
 //
-//			GLES20.glBufferData( GLES20.GL_ARRAY_BUFFER, object.normalArray, GLES20.GL_DYNAMIC_DRAW );
+//			GL20.glBufferData( GL20.GL_ARRAY_BUFFER, object.normalArray, GL20.GL_DYNAMIC_DRAW );
 //			enableAttribute( program.attributes.normal );
-//			GLES20.glVertexAttribPointer( program.attributes.normal, 3, getGL().FLOAT, false, 0, 0 );
+//			GL20.glVertexAttribPointer( program.attributes.normal, 3, getGL().FLOAT, false, 0, 0 );
 //
 //		}
 //
 //		if ( object.hasUvs && material.map ) {
 //
-//			GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, object.__webglUvBuffer );
-//			GLES20.glBufferData( GLES20.GL_ARRAY_BUFFER, object.uvArray, GLES20.GL_DYNAMIC_DRAW );
+//			GL20.glBindBuffer( GL20.GL_ARRAY_BUFFER, object.__webglUvBuffer );
+//			GL20.glBufferData( GL20.GL_ARRAY_BUFFER, object.uvArray, GL20.GL_DYNAMIC_DRAW );
 //			enableAttribute( program.attributes.uv );
-//			GLES20.glVertexAttribPointer( program.attributes.uv, 2, GLES20.GL_FLOAT, false, 0, 0 );
+//			GL20.glVertexAttribPointer( program.attributes.uv, 2, GL20.GL_FLOAT, false, 0, 0 );
 //
 //		}
 //
 //		if ( object.hasColors && ((HasVertexColors)material).isVertexColors != Material.COLORS.NO ) {
 //
-//			GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, object.__webglColorBuffer );
-//			GLES20.glBufferData( GLES20.GL_ARRAY_BUFFER, object.colorArray, GLES20.GL_DYNAMIC_DRAW );
+//			GL20.glBindBuffer( GL20.GL_ARRAY_BUFFER, object.__webglColorBuffer );
+//			GL20.glBufferData( GL20.GL_ARRAY_BUFFER, object.colorArray, GL20.GL_DYNAMIC_DRAW );
 //			enableAttribute( program.attributes.color );
-//			GLES20.glVertexAttribPointer( program.attributes.color, 3, GLES20.GL_FLOAT, false, 0, 0 );
+//			GL20.glVertexAttribPointer( program.attributes.color, 3, GL20.GL_FLOAT, false, 0, 0 );
 //
 //		}
 //
 //		disableUnusedAttributes();
 //
-//		GLES20.glDrawArrays( GLES20.GL_TRIANGLES, 0, object.count );
+//		GL20.glDrawArrays( GL20.GL_TRIANGLES, 0, object.count );
 //
 //		object.count = 0;
 
@@ -991,11 +991,11 @@ public class WebGLRenderer extends AbstractRenderer
 
 					int size = geometryAttribute.getItemSize();
 
-					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometryAttribute.getBuffer());
+					GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryAttribute.getBuffer());
 
 					enableAttribute( programAttribute );
 
-					GLES20.glVertexAttribPointer(programAttribute, size, GLES20.GL_FLOAT,
+					GL20.glVertexAttribPointer(programAttribute, size, GL20.GL_FLOAT,
                             false, 0, startIndex * size * 4); // 4 bytes per Float32
 
 				}
@@ -1003,11 +1003,11 @@ public class WebGLRenderer extends AbstractRenderer
 //
 //					if ( material.defaultAttributeValues[ key ].length === 2 ) {
 //
-//						GLES20.glVertexAttrib2fv( programAttribute, material.defaultAttributeValues[ key ] );
+//						GL20.glVertexAttrib2fv( programAttribute, material.defaultAttributeValues[ key ] );
 //
 //					} else if ( material.defaultAttributeValues[ key ].length === 3 ) {
 //
-//						GLES20.glVertexAttrib3fv( programAttribute, material.defaultAttributeValues[ key ] );
+//						GL20.glVertexAttrib3fv( programAttribute, material.defaultAttributeValues[ key ] );
 //
 //					}
 //
@@ -1058,13 +1058,13 @@ public class WebGLRenderer extends AbstractRenderer
 		{
 			int mode = material instanceof HasWireframe &&
                     ((HasWireframe)material).isWireframe() ?
-                    GLES20.GL_LINES : GLES20.GL_TRIANGLES;
+                    GL20.GL_LINES : GL20.GL_TRIANGLES;
 			
 			BufferAttribute index = geometry.getAttribute("index");
 
 			if(index != null)
 			{
-				int type = GLES20.GL_UNSIGNED_SHORT;
+				int type = GL20.GL_UNSIGNED_SHORT;
 				int size = 2;
 
 				List<BufferGeometry.DrawCall> offsets = geometry.getDrawcalls();
@@ -1075,12 +1075,12 @@ public class WebGLRenderer extends AbstractRenderer
 
 						setupVertexAttributes( material, program, geometry, 0 );
 
-						GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER,
+						GL20.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER,
                                 index.getBuffer());
 
 					}
 
-					GLES20.glDrawElements(mode, index.getArray().getLength(), type, 0);
+					GL20.glDrawElements(mode, index.getArray().getLength(), type, 0);
 
 					this.info.getRender().calls ++;
 					this.info.getRender().vertices +=
@@ -1102,11 +1102,11 @@ public class WebGLRenderer extends AbstractRenderer
 						if ( updateBuffers ) {
 
 							setupVertexAttributes( material, program, geometry, startIndex );
-							GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, index.getBuffer());
+							GL20.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, index.getBuffer());
 
 						}
 
-						GLES20.glDrawElements(mode, offsets.get(i).count, type,
+						GL20.glDrawElements(mode, offsets.get(i).count, type,
                                 offsets.get(i).start * size);
 
 						getInfo().getRender().calls ++;
@@ -1133,7 +1133,7 @@ public class WebGLRenderer extends AbstractRenderer
 
 				// render non-indexed triangles
 
-				GLES20.glDrawArrays(mode, 0, position.getArray().getLength() / 3);
+				GL20.glDrawArrays(mode, 0, position.getArray().getLength() / 3);
 
 				this.info.getRender().calls ++;
 				this.info.getRender().vertices += position.getArray().getLength() / 3;
@@ -1156,7 +1156,7 @@ public class WebGLRenderer extends AbstractRenderer
 
 			// render particles
 
-			GLES20.glDrawArrays(GLES20.GL_POINTS, 0, position.getArray().getLength() / 3);
+			GL20.glDrawArrays(GL20.GL_POINTS, 0, position.getArray().getLength() / 3);
 
 			this.info.getRender().calls ++;
 			this.info.getRender().points += position.getArray().getLength() / 3;
@@ -1165,7 +1165,7 @@ public class WebGLRenderer extends AbstractRenderer
 		{
 
 			int mode = ( ((Line)object).getMode() == Line.MODE.STRIPS ) ?
-                    GLES20.GL_LINE_STRIP : GLES20.GL_LINES;
+                    GL20.GL_LINE_STRIP : GL20.GL_LINES;
 			object.setLineWidth(((LineBasicMaterial)material).getLinewidth());
 
 			BufferAttribute index = geometry.getAttribute("index");
@@ -1183,7 +1183,7 @@ public class WebGLRenderer extends AbstractRenderer
 //
 //				} else {
 
-					int type = GLES20.GL_UNSIGNED_SHORT;
+					int type = GL20.GL_UNSIGNED_SHORT;
 					int size = 2;
 
 //				}
@@ -1195,11 +1195,11 @@ public class WebGLRenderer extends AbstractRenderer
 					if ( updateBuffers ) {
 
 						setupVertexAttributes( material, program, geometry, 0 );
-						GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, index.getBuffer());
+						GL20.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, index.getBuffer());
 
 					}
 
-					GLES20.glDrawElements(mode, index.getArray().getLength(),
+					GL20.glDrawElements(mode, index.getArray().getLength(),
                             type, 0); // 2 bytes per Uint16Array
 
 					this.info.getRender().calls ++;
@@ -1221,13 +1221,13 @@ public class WebGLRenderer extends AbstractRenderer
 						if ( updateBuffers ) {
 
 							setupVertexAttributes( material, program, geometry, startIndex );
-							GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, index.getBuffer());
+							GL20.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, index.getBuffer());
 
 						}
 
 						// render indexed lines
 
-						GLES20.glDrawElements(mode, drawcalls.get(i).count, type,
+						GL20.glDrawElements(mode, drawcalls.get(i).count, type,
                                 drawcalls.get(i).start * size); // 2 bytes per Uint16Array
 
 						this.info.getRender().calls ++;
@@ -1250,7 +1250,7 @@ public class WebGLRenderer extends AbstractRenderer
 
 				BufferAttribute position = geometry.getAttribute("position");
 
-				GLES20.glDrawArrays(mode, 0, position.getArray().getLength() / 3);
+				GL20.glDrawArrays(mode, 0, position.getArray().getLength() / 3);
 
 				this.info.getRender().calls ++;
 				this.info.getRender().points += position.getArray().getLength() / 3;
@@ -1631,7 +1631,7 @@ public class WebGLRenderer extends AbstractRenderer
 					 geometry.isColorsNeedUpdate() || geometry.isTangentsNeedUpdate() ||
                         customAttributesDirty ) {
 
-					((Mesh)object).setBuffers( geometryGroup, GLES20.GL_DYNAMIC_DRAW,
+					((Mesh)object).setBuffers( geometryGroup, GL20.GL_DYNAMIC_DRAW,
                             ! ((Geometry)geometry).isDynamic(), material );
 
 				}
@@ -1660,7 +1660,7 @@ public class WebGLRenderer extends AbstractRenderer
 			if ( geometry.isVerticesNeedUpdate() || geometry.isColorsNeedUpdate() ||
                     geometry.isLineDistancesNeedUpdate() || customAttributesDirty ) {
 
-				((Line)object).setBuffers( GLES20.GL_DYNAMIC_DRAW );
+				((Line)object).setBuffers( GL20.GL_DYNAMIC_DRAW );
 
 			}
 
@@ -1683,7 +1683,7 @@ public class WebGLRenderer extends AbstractRenderer
 			if ( geometry.isVerticesNeedUpdate() || geometry.isColorsNeedUpdate() ||
                     ((PointCloud)object).isSortParticles() || customAttributesDirty ) {
 
-				((PointCloud)object).setBuffers( this, GLES20.GL_DYNAMIC_DRAW );
+				((PointCloud)object).setBuffers( this, GL20.GL_DYNAMIC_DRAW );
 
 			}
 
@@ -1873,8 +1873,8 @@ public class WebGLRenderer extends AbstractRenderer
 
 		// Generate mipmap if we're using any kind of mipmap filtering
 		if ( renderTarget != null && renderTarget.isGenerateMipmaps() 
-				&& renderTarget.getMinFilter() != GLES20.GL_NEAREST
-				&& renderTarget.getMinFilter() != GLES20.GL_LINEAR)
+				&& renderTarget.getMinFilter() != GL20.GL_NEAREST
+				&& renderTarget.getMinFilter() != GL20.GL_LINEAR)
 		{
 			renderTarget.updateRenderTargetMipmap();
 		}
@@ -1884,7 +1884,7 @@ public class WebGLRenderer extends AbstractRenderer
 		this.setDepthTest( true );
 		this.setDepthWrite( true );
 
-//		 GLES20.glFinish();
+//		 GL20.glFinish();
 	}
 	
 	public void renderObjectsImmediate ( List<WebGLObject> renderList,
@@ -2123,11 +2123,11 @@ public class WebGLRenderer extends AbstractRenderer
 		{
 			if ( updateBuffers ) 
 			{
-				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER,
+				GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER,
                         geometry.__webglVertexBuffer);
 				enableAttribute( attributes.get("position") );
-				GLES20.glVertexAttribPointer(attributes.get("position"), 3,
-                        GLES20.GL_FLOAT, false, 0, 0);
+				GL20.glVertexAttribPointer(attributes.get("position"), 3,
+                        GL20.GL_FLOAT, false, 0, 0);
 			}
 
 		} 
@@ -2151,10 +2151,10 @@ public class WebGLRenderer extends AbstractRenderer
 
 					if( attributes.get( attribute.belongsToAttribute ) >= 0 ) 
 					{
-						GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, attribute.buffer);
+						GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, attribute.buffer);
 						enableAttribute( attributes.get( attribute.belongsToAttribute ) );
-						GLES20.glVertexAttribPointer(attributes.get(attribute.belongsToAttribute),
-                                attribute.size, GLES20.GL_FLOAT, false, 0, 0);
+						GL20.glVertexAttribPointer(attributes.get(attribute.belongsToAttribute),
+                                attribute.size, GL20.GL_FLOAT, false, 0, 0);
 					}
 				}
 			}
@@ -2165,16 +2165,16 @@ public class WebGLRenderer extends AbstractRenderer
 				if ( ((Geometry)object.getGeometry()).getColors().size() > 0 ||
                         ((Geometry)object.getGeometry()).getFaces().size() > 0 ) {
 
-					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglColorBuffer);
+					GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometry.__webglColorBuffer);
 					enableAttribute( attributes.get("color") );
-					GLES20.glVertexAttribPointer(attributes.get("color"), 3,
-                            GLES20.GL_FLOAT, false, 0, 0);
+					GL20.glVertexAttribPointer(attributes.get("color"), 3,
+                            GL20.GL_FLOAT, false, 0, 0);
 
 				} else {
 
 					float defaultAttributeValues[] = new float[] {1,1,1};
 					
-					GLES20.glVertexAttrib3fv(attributes.get("color"), defaultAttributeValues, 0);
+					GL20.glVertexAttrib3fv(attributes.get("color"), defaultAttributeValues, 0);
 
 				}
 			}
@@ -2182,17 +2182,17 @@ public class WebGLRenderer extends AbstractRenderer
 			// normals
 			if ( attributes.get("normal") >= 0 )
 			{
-				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglNormalBuffer);
+				GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometry.__webglNormalBuffer);
 				enableAttribute( attributes.get("normal") );
-				GLES20.glVertexAttribPointer(attributes.get("normal"), 3, GLES20.GL_FLOAT, false, 0, 0);
+				GL20.glVertexAttribPointer(attributes.get("normal"), 3, GL20.GL_FLOAT, false, 0, 0);
 			}
 
 			// tangents
 			if ( attributes.get("tangent") >= 0 ) 
 			{
-				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglTangentBuffer);
+				GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometry.__webglTangentBuffer);
 				enableAttribute( attributes.get("tangent") );
-				GLES20.glVertexAttribPointer(attributes.get("tangent"), 4, GLES20.GL_FLOAT, false, 0, 0);
+				GL20.glVertexAttribPointer(attributes.get("tangent"), 4, GL20.GL_FLOAT, false, 0, 0);
 			}
 
 			// uvs
@@ -2200,14 +2200,14 @@ public class WebGLRenderer extends AbstractRenderer
 			{
 				if ( ((Geometry)object.getGeometry()).getFaceVertexUvs().get( 0 ) != null ) 
 				{
-					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglUVBuffer);
+					GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometry.__webglUVBuffer);
 					enableAttribute( attributes.get("uv") );
-					GLES20.glVertexAttribPointer(attributes.get("uv"), 2, GLES20.GL_FLOAT, false, 0, 0);
+					GL20.glVertexAttribPointer(attributes.get("uv"), 2, GL20.GL_FLOAT, false, 0, 0);
 
 				} else {
 					
 					float defaultAttributeValues[] = new float[] {0,0};
-					GLES20.glVertexAttrib2fv(attributes.get("uv"), defaultAttributeValues, 0);
+					GL20.glVertexAttrib2fv(attributes.get("uv"), defaultAttributeValues, 0);
 				}
 			}
 
@@ -2215,37 +2215,37 @@ public class WebGLRenderer extends AbstractRenderer
 			{
 				if ( ((Geometry)object.getGeometry()).getFaceVertexUvs().get( 1 ) != null ) 
 				{
-					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglUV2Buffer);
+					GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometry.__webglUV2Buffer);
 					enableAttribute( attributes.get("uv2") );
-					GLES20.glVertexAttribPointer(attributes.get("uv2"), 2, GLES20.GL_FLOAT, false, 0, 0);
+					GL20.glVertexAttribPointer(attributes.get("uv2"), 2, GL20.GL_FLOAT, false, 0, 0);
 
 				} else {
 					
 					float defaultAttributeValues[] = new float[] {0,0};
 					
-					GLES20.glVertexAttrib2fv(attributes.get("uv2"), defaultAttributeValues, 0);
+					GL20.glVertexAttrib2fv(attributes.get("uv2"), defaultAttributeValues, 0);
 				}
 			}
 
 			if ( material instanceof HasSkinning && ((HasSkinning)material).isSkinning() &&
 				 attributes.get("skinIndex") >= 0 && attributes.get("skinWeight") >= 0 ) 
 			{
-				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglSkinIndicesBuffer);
+				GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometry.__webglSkinIndicesBuffer);
 				enableAttribute( attributes.get("skinIndex") );
-				GLES20.glVertexAttribPointer(attributes.get("skinIndex"), 4, GLES20.GL_FLOAT, false, 0, 0);
+				GL20.glVertexAttribPointer(attributes.get("skinIndex"), 4, GL20.GL_FLOAT, false, 0, 0);
 
-				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglSkinWeightsBuffer);
+				GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometry.__webglSkinWeightsBuffer);
 				enableAttribute( attributes.get("skinWeight") );
-				GLES20.glVertexAttribPointer(attributes.get("skinWeight"), 4, GLES20.GL_FLOAT, false, 0, 0);
+				GL20.glVertexAttribPointer(attributes.get("skinWeight"), 4, GL20.GL_FLOAT, false, 0, 0);
 			}
 			
 			// line distances
 
 			if ( attributes.get("lineDistance") != null && attributes.get("lineDistance") >= 0 ) {
 
-				GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglLineDistanceBuffer);
+				GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometry.__webglLineDistanceBuffer);
 				enableAttribute( attributes.get("lineDistance") );
-				GLES20.glVertexAttribPointer(attributes.get("lineDistance"), 1, GLES20.GL_FLOAT, false, 0, 0);
+				GL20.glVertexAttribPointer(attributes.get("lineDistance"), 1, GL20.GL_FLOAT, false, 0, 0);
 
 			}
 
@@ -2408,7 +2408,7 @@ public class WebGLRenderer extends AbstractRenderer
 
 		if ( program != _currentProgram )
 		{
-			GLES20.glUseProgram(program);
+			GL20.glUseProgram(program);
 			this._currentProgram = program;
 
 			refreshProgram = true;
@@ -2426,12 +2426,12 @@ public class WebGLRenderer extends AbstractRenderer
 
 		if ( refreshProgram || !camera.equals( this._currentCamera) ) 
 		{
-			GLES20.glUniformMatrix4fv(m_uniforms.get("projectionMatrix").getLocation(),
+			GL20.glUniformMatrix4fv(m_uniforms.get("projectionMatrix").getLocation(),
                     1, false, camera.getProjectionMatrix().getArray().getFloatBuffer());
 
 			if ( _logarithmicDepthBuffer ) {
 
-				GLES20.glUniform1f(m_uniforms.get("logDepthBufFC").getLocation(),
+				GL20.glUniform1f(m_uniforms.get("logDepthBufFC").getLocation(),
                         (float) (2.0 / ( Math.log( ((HasNearFar)camera).getFar() + 1.0 ) /
                                 0.6931471805599453 /*Math.LN2*/ )));
 
@@ -2450,7 +2450,7 @@ public class WebGLRenderer extends AbstractRenderer
 				if ( m_uniforms.get("cameraPosition").getLocation() != -1 )
 				{
 					_vector3.setFromMatrixPosition( camera.getMatrixWorld() );
-					GLES20.glUniform3f(m_uniforms.get("cameraPosition").getLocation(),
+					GL20.glUniform3f(m_uniforms.get("cameraPosition").getLocation(),
                             (float) _vector3.getX(), (float) _vector3.getY(),
                             (float) _vector3.getZ());
 				}
@@ -2465,7 +2465,7 @@ public class WebGLRenderer extends AbstractRenderer
 
 				if ( m_uniforms.get("viewMatrix").getLocation() != -1 )
 				{
-					GLES20.glUniformMatrix4fv(m_uniforms.get("viewMatrix").getLocation(),
+					GL20.glUniformMatrix4fv(m_uniforms.get("viewMatrix").getLocation(),
                             1, false, camera.getMatrixWorldInverse().getArray().getFloatBuffer());
 				}
 			}
@@ -2483,7 +2483,7 @@ public class WebGLRenderer extends AbstractRenderer
 				{
 					int textureUnit = getTextureUnit();
 
-					GLES20.glUniform1i(m_uniforms.get("boneTexture").getLocation(), textureUnit);
+					GL20.glUniform1i(m_uniforms.get("boneTexture").getLocation(), textureUnit);
 					setTexture( ((SkinnedMesh)object).boneTexture, textureUnit );
 				}
 			} 
@@ -2491,7 +2491,7 @@ public class WebGLRenderer extends AbstractRenderer
 			{
 				if ( m_uniforms.get("boneGlobalMatrices").getLocation() != -1 )
 				{
-					GLES20.glUniformMatrix4fv(m_uniforms.get("boneGlobalMatrices").getLocation(),
+					GL20.glUniformMatrix4fv(m_uniforms.get("boneGlobalMatrices").getLocation(),
                             1, false, ((SkinnedMesh) object).boneMatrices.getFloatBuffer());
 				}
 			}
@@ -2536,7 +2536,7 @@ public class WebGLRenderer extends AbstractRenderer
 		loadUniformsMatrices( m_uniforms, object );
 
 		if ( m_uniforms.get("modelMatrix").getLocation() != -1 )
-			GLES20.glUniformMatrix4fv(m_uniforms.get("modelMatrix").getLocation(),
+			GL20.glUniformMatrix4fv(m_uniforms.get("modelMatrix").getLocation(),
                     1, false, object.getMatrixWorld().getArray().getFloatBuffer());
 
 		return shader;
@@ -2582,11 +2582,11 @@ public class WebGLRenderer extends AbstractRenderer
 	private void loadUniformsMatrices ( Map<String, Uniform> uniforms, GeometryObject object ) 
 	{
 		GeometryObject objectImpl = (GeometryObject) object;
-		GLES20.glUniformMatrix4fv(uniforms.get("modelViewMatrix").getLocation(),
+		GL20.glUniformMatrix4fv(uniforms.get("modelViewMatrix").getLocation(),
                 1, false, objectImpl._modelViewMatrix.getArray().getFloatBuffer());
 
 		if ( uniforms.containsKey("normalMatrix") )
-			GLES20.glUniformMatrix3fv(uniforms.get("normalMatrix").getLocation(),
+			GL20.glUniformMatrix3fv(uniforms.get("normalMatrix").getLocation(),
                     1, false, objectImpl._normalMatrix.getArray().getFloatBuffer());
 	}
 
@@ -2610,42 +2610,42 @@ public class WebGLRenderer extends AbstractRenderer
 		
 			if(type == TYPE.I) // single integer
 			{
-				GLES20.glUniform1i(location, (value instanceof Boolean) ?
+				GL20.glUniform1i(location, (value instanceof Boolean) ?
                         ((Boolean) value) ? 1 : 0 : (Integer) value);
 			}
 			else if(type == TYPE.F) // single float
 			{
-				GLES20.glUniform1f(location, ((Double) value).floatValue());
+				GL20.glUniform1f(location, ((Double) value).floatValue());
 			}
 			else if(type == TYPE.V2) // single Vector2
 			{ 
-				GLES20.glUniform2f(location, (float) ((Vector2) value).getX(),
+				GL20.glUniform2f(location, (float) ((Vector2) value).getX(),
                         (float) ((Vector2) value).getX());
 			}
 			else if(type == TYPE.V3) // single Vector3
 			{ 
-				GLES20.glUniform3f(location, (float) ((Vector3) value).getX(),
+				GL20.glUniform3f(location, (float) ((Vector3) value).getX(),
                         (float) ((Vector3) value).getY(), (float) ((Vector3)value).getZ() );
 			}
 			else if(type == TYPE.V4) // single Vector4
 			{
-				GLES20.glUniform4f(location,
+				GL20.glUniform4f(location,
                         (float) ((Vector4) value).getX(), (float) ((Vector4) value).getY(),
                         (float) ((Vector4) value).getZ(), (float) ((Vector4) value).getW());
 			}
 			else if(type == TYPE.C) // single Color
 			{
-				GLES20.glUniform3f(location, (float) ((Color) value).getR(),
+				GL20.glUniform3f(location, (float) ((Color) value).getR(),
                         (float) ((Color) value).getG(), (float) ((Color) value).getB());
 			}
 			else if(type == TYPE.FV1) // flat array of floats (JS or typed array)
 			{
-				GLES20.glUniform1fv(location, ((Float32Array) value).getLength(),
+				GL20.glUniform1fv(location, ((Float32Array) value).getLength(),
                         ((Float32Array) value).getFloatBuffer());
 			}
 			else if(type == TYPE.FV) // flat array of floats with 3 x N size (JS or typed array)
 			{ 
-				GLES20.glUniform3fv(location, ((Float32Array) value).getLength() / 3,
+				GL20.glUniform3fv(location, ((Float32Array) value).getLength() / 3,
                         ((Float32Array) value).getFloatBuffer());
 			}
 			else if(type == TYPE.V2V) // List of Vector2
@@ -2663,7 +2663,7 @@ public class WebGLRenderer extends AbstractRenderer
 					cacheArray.set(offset + 1, listVector2f.get(i).getY());
 				}
 
-				GLES20.glUniform2fv(location, uniform.getCacheArray().getLength() / 2,
+				GL20.glUniform2fv(location, uniform.getCacheArray().getLength() / 2,
                         cacheArray.getFloatBuffer());
 			}
 			else if(type == TYPE.V3V) // List of Vector3
@@ -2682,7 +2682,7 @@ public class WebGLRenderer extends AbstractRenderer
 					uniform.getCacheArray().set(offset + 2 , listVector3f.get( i ).getZ());
 				}
 
-				GLES20.glUniform3fv(location, cacheArray.getLength() / 3,
+				GL20.glUniform3fv(location, cacheArray.getLength() / 3,
                         cacheArray.getFloatBuffer());
 			}
 			else if(type == TYPE.V4V) // List of Vector4
@@ -2703,7 +2703,7 @@ public class WebGLRenderer extends AbstractRenderer
 					uniform.getCacheArray().set(offset + 3, listVector4f.get( i ).getW());
 				}
 
-				GLES20.glUniform4fv(location, cacheArray.getLength() / 4,
+				GL20.glUniform4fv(location, cacheArray.getLength() / 4,
                         cacheArray.getFloatBuffer());
 			}
 			else if(type == TYPE.M4) // single Matrix4
@@ -2714,7 +2714,7 @@ public class WebGLRenderer extends AbstractRenderer
 					uniform.setCacheArray(cacheArray = Float32Array.create( 16 ) );
 
 				matrix4.flattenToArrayOffset( cacheArray );
-				GLES20.glUniformMatrix4fv(location, 1, false, cacheArray.getFloatBuffer());
+				GL20.glUniformMatrix4fv(location, 1, false, cacheArray.getFloatBuffer());
 			}
 			else if(type == TYPE.M4V) // List of Matrix4
 			{
@@ -2726,7 +2726,7 @@ public class WebGLRenderer extends AbstractRenderer
 				for ( int i = 0, il = listMatrix4f.size(); i < il; i ++ )
 					listMatrix4f.get( i ).flattenToArrayOffset( cacheArray, i * 16 );
 
-				GLES20.glUniformMatrix4fv(location, cacheArray.getLength() / 16,
+				GL20.glUniformMatrix4fv(location, cacheArray.getLength() / 16,
                         false, cacheArray.getFloatBuffer());
 			}
 			else if(type == TYPE.T) // single Texture (2d or cube)
@@ -2734,7 +2734,7 @@ public class WebGLRenderer extends AbstractRenderer
 				Texture texture = (Texture)value;
 				int textureUnit = getTextureUnit();
 
-				GLES20.glUniform1i(location, textureUnit);
+				GL20.glUniform1i(location, textureUnit);
 
 				if ( texture != null )
 				{
@@ -2758,7 +2758,7 @@ public class WebGLRenderer extends AbstractRenderer
 					units[ i ] = getTextureUnit();
 				}
 
-				GLES20.glUniform1iv(location, units.length, units, 0);
+				GL20.glUniform1iv(location, units.length, units, 0);
 
 				for( int i = 0, il = textureList.size(); i < il; i ++ ) 
 				{
@@ -2797,14 +2797,14 @@ public class WebGLRenderer extends AbstractRenderer
 		if ( this.cache_oldMaterialSided == null || this.cache_oldMaterialSided != material.getSides() ) 
 		{
 			if(material.getSides() == Material.SIDE.DOUBLE)
-				GLES20.glDisable(GLES20.GL_CULL_FACE);
+				GL20.glDisable(GL20.GL_CULL_FACE);
 			else
-				GLES20.glEnable(GLES20.GL_CULL_FACE);
+				GL20.glEnable(GL20.GL_CULL_FACE);
 
 			if ( material.getSides() == Material.SIDE.BACK ) 
-				GLES20.glFrontFace(GLES20.GL_CW);
+				GL20.glFrontFace(GL20.GL_CW);
 			else
-				GLES20.glFrontFace(GLES20.GL_CCW);
+				GL20.glFrontFace(GL20.GL_CCW);
 
 			this.cache_oldMaterialSided = material.getSides();
 		}
@@ -2815,9 +2815,9 @@ public class WebGLRenderer extends AbstractRenderer
 		if ( this._oldDepthTest == null || this._oldDepthTest != depthTest ) 
 		{
 			if ( depthTest )
-				GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+				GL20.glEnable(GL20.GL_DEPTH_TEST);
 			else 
-				GLES20.glDisable(GLES20.GL_DEPTH_TEST);
+				GL20.glDisable(GL20.GL_DEPTH_TEST);
 
 			this._oldDepthTest = depthTest;
 		}
@@ -2827,7 +2827,7 @@ public class WebGLRenderer extends AbstractRenderer
 	{
 		if ( this._oldDepthWrite == null || this._oldDepthWrite != depthWrite ) 
 		{
-			GLES20.glDepthMask(depthWrite);
+			GL20.glDepthMask(depthWrite);
 			_oldDepthWrite = depthWrite;
 		}
 	}
@@ -2837,9 +2837,9 @@ public class WebGLRenderer extends AbstractRenderer
 		if ( this._oldPolygonOffset == null || this._oldPolygonOffset != polygonoffset ) 
 		{
 			if ( polygonoffset )
-				GLES20.glEnable(GLES20.GL_POLYGON_OFFSET_FILL);
+				GL20.glEnable(GL20.GL_POLYGON_OFFSET_FILL);
 			else
-				GLES20.glDisable(GLES20.GL_POLYGON_OFFSET_FILL);
+				GL20.glDisable(GL20.GL_POLYGON_OFFSET_FILL);
 
 			this._oldPolygonOffset = polygonoffset;
 		}
@@ -2849,7 +2849,7 @@ public class WebGLRenderer extends AbstractRenderer
 				_oldPolygonOffsetFactor != factor || 
 				_oldPolygonOffsetUnits != units ) 
 		) {
-			GLES20.glPolygonOffset( (float) factor, (float) units );
+			GL20.glPolygonOffset( (float) factor, (float) units );
 
 			this._oldPolygonOffsetFactor = factor;
 			this._oldPolygonOffsetUnits = units;
@@ -2862,47 +2862,47 @@ public class WebGLRenderer extends AbstractRenderer
 		{
 			if( blending == Material.BLENDING.NO) 
 			{
-				GLES20.glDisable(GLES20.GL_BLEND);
+				GL20.glDisable(GL20.GL_BLEND);
 				
 			} 
 			else if( blending == Material.BLENDING.ADDITIVE) 
 			{
 				
-				GLES20.glEnable(GLES20.GL_BLEND);
-				GLES20.glBlendEquation(GLES20.GL_FUNC_ADD);
-				GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE);
+				GL20.glEnable(GL20.GL_BLEND);
+				GL20.glBlendEquation(GL20.GL_FUNC_ADD);
+				GL20.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
 				
 			// TODO: Find blendFuncSeparate() combination
 			} 
 			else if( blending == Material.BLENDING.SUBTRACTIVE) 
 			{
-				GLES20.glEnable(GLES20.GL_BLEND);
-				GLES20.glBlendEquation(GLES20.GL_FUNC_ADD);
-				GLES20.glBlendFunc(GLES20.GL_ZERO, GLES20.GL_ONE_MINUS_SRC_COLOR);
+				GL20.glEnable(GL20.GL_BLEND);
+				GL20.glBlendEquation(GL20.GL_FUNC_ADD);
+				GL20.glBlendFunc(GL20.GL_ZERO, GL20.GL_ONE_MINUS_SRC_COLOR);
 
 			// TODO: Find blendFuncSeparate() combination
 			} 
 			else if( blending == Material.BLENDING.MULTIPLY) 
 			{
-				GLES20.glEnable(GLES20.GL_BLEND);
-				GLES20.glBlendEquation(GLES20.GL_FUNC_ADD);
-				GLES20.glBlendFunc(GLES20.GL_ZERO, GLES20.GL_SRC_COLOR);
+				GL20.glEnable(GL20.GL_BLEND);
+				GL20.glBlendEquation(GL20.GL_FUNC_ADD);
+				GL20.glBlendFunc(GL20.GL_ZERO, GL20.GL_SRC_COLOR);
 
 			} 
 			else if( blending == Material.BLENDING.CUSTOM) 
 			{
-				GLES20.glEnable(GLES20.GL_BLEND);
+				GL20.glEnable(GL20.GL_BLEND);
 
 			} 
 			// NORMAL
 			else 
 			{
-				GLES20.glEnable(GLES20.GL_BLEND);
-				GLES20.glBlendEquationSeparate(GLES20.GL_FUNC_ADD, GLES20.GL_FUNC_ADD);
-				GLES20.glBlendFuncSeparate(GLES20.GL_SRC_ALPHA,
-                        GLES20.GL_ONE_MINUS_SRC_ALPHA,
-                        GLES20.GL_ONE,
-                        GLES20.GL_ONE_MINUS_SRC_ALPHA);
+				GL20.glEnable(GL20.GL_BLEND);
+				GL20.glBlendEquationSeparate(GL20.GL_FUNC_ADD, GL20.GL_FUNC_ADD);
+				GL20.glBlendFuncSeparate(GL20.GL_SRC_ALPHA,
+                        GL20.GL_ONE_MINUS_SRC_ALPHA,
+                        GL20.GL_ONE,
+                        GL20.GL_ONE_MINUS_SRC_ALPHA);
 			}
 
 			this._oldBlending = blending;
@@ -2918,13 +2918,13 @@ public class WebGLRenderer extends AbstractRenderer
 		{
 			if ( blendEquation != this._oldBlendEquation ) 
 			{
-				GLES20.glBlendEquation(blendEquation);
+				GL20.glBlendEquation(blendEquation);
 				this._oldBlendEquation = blendEquation;
 			}
 
 			if ( blendSrc != _oldBlendSrc || blendDst != _oldBlendDst ) 
 			{
-				GLES20.glBlendFunc(blendSrc, blendDst);
+				GL20.glBlendFunc(blendSrc, blendDst);
 
 				this._oldBlendSrc = blendSrc;
 				this._oldBlendDst = blendDst;
@@ -2942,8 +2942,8 @@ public class WebGLRenderer extends AbstractRenderer
 	
 	private void setCubeTextureDynamic(RenderTargetCubeTexture texture, int slot) 
 	{
-		GLES20.glActiveTexture( GLES20.GL_TEXTURE0 + slot );
-		GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, texture.getWebGlTexture());
+		GL20.glActiveTexture( GL20.GL_TEXTURE0 + slot );
+		GL20.glBindTexture(GL20.GL_TEXTURE_CUBE_MAP, texture.getWebGlTexture());
 	}
 
 	public void setTexture( Texture texture, int slot ) 
@@ -2952,28 +2952,28 @@ public class WebGLRenderer extends AbstractRenderer
 		{
 			if ( texture.getWebGlTexture() == 0 )
 			{
-				GLES20.glGenTextures(1, tmpGLResult, 0);
+				GL20.glGenTextures(1, tmpGLResult, 0);
 				texture.setWebGlTexture( tmpGLResult[0] );
 
 				this.getInfo().getMemory().textures ++;
 			}
 			
-			GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + slot);
-			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture.getWebGlTexture());
+			GL20.glActiveTexture(GL20.GL_TEXTURE0 + slot);
+			GL20.glBindTexture(GL20.GL_TEXTURE_2D, texture.getWebGlTexture());
 
             /*
-			GLES20.glPixelStorei( PixelStoreParameter.UNPACK_FLIP_Y_WEBGL, texture.isFlipY() ? 1 : 0 );
-			GLES20.glPixelStorei( PixelStoreParameter.UNPACK_PREMULTIPLY_ALPHA_WEBGL,
+			GL20.glPixelStorei( PixelStoreParameter.UNPACK_FLIP_Y_WEBGL, texture.isFlipY() ? 1 : 0 );
+			GL20.glPixelStorei( PixelStoreParameter.UNPACK_PREMULTIPLY_ALPHA_WEBGL,
                     texture.isPremultiplyAlpha() ? 1 : 0 );
             */
-			GLES20.glPixelStorei( GLES20.GL_UNPACK_ALIGNMENT, texture.getUnpackAlignment() );
+			GL20.glPixelStorei( GL20.GL_UNPACK_ALIGNMENT, texture.getUnpackAlignment() );
 
 			Image image = texture.getImage();
 			boolean isImagePowerOfTwo = Mathematics.isPowerOfTwo( image.getWidth() )
 					&& Mathematics.isPowerOfTwo( image.getHeight() );
 
 			texture.setTextureParameters( getMaxAnisotropy(),
-                    GLES20.GL_TEXTURE_2D, isImagePowerOfTwo );
+                    GL20.GL_TEXTURE_2D, isImagePowerOfTwo );
 
 			if ( texture instanceof CompressedTexture ) 
 			{
@@ -2982,7 +2982,7 @@ public class WebGLRenderer extends AbstractRenderer
 				for( int i = 0, il = mipmaps.size(); i < il; i ++ ) 
 				{
 					DataTexture mipmap = mipmaps.get( i );
-					GLES20.glCompressedTexImage2D(GLES20.GL_TEXTURE_2D, i,
+					GL20.glCompressedTexImage2D(GL20.GL_TEXTURE_2D, i,
                             ((CompressedTexture) texture).getCompressedFormat(),
                             mipmap.getWidth(), mipmap.getHeight(), 0,
                             mipmap.getData().getByteLength(),
@@ -2992,7 +2992,7 @@ public class WebGLRenderer extends AbstractRenderer
 			else if ( texture instanceof DataTexture ) 
 			{
                 TypeArray texData = ((DataTexture) texture).getData();
-				GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0,
+				GL20.glTexImage2D(GL20.GL_TEXTURE_2D, 0,
                         ((DataTexture) texture).getWidth(),
                         ((DataTexture) texture).getHeight(),
                         0,
@@ -3004,19 +3004,19 @@ public class WebGLRenderer extends AbstractRenderer
 			// glTexImage2D does not apply to render target textures
 			else if (!(texture instanceof RenderTargetTexture))
 			{
-				image.glTexImage2D(GLES20.GL_TEXTURE_2D );
+				image.glTexImage2D(GL20.GL_TEXTURE_2D );
 			}
 
 			if ( texture.isGenerateMipmaps() && isImagePowerOfTwo ) 
-				GLES20.glGenerateMipmap( GLES20.GL_TEXTURE_2D );
+				GL20.glGenerateMipmap( GL20.GL_TEXTURE_2D );
 
 			texture.setNeedsUpdate(false);
 		} 
 		// Needed to check webgl texture in case deferred loading
 		else if (texture.getWebGlTexture() != 0)
 		{
-			GLES20.glActiveTexture( GLES20.GL_TEXTURE0 + slot );
-			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture.getWebGlTexture());
+			GL20.glActiveTexture( GL20.GL_TEXTURE0 + slot );
+			GL20.glBindTexture(GL20.GL_TEXTURE_2D, texture.getWebGlTexture());
 		}
 	}
 	
@@ -3063,14 +3063,14 @@ public class WebGLRenderer extends AbstractRenderer
 		{
 			if ( texture.getWebGlTexture() == 0 )
 			{
-				GLES20.glGenTextures(1, tmpGLResult, 0);
+				GL20.glGenTextures(1, tmpGLResult, 0);
 				texture.setWebGlTexture(tmpGLResult[0]);
 				this.getInfo().getMemory().textures += 6;
 			}
 
-			GLES20.glActiveTexture( GLES20.GL_TEXTURE0 + slot );
-			GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, texture.getWebGlTexture());
-			//GLES20.glPixelStorei( PixelStoreParameter.UNPACK_FLIP_Y_WEBGL,
+			GL20.glActiveTexture( GL20.GL_TEXTURE0 + slot );
+			GL20.glBindTexture(GL20.GL_TEXTURE_CUBE_MAP, texture.getWebGlTexture());
+			//GL20.glPixelStorei( PixelStoreParameter.UNPACK_FLIP_Y_WEBGL,
 			// texture.isFlipY() ? 1 : 0 );
 
 			List<Image> cubeImage = new ArrayList<Image>();
@@ -3094,7 +3094,7 @@ public class WebGLRenderer extends AbstractRenderer
 			boolean isImagePowerOfTwo = Mathematics.isPowerOfTwo( image.getWidth() )
 					&& Mathematics.isPowerOfTwo( image.getHeight() );
 
-			texture.setTextureParameters( getMaxAnisotropy(), GLES20.GL_TEXTURE_CUBE_MAP,
+			texture.setTextureParameters( getMaxAnisotropy(), GL20.GL_TEXTURE_CUBE_MAP,
 					true /*power of two*/ );
 
 			for ( int i = 0; i < 6; i ++ ) 
@@ -3109,20 +3109,20 @@ public class WebGLRenderer extends AbstractRenderer
 				}
 				else
 				{
-					img.glTexImage2D(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X);
+					img.glTexImage2D(GL20.GL_TEXTURE_CUBE_MAP_POSITIVE_X);
 				}
 				img.recycle();
 			}
 
 			if ( texture.isGenerateMipmaps() )	
-				GLES20.glGenerateMipmap( GLES20.GL_TEXTURE_CUBE_MAP );
+				GL20.glGenerateMipmap( GL20.GL_TEXTURE_CUBE_MAP );
 
 			texture.setNeedsUpdate(false);
 		} 
 		else 
 		{
-			GLES20.glActiveTexture( GLES20.GL_TEXTURE0 + slot );
-			GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, texture.getWebGlTexture());
+			GL20.glActiveTexture( GL20.GL_TEXTURE0 + slot );
+			GL20.glBindTexture(GL20.GL_TEXTURE_CUBE_MAP, texture.getWebGlTexture());
 		}
 
 	}
@@ -3163,8 +3163,8 @@ public class WebGLRenderer extends AbstractRenderer
 
 		if ( framebuffer != this._currentFramebuffer ) 
 		{
-			GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, framebuffer);
-			GLES20.glViewport(vx, vy, width, height);
+			GL20.glBindFramebuffer(GL20.GL_FRAMEBUFFER, framebuffer);
+			GL20.glViewport(vx, vy, width, height);
 
 			this._currentFramebuffer = framebuffer;
 		}
@@ -3200,7 +3200,7 @@ public class WebGLRenderer extends AbstractRenderer
 			//  - limit here is ANGLE's 254 max uniform vectors
 			//    (up to 54 should be safe)
 
-            GLES20.glGetIntegerv( GLES20.GL_MAX_VERTEX_UNIFORM_VECTORS, tmpGLResult, 0 );
+            GL20.glGetIntegerv( GL20.GL_MAX_VERTEX_UNIFORM_VECTORS, tmpGLResult, 0 );
 			int nVertexUniforms = tmpGLResult[0];
 			int nVertexMatrices = (int) Math.floor( ( nVertexUniforms - 20 ) / 4 );
 

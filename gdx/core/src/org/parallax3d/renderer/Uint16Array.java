@@ -13,7 +13,7 @@
  */
 package org.parallax3d.renderer;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 
 import java.nio.ShortBuffer;
 
@@ -45,7 +45,7 @@ public final class Uint16Array extends IndexTypeArray {
 
 	@Override
 	public int getElementType() {
-		return GLES20.GL_UNSIGNED_SHORT;
+		return GL20.GL_UNSIGNED_SHORT;
 	}
 
 	@Override

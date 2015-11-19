@@ -18,7 +18,7 @@
 
 package org.parallax3d.plugins.postprocessing;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 
 import org.parallax3d.textures.RenderTargetTexture;
 import org.parallax3d.materials.ShaderMaterial;
@@ -36,9 +36,9 @@ public class SavePass extends Pass
 	{
 		this(new RenderTargetTexture( width, height ));
 		
-		renderTarget.setMinFilter(GLES20.GL_LINEAR);
-		renderTarget.setMagFilter(GLES20.GL_LINEAR);
-		renderTarget.setFormat(GLES20.GL_RGB);
+		renderTarget.setMinFilter(GL20.GL_LINEAR);
+		renderTarget.setMagFilter(GL20.GL_LINEAR);
+		renderTarget.setFormat(GL20.GL_RGB);
 		renderTarget.setStencilBuffer(true);
 	}
 

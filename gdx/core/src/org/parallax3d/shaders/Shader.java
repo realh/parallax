@@ -19,7 +19,7 @@
 
 package org.parallax3d.shaders;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 import org.parallax3d.core.Log;
 
 import java.util.ArrayList;
@@ -168,7 +168,7 @@ public abstract class Shader
 		// Cache location
 		Map<String, Uniform> uniforms = getUniforms();
 		for (String id : uniforms.keySet())
-			uniforms.get(id).setLocation( GLES20.glGetUniformLocation(this.program, id) );
+			uniforms.get(id).setLocation( GL20.glGetUniformLocation(this.program, id) );
 
 		// cache attributes locations
 		List<String> attributesIds = new ArrayList<String>(Arrays.asList("position", "normal",
@@ -187,7 +187,7 @@ public abstract class Shader
 
 		Map<String, Integer> attributesLocations = getAttributesLocations();
 		for (String id : attributesIds)
-			attributesLocations.put(id, GLES20.glGetAttribLocation(this.program, id));
+			attributesLocations.put(id, GL20.glGetAttribLocation(this.program, id));
 		
 		return this;
 	}
@@ -197,23 +197,23 @@ public abstract class Shader
 	{
 		Log.debug("Called initProgram()");
 
-		this.program = GLES20.glCreateProgram();
+		this.program = GL20.glCreateProgram();
 
 		String vertex = vertexExtensions + getShaderPrecisionDefinition() + "\n" + getVertexSource();
 		String fragment = fragmentExtensions + getShaderPrecisionDefinition() + "\n" + getFragmentSource();
 		
 		int glVertexShader = getShaderProgram(ChunksVertexShader.class, vertex);
 		int glFragmentShader = getShaderProgram(ChunksFragmentShader.class, fragment);
-		GLES20.glAttachShader(this.program, glVertexShader);
-		GLES20.glAttachShader(this.program, glFragmentShader);
+		GL20.glAttachShader(this.program, glVertexShader);
+		GL20.glAttachShader(this.program, glFragmentShader);
 
-		GLES20.glLinkProgram(this.program);
+		GL20.glLinkProgram(this.program);
 
-		GLES20.glGetProgramiv(this.program, GLES20.GL_LINK_STATUS, tmpArray, 0);
+		GL20.glGetProgramiv(this.program, GL20.GL_LINK_STATUS, tmpArray, 0);
 
-		if (tmpArray[0] == GLES20.GL_FALSE)
+		if (tmpArray[0] == GL20.GL_FALSE)
 			logMultiline("Could not initialise shader\n"
-							+ "GL error: " + GLES20.glGetProgramInfoLog(program)
+							+ "GL error: " + GL20.glGetProgramInfoLog(program)
 							+ "\nShader: " + this.getClass().getName()
 							+ "\n-----\nVERTEX: " + glVertexShader + "\n" + vertex
 							+ "\n-----\nFRAGMENT: " + glFragmentShader + "\n" + fragment
@@ -223,8 +223,8 @@ public abstract class Shader
 			Log.info("initProgram(): shader has been initialised");
 
 		// clean up
-		GLES20.glDeleteShader(glVertexShader);
-		GLES20.glDeleteShader(glFragmentShader);
+		GL20.glDeleteShader(glVertexShader);
+		GL20.glDeleteShader(glFragmentShader);
 	}
 	
 	public void setPrecision(Shader.PRECISION precision) {
@@ -243,18 +243,18 @@ public abstract class Shader
 		int shader = 0;
 
 		if (type == ChunksFragmentShader.class)
-			shader = GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER);
+			shader = GL20.glCreateShader(GL20.GL_FRAGMENT_SHADER);
 
 		else if (type == ChunksVertexShader.class)
-			shader = GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER);
+			shader = GL20.glCreateShader(GL20.GL_VERTEX_SHADER);
 
-		GLES20.glShaderSource(shader, string);
-		GLES20.glCompileShader(shader);
+		GL20.glShaderSource(shader, string);
+		GL20.glCompileShader(shader);
 
-		GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, tmpArray, 0);
-		if (tmpArray[0] == GLES20.GL_FALSE)
+		GL20.glGetShaderiv(shader, GL20.GL_COMPILE_STATUS, tmpArray, 0);
+		if (tmpArray[0] == GL20.GL_FALSE)
 		{
-			logMultiline(GLES20.glGetShaderInfoLog(shader));
+			logMultiline(GL20.glGetShaderInfoLog(shader));
 			return 0;
 		}
 

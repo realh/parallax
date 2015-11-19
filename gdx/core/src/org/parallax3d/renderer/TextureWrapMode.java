@@ -19,7 +19,7 @@
 
 package org.parallax3d.renderer;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 
 /**
  * Implements the wrap parameter for texture coordinate.
@@ -36,14 +36,14 @@ public class TextureWrapMode
 	 *  the GL uses only the fractional part, thereby creating a 
 	 *  repeating pattern. 
 	 */
-	public final static int REPEAT = GLES20.GL_REPEAT;
+	public final static int REPEAT = GL20.GL_REPEAT;
 	/**
 	 * This causes s or t coordinates to be clamped to the range [0, 1] 
 	 * and is useful for preventing wrapping artifacts when mapping a 
 	 * single image onto an object.
 	 */
-	public final static int CLAMP_TO_EDGE = GLES20.GL_CLAMP_TO_EDGE;
+	public final static int CLAMP_TO_EDGE = GL20.GL_CLAMP_TO_EDGE;
 
-	public final static int MIRRORED_REPEAT = GLES20.GL_MIRRORED_REPEAT;
+	public final static int MIRRORED_REPEAT = GL20.GL_MIRRORED_REPEAT;
 
 }

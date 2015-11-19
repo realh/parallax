@@ -18,7 +18,7 @@
 
 package org.parallax3d.core;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -969,7 +969,7 @@ public class BufferGeometry extends AbstractGeometry
 			if ( attribute.getBuffer() == 0 ) {
 
 				int[] buffer = new int[1];
-				GLES20.glGenBuffers(1, buffer, 0);
+				GL20.glGenBuffers(1, buffer, 0);
 				attribute.setBuffer(buffer[0]);
 				attribute.setNeedsUpdate(true);
 
@@ -978,12 +978,12 @@ public class BufferGeometry extends AbstractGeometry
 			if ( attribute.isNeedsUpdate() == true ) {
 
 				int bufferType = ( key == "index" ) ?
-						GLES20.GL_ELEMENT_ARRAY_BUFFER : GLES20.GL_ARRAY_BUFFER;
+						GL20.GL_ELEMENT_ARRAY_BUFFER : GL20.GL_ARRAY_BUFFER;
 				ByteBuffer buf = attribute.getArray().getBuffer();
 				buf.rewind();
-				GLES20.glBindBuffer(bufferType, attribute.getBuffer());
-				GLES20.glBufferData(bufferType, buf.limit(), buf,
-						GLES20.GL_STATIC_DRAW);
+				GL20.glBindBuffer(bufferType, attribute.getBuffer());
+				GL20.glBufferData(bufferType, buf.limit(), buf,
+						GL20.GL_STATIC_DRAW);
 
 				attribute.setNeedsUpdate(false);
 

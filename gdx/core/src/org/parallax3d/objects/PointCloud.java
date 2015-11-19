@@ -18,7 +18,7 @@
 
 package org.parallax3d.objects;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 
 import java.util.List;
 
@@ -210,7 +210,7 @@ public class PointCloud extends GeometryObject
 	{
 		WebGlRendererInfo info = renderer.getInfo();
 
-		GLES20.glDrawArrays(GLES20.GL_POINTS, 0, geometryBuffer.__webglParticleCount);
+		GL20.glDrawArrays(GL20.GL_POINTS, 0, geometryBuffer.__webglParticleCount);
 
 		info.getRender().calls ++;
 		info.getRender().points += geometryBuffer.__webglParticleCount;
@@ -234,7 +234,7 @@ public class PointCloud extends GeometryObject
 		Geometry geometry = (Geometry)getGeometry();
 		WebGlRendererInfo info = renderer.getInfo();
 
-		GLES20.glGenBuffers(2, workBufArray, 0);
+		GL20.glGenBuffers(2, workBufArray, 0);
 		geometry.__webglVertexBuffer = workBufArray[0];
 		geometry.__webglColorBuffer = workBufArray[1];
 
@@ -535,16 +535,16 @@ public class PointCloud extends GeometryObject
 
 		if ( dirtyVertices || this.sortParticles ) {
 
-			GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, geometry.__webglVertexBuffer );
-			GLES20.glBufferData( GLES20.GL_ARRAY_BUFFER, vertexArray.getByteLength(),
+			GL20.glBindBuffer( GL20.GL_ARRAY_BUFFER, geometry.__webglVertexBuffer );
+			GL20.glBufferData( GL20.GL_ARRAY_BUFFER, vertexArray.getByteLength(),
 					vertexArray.getBuffer(), bufferUsageHint);
 
 		}
 
 		if ( dirtyColors || this.sortParticles ) {
 
-			GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, geometry.__webglColorBuffer );
-			GLES20.glBufferData( GLES20.GL_ARRAY_BUFFER, colorArray.getByteLength(),
+			GL20.glBindBuffer( GL20.GL_ARRAY_BUFFER, geometry.__webglColorBuffer );
+			GL20.glBufferData( GL20.GL_ARRAY_BUFFER, colorArray.getByteLength(),
 					colorArray.getBuffer(), bufferUsageHint);
 
 		}
@@ -557,8 +557,8 @@ public class PointCloud extends GeometryObject
 
 				if ( customAttribute.needsUpdate || this.sortParticles ) {
 
-					GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, customAttribute.buffer );
-					GLES20.glBufferData( GLES20.GL_ARRAY_BUFFER, customAttribute.array.getByteLength(),
+					GL20.glBindBuffer( GL20.GL_ARRAY_BUFFER, customAttribute.buffer );
+					GL20.glBufferData( GL20.GL_ARRAY_BUFFER, customAttribute.array.getByteLength(),
 							customAttribute.array.getBuffer(), bufferUsageHint);
 
 				}

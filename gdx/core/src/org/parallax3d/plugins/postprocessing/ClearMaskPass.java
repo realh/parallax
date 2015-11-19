@@ -18,7 +18,7 @@
 
 package org.parallax3d.plugins.postprocessing;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 
 public class ClearMaskPass extends Pass
 {	
@@ -31,6 +31,6 @@ public class ClearMaskPass extends Pass
 	@Override
 	public void render(Postprocessing postprocessing, double delta, boolean maskActive ) 
 	{
-		GLES20.glDisable( GLES20.GL_STENCIL_TEST );
+		GL20.glDisable( GL20.GL_STENCIL_TEST );
 	}
 }

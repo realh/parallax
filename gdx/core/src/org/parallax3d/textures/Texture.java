@@ -19,9 +19,9 @@
 
 package org.parallax3d.textures;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 
-import org.parallax3d.renderer.GLES20Ext;
+import org.parallax3d.renderer.GL20Ext;
 import org.parallax3d.renderer.Image;
 import org.parallax3d.renderer.WebGLRenderer;
 import org.parallax3d.math.Vector2;
@@ -110,12 +110,12 @@ public class Texture
 	{
 		this(image, 
 				Texture.MAPPING_MODE.UV, 
-				GLES20.GL_CLAMP_TO_EDGE,
-				GLES20.GL_CLAMP_TO_EDGE,
-				GLES20.GL_LINEAR,
-				GLES20.GL_LINEAR_MIPMAP_LINEAR,
-				GLES20.GL_RGBA,
-				GLES20.GL_UNSIGNED_BYTE,
+				GL20.GL_CLAMP_TO_EDGE,
+				GL20.GL_CLAMP_TO_EDGE,
+				GL20.GL_LINEAR,
+				GL20.GL_LINEAR_MIPMAP_LINEAR,
+				GL20.GL_RGBA,
+				GL20.GL_UNSIGNED_BYTE,
 				1);
 	}
 	
@@ -409,25 +409,25 @@ public class Texture
 	{	
 		if ( isImagePowerOfTwo ) 
 		{
-			GLES20.glTexParameteri(textureType, GLES20.GL_TEXTURE_WRAP_S, this.wrapS);
-			GLES20.glTexParameteri(textureType, GLES20.GL_TEXTURE_WRAP_T, this.wrapT);
-			GLES20.glTexParameteri(textureType, GLES20.GL_TEXTURE_MAG_FILTER, this.magFilter);
-			GLES20.glTexParameteri(textureType, GLES20.GL_TEXTURE_MIN_FILTER, this.minFilter);
+			GL20.glTexParameteri(textureType, GL20.GL_TEXTURE_WRAP_S, this.wrapS);
+			GL20.glTexParameteri(textureType, GL20.GL_TEXTURE_WRAP_T, this.wrapT);
+			GL20.glTexParameteri(textureType, GL20.GL_TEXTURE_MAG_FILTER, this.magFilter);
+			GL20.glTexParameteri(textureType, GL20.GL_TEXTURE_MIN_FILTER, this.minFilter);
 		} 
 		else 
 		{
-			GLES20.glTexParameteri( textureType, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE );
-			GLES20.glTexParameteri( textureType, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE );
-			GLES20.glTexParameteri( textureType, GLES20.GL_TEXTURE_MAG_FILTER, filterFallback( this.magFilter ) );
-			GLES20.glTexParameteri( textureType, GLES20.GL_TEXTURE_MIN_FILTER, filterFallback( this.minFilter ) );
+			GL20.glTexParameteri( textureType, GL20.GL_TEXTURE_WRAP_S, GL20.GL_CLAMP_TO_EDGE );
+			GL20.glTexParameteri( textureType, GL20.GL_TEXTURE_WRAP_T, GL20.GL_CLAMP_TO_EDGE );
+			GL20.glTexParameteri( textureType, GL20.GL_TEXTURE_MAG_FILTER, filterFallback( this.magFilter ) );
+			GL20.glTexParameteri( textureType, GL20.GL_TEXTURE_MIN_FILTER, filterFallback( this.minFilter ) );
 		}
 		
 		if ( maxAnisotropy > 0 ) 
 		{
 			if ( this.anisotropy > 1 || this.cache_oldAnisotropy > 1 ) 
 			{
-				GLES20.glTexParameterf( textureType,
-						GLES20Ext.GL_TEXTURE_MAX_ANISOTROPY_EXT,
+				GL20.glTexParameterf( textureType,
+						GL20Ext.GL_TEXTURE_MAX_ANISOTROPY_EXT,
 						Math.min( this.anisotropy, maxAnisotropy ) );
 				this.cache_oldAnisotropy = this.anisotropy;
 			}
@@ -439,10 +439,10 @@ public class Texture
 	 */
 	private int filterFallback ( int f ) 
 	{
-		if(f == GLES20.GL_NEAREST || f == GLES20.GL_NEAREST_MIPMAP_NEAREST || f == GLES20.GL_NEAREST_MIPMAP_LINEAR)
-			return GLES20.GL_NEAREST;
+		if(f == GL20.GL_NEAREST || f == GL20.GL_NEAREST_MIPMAP_NEAREST || f == GL20.GL_NEAREST_MIPMAP_LINEAR)
+			return GL20.GL_NEAREST;
 
-		return GLES20.GL_LINEAR;
+		return GL20.GL_LINEAR;
 	}
 	
 	/**
@@ -452,7 +452,7 @@ public class Texture
 	{
 		if ( webglTexture[0] == 0 ) return;
 
-		GLES20.glDeleteTextures(1, webglTexture, 0);
+		GL20.glDeleteTextures(1, webglTexture, 0);
 
 		renderer.getInfo().getMemory().textures--;
 	}

@@ -14,7 +14,7 @@
  */
 package org.parallax3d.renderer;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 
 import java.nio.FloatBuffer;
 
@@ -58,7 +58,7 @@ public final class Float32Array extends TypeArray {
 
     @Override
     public int getElementType() {
-        return GLES20.GL_FLOAT;
+        return GL20.GL_FLOAT;
     }
 
     @Override

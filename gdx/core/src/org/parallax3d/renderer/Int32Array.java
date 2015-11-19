@@ -13,7 +13,7 @@
  */
 package org.parallax3d.renderer;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 
 import java.nio.IntBuffer;
 
@@ -42,7 +42,7 @@ public final class Int32Array extends TypeArray {
 
 	@Override
 	public int getElementType() {
-		return GLES20.GL_INT;
+		return GL20.GL_INT;
 	}
 
 	@Override

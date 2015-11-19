@@ -19,7 +19,7 @@
 
 package org.parallax3d.renderer;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 import org.parallax3d.core.Log;
 
 import java.util.ArrayList;
@@ -161,19 +161,19 @@ public final class ShadowMap extends Plugin
 
 		// set GL state for depth map
 
-		GLES20.glClearColor(1, 1, 1, 1);
-		GLES20.glDisable( GLES20.GL_BLEND );
+		GL20.glClearColor(1, 1, 1, 1);
+		GL20.glDisable( GL20.GL_BLEND );
 
-		GLES20.glEnable( GLES20.GL_CULL_FACE );
-		GLES20.glFrontFace( GLES20.GL_CCW );
+		GL20.glEnable( GL20.GL_CULL_FACE );
+		GL20.glFrontFace( GL20.GL_CCW );
 
 		if ( isCullFrontFaces() ) 
 		{
-			GLES20.glCullFace(GLES20.GL_FRONT);
+			GL20.glCullFace(GL20.GL_FRONT);
 		} 
 		else 
 		{
-			GLES20.glCullFace(GLES20.GL_BACK);
+			GL20.glCullFace(GL20.GL_BACK);
 		}
 
 		getRenderer().setDepthTest( true );
@@ -240,9 +240,9 @@ public final class ShadowMap extends Plugin
 			{
 				RenderTargetTexture map = new RenderTargetTexture(light.getShadowMapWidth(),
 						light.getShadowMapHeight());
-				map.setMinFilter(GLES20.GL_NEAREST);
-				map.setMagFilter(GLES20.GL_NEAREST);
-				map.setFormat(GLES20.GL_RGBA);
+				map.setMinFilter(GL20.GL_NEAREST);
+				map.setMagFilter(GL20.GL_NEAREST);
+				map.setFormat(GL20.GL_RGBA);
 				light.setShadowMap(map);
 
 				light.setShadowMapSize( new Vector2( light.getShadowMapWidth(),
@@ -428,13 +428,13 @@ public final class ShadowMap extends Plugin
 		Color clearColor = getRenderer().getClearColor();
 		double clearAlpha = getRenderer().getClearAlpha();
 
-		GLES20.glClearColor((float) clearColor.getR(), (float) clearColor.getG(),
+		GL20.glClearColor((float) clearColor.getR(), (float) clearColor.getG(),
 				(float) clearColor.getB(), (float) clearAlpha);
-		GLES20.glEnable( GLES20.GL_BLEND );
+		GL20.glEnable( GL20.GL_BLEND );
 
 		if ( isCullFrontFaces() ) 
 		{
-			GLES20.glCullFace(GLES20.GL_BACK);
+			GL20.glCullFace(GL20.GL_BACK);
 		}
 		
 		getRenderer().resetGLState();

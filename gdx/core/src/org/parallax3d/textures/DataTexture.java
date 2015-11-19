@@ -19,7 +19,7 @@
 
 package org.parallax3d.textures;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 
 import org.parallax3d.renderer.Uint8Array;
 import org.parallax3d.math.Color;
@@ -99,7 +99,7 @@ public class DataTexture extends Texture
 		}
 
 		setData( data );
-		setFormat( GLES20.GL_RGB );
+		setFormat( GL20.GL_RGB );
 		setNeedsUpdate( true );
 	}
 }

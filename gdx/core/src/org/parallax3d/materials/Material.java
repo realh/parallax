@@ -19,7 +19,7 @@
 
 package org.parallax3d.materials;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -177,9 +177,9 @@ public abstract class Material
 		setTransparent(false);
 				
 		setBlending( Material.BLENDING.NORMAL );
-		setBlendSrc( GLES20.GL_SRC_ALPHA );
-		setBlendDst( GLES20.GL_ONE_MINUS_SRC_ALPHA );
-		setBlendEquation( GLES20.GL_FUNC_ADD );
+		setBlendSrc( GL20.GL_SRC_ALPHA );
+		setBlendDst( GL20.GL_ONE_MINUS_SRC_ALPHA );
+		setBlendEquation( GL20.GL_FUNC_ADD );
 		
 		setDepthTest(true);
 		setDepthWrite(true);
@@ -299,7 +299,7 @@ public abstract class Material
 	/**
 	 * Sets blending source. It's one of the {@link int} constants.
 	 * <p>
-	 * Default is {@link GLES20#GL_SRC_ALPHA}.
+	 * Default is {@link GL20#GL_SRC_ALPHA}.
 	 * 
 	 * @param blendSrc
 	 */
@@ -314,7 +314,7 @@ public abstract class Material
 	/**
 	 * Sets blending destination. It's one of the {@link int} constants.
 	 * <p>
-	 * Default is {@link GLES20#GL_ONE_MINUS_SRC_ALPHA}.
+	 * Default is {@link GL20#GL_ONE_MINUS_SRC_ALPHA}.
 	 * 
 	 * @param blendDst
 	 */
@@ -330,7 +330,7 @@ public abstract class Material
 	 * Sets blending equation to use when applying blending. 
 	 * It's one of the {@link int} constants.
 	 * <p>
-	 * Default is {@link GLES20#GL_FUNC_ADD}.
+	 * Default is {@link GL20#GL_FUNC_ADD}.
 	 * 
 	 * @param blendEquation
 	 */
@@ -937,7 +937,7 @@ public abstract class Material
 		if ( deleteProgram == true ) 
 		{
 
-			GLES20.glDeleteProgram( program );
+			GL20.glDeleteProgram( program );
 
 			renderer.getInfo().getMemory().programs --;
 		}

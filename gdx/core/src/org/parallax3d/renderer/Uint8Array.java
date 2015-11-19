@@ -13,7 +13,7 @@
  */
 package org.parallax3d.renderer;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 
 /**
  * The typed array that holds unsigned byte (8-bit unsigned integer) as its element.
@@ -44,7 +44,7 @@ public final class Uint8Array extends IndexTypeArray {
 
 	@Override
 	public int getElementType() {
-		return GLES20.GL_UNSIGNED_BYTE;
+		return GL20.GL_UNSIGNED_BYTE;
 	}
 
 	@Override

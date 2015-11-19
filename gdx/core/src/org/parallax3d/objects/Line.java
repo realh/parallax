@@ -19,7 +19,7 @@
 
 package org.parallax3d.objects;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 
 import java.util.List;
 
@@ -191,12 +191,12 @@ public class Line extends GeometryObject
 		WebGlRendererInfo info = renderer.getInfo();
 		
 		int primitives = ( this.getType() == Line.MODE.STRIPS)
-				? GLES20.GL_LINE_STRIP
-				: GLES20.GL_LINES;
+				? GL20.GL_LINE_STRIP
+				: GL20.GL_LINES;
 
 		setLineWidth( ((LineBasicMaterial)getMaterial()).getLinewidth() );
 
-		GLES20.glDrawArrays(primitives, 0, geometryBuffer.__webglLineCount);
+		GL20.glDrawArrays(primitives, 0, geometryBuffer.__webglLineCount);
 
 		info.getRender().calls ++;
 	}
@@ -222,11 +222,11 @@ public class Line extends GeometryObject
 		
 		WebGlRendererInfo info = renderer.getInfo();
 
-		GLES20.glGenBuffers(1, tmpBufArray, 0);
+		GL20.glGenBuffers(1, tmpBufArray, 0);
 		geometry.__webglVertexBuffer = tmpBufArray[0];
-		GLES20.glGenBuffers(1, tmpBufArray, 0);
+		GL20.glGenBuffers(1, tmpBufArray, 0);
 		geometry.__webglColorBuffer = tmpBufArray[0];
-		GLES20.glGenBuffers(1, tmpBufArray, 0);
+		GL20.glGenBuffers(1, tmpBufArray, 0);
 		geometry.__webglLineDistanceBuffer = tmpBufArray[0];
 
 		info.getMemory().geometries ++;
@@ -302,8 +302,8 @@ public class Line extends GeometryObject
 				vertexArray.set(offset + 2, vertex.getZ());
 			}
 
-			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglVertexBuffer);
-			GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertexArray.getByteLength(),
+			GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometry.__webglVertexBuffer);
+			GL20.glBufferData(GL20.GL_ARRAY_BUFFER, vertexArray.getByteLength(),
 					vertexArray.getBuffer(), bufferUsageHint);
 		}
 
@@ -319,8 +319,8 @@ public class Line extends GeometryObject
 				colorArray.set(offset + 2, color.getB());
 			}
 
-			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglColorBuffer);
-			GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, colorArray.getByteLength(),
+			GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometry.__webglColorBuffer);
+			GL20.glBufferData(GL20.GL_ARRAY_BUFFER, colorArray.getByteLength(),
 					colorArray.getBuffer(), bufferUsageHint);
 		}
 		
@@ -332,8 +332,8 @@ public class Line extends GeometryObject
 
 			}
 
-			GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, geometry.__webglLineDistanceBuffer);
-			GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, lineDistanceArray.getByteLength(),
+			GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometry.__webglLineDistanceBuffer);
+			GL20.glBufferData(GL20.GL_ARRAY_BUFFER, lineDistanceArray.getByteLength(),
 					lineDistanceArray.getBuffer(), bufferUsageHint);
 
 		}
@@ -418,8 +418,8 @@ public class Line extends GeometryObject
 						}
 					}
 
-					GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, customAttribute.buffer);
-					GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, customAttribute.array.getByteLength(),
+					GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, customAttribute.buffer);
+					GL20.glBufferData(GL20.GL_ARRAY_BUFFER, customAttribute.array.getByteLength(),
 							customAttribute.array.getBuffer(), bufferUsageHint);
 				}
 			}

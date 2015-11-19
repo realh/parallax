@@ -18,7 +18,7 @@
 
 package org.parallax3d.plugins.postprocessing;
 
-import android.opengl.GLES20;
+import com.badlogic.gdx.graphics.GL20;
 
 import org.parallax3d.cameras.Camera;
 import org.parallax3d.scenes.Scene;
@@ -46,8 +46,8 @@ public class MaskPass extends Pass
 	public void render (Postprocessing effectComposer, double delta, boolean maskActive)
 	{
 		// don't update color or depth
-		GLES20.glColorMask(false, false, false, false);
-		GLES20.glDepthMask( false );
+		GL20.glColorMask(false, false, false, false);
+		GL20.glDepthMask( false );
 
 		// set up stencil
 
@@ -64,22 +64,22 @@ public class MaskPass extends Pass
 			clearValue = 0;
 		}
 
-		GLES20.glEnable(GLES20.GL_STENCIL_TEST);
-		GLES20.glStencilOp(GLES20.GL_REPLACE, GLES20.GL_REPLACE, GLES20.GL_REPLACE);
-		GLES20.glStencilFunc(GLES20.GL_ALWAYS, writeValue, 0xffffffff);
-		GLES20.glClearStencil( clearValue );
+		GL20.glEnable(GL20.GL_STENCIL_TEST);
+		GL20.glStencilOp(GL20.GL_REPLACE, GL20.GL_REPLACE, GL20.GL_REPLACE);
+		GL20.glStencilFunc(GL20.GL_ALWAYS, writeValue, 0xffffffff);
+		GL20.glClearStencil( clearValue );
 
 		// draw into the stencil buffer
 		effectComposer.getRenderer().render( this.scene, this.camera, effectComposer.getReadBuffer(), this.clear );
 		effectComposer.getRenderer().render( this.scene, this.camera, effectComposer.getWriteBuffer(), this.clear );
 
 		// re-enable update of color and depth
-		GLES20.glColorMask( true, true, true, true );
-		GLES20.glDepthMask( true );
+		GL20.glColorMask( true, true, true, true );
+		GL20.glDepthMask( true );
 
 		// only render where stencil is set to 1
-		GLES20.glStencilFunc( GLES20.GL_EQUAL, 1, 0xffffffff );  // draw if == 1
-		GLES20.glStencilOp( GLES20.GL_KEEP, GLES20.GL_KEEP, GLES20.GL_KEEP );
+		GL20.glStencilFunc( GL20.GL_EQUAL, 1, 0xffffffff );  // draw if == 1
+		GL20.glStencilOp( GL20.GL_KEEP, GL20.GL_KEEP, GL20.GL_KEEP );
 	}
 	
 	@Override
