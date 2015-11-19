@@ -128,8 +128,11 @@ public class WebGLRenderer extends AbstractRenderer
 
 //	private boolean shadowMapEnabled = false;
 //	shadowMapType = PCFShadowMap;
+	@SuppressWarnings("unused")
 	private int shadowMapCullFace = GL20.GL_FRONT;
+	@SuppressWarnings("unused")
 	private boolean shadowMapDebug = false;
+	@SuppressWarnings("unused")
 	private boolean shadowMapCascade = false;
 	
 	// morphs
@@ -343,37 +346,44 @@ public class WebGLRenderer extends AbstractRenderer
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public boolean supportsVertexTextures()
 	{
 		return this._maxVertexTextures > 0;
 	}
-	
-	public boolean supportsFloatTextures() 
+
+	@SuppressWarnings("unused")
+	public boolean supportsFloatTextures()
 	{
 		return WebGLExtensions.get( WebGLExtensions.Id.OES_texture_float );
 	}
 
-	public boolean supportsStandardDerivatives() 
+	@SuppressWarnings("unused")
+	public boolean supportsStandardDerivatives()
 	{
 		return WebGLExtensions.get( WebGLExtensions.Id.OES_standard_derivatives );
 	}
 
-	public boolean supportsCompressedTextureS3TC() 
+	@SuppressWarnings("unused")
+	public boolean supportsCompressedTextureS3TC()
 	{
 		return WebGLExtensions.get( WebGLExtensions.Id.EXT_compressed_texture_s3tc );
 	}
 
-	public boolean supportsCompressedTexturePVRTC() 
+	@SuppressWarnings("unused")
+	public boolean supportsCompressedTexturePVRTC()
 	{
 		return WebGLExtensions.get( WebGLExtensions.Id.EXT_compressed_texture_pvrtc );
 	}
 
-	public boolean supportsBlendMinMax() 
+	@SuppressWarnings("unused")
+	public boolean supportsBlendMinMax()
 	{
 		return WebGLExtensions.get( WebGLExtensions.Id.EXT_blend_minmax );
 	}
 
-	public int getMaxAnisotropy() 
+	@SuppressWarnings("unused")
+	public int getMaxAnisotropy()
 	{
 		if (WebGLExtensions.get( WebGLExtensions.Id.EXT_texture_filter_anisotropic )) {
 			tmpGLResult.reset();
@@ -1373,7 +1383,7 @@ public class WebGLRenderer extends AbstractRenderer
 			if ( geometryGroup.__webglVertexBuffer == 0 ) {
 
 				((Mesh)object).createBuffers(this, geometryGroup);
-				((Mesh)object).initBuffers(geometryGroup);
+				((Mesh)object).initBuffers(gl, geometryGroup);
 
 				geometry.setVerticesNeedUpdate( true );
 				geometry.setMorphTargetsNeedUpdate( true );
@@ -1636,7 +1646,7 @@ public class WebGLRenderer extends AbstractRenderer
 
 				if ( geometry.isGroupsNeedUpdate() ) {
 
-					((Mesh)object).initBuffers( geometryGroup );
+					((Mesh)object).initBuffers( gl, geometryGroup );
 
 				}
 
@@ -1649,7 +1659,7 @@ public class WebGLRenderer extends AbstractRenderer
 					 geometry.isColorsNeedUpdate() || geometry.isTangentsNeedUpdate() ||
                         customAttributesDirty ) {
 
-					((Mesh)object).setBuffers( geometryGroup, GL20.GL_DYNAMIC_DRAW,
+					((Mesh)object).setBuffers( gl, geometryGroup, GL20.GL_DYNAMIC_DRAW,
                             ! ((Geometry)geometry).isDynamic(), material );
 
 				}
@@ -3207,7 +3217,7 @@ public class WebGLRenderer extends AbstractRenderer
 			//    (up to 54 should be safe)
 
 			tmpGLResult.reset();
-            gl.glGetIntegerv( GL20.GL_MAX_VERTEX_UNIFORM_VECTORS, tmpGLResult );
+            gl.glGetIntegerv(GL20.GL_MAX_VERTEX_UNIFORM_VECTORS, tmpGLResult);
 			int nVertexUniforms = tmpGLResult.get(0);
 			int nVertexMatrices = (int) Math.floor( ( nVertexUniforms - 20 ) / 4 );
 

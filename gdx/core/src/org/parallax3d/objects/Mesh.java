@@ -89,8 +89,6 @@ public class Mesh extends GeometryObject
 	static Vector3 _vB = new Vector3();
 	static Vector3 _vC = new Vector3();
 
-	static int[] workBufArray = { 0 };
-
 	public Mesh() {
 		this(new Geometry());
 	}
@@ -112,7 +110,8 @@ public class Mesh extends GeometryObject
 		if(this.getGeometry() instanceof BufferGeometry)
 			return;
 
-		if ( ((Geometry)this.getGeometry()).getMorphTargets() != null && ((Geometry)this.getGeometry()).getMorphTargets().size() > 0 ) {
+		if ( ((Geometry)this.getGeometry()).getMorphTargets() != null &&
+				((Geometry)this.getGeometry()).getMorphTargets().size() > 0 ) {
 
 			this.morphTargetBase = -1;
 			this.morphTargetForcedOrder = new ArrayList<Integer>();
@@ -120,7 +119,8 @@ public class Mesh extends GeometryObject
 			this.morphTargetDictionary = new HashMap<String, Integer>();
 
 			List<Geometry.MorphTarget> morphTargets = ((Geometry)this.getGeometry()).getMorphTargets();
-			for ( int m = 0, ml = ((Geometry)this.getGeometry()).getMorphTargets().size(); m < ml; m ++ ) {
+			for ( int m = 0, ml = ((Geometry)this.getGeometry()).getMorphTargets().size(); m < ml; m ++ )
+			{
 
 				this.morphTargetInfluences.add( 0.0 );
 				this.morphTargetDictionary.put(morphTargets.get(m).name, m);
@@ -206,7 +206,8 @@ public class Mesh extends GeometryObject
 						} 
 						else 
 						{
-							intersectionPoint = _ray.intersectTriangle( _vA, _vB, _vC, material.getSides() != Material.SIDE.DOUBLE );
+							intersectionPoint = _ray.intersectTriangle( _vA, _vB, _vC,
+									material.getSides() != Material.SIDE.DOUBLE );
 						}
 
 						if ( intersectionPoint == null ) continue;
@@ -215,7 +216,8 @@ public class Mesh extends GeometryObject
 
 						double distance = raycaster.getRay().getOrigin().distanceTo( intersectionPoint );
 
-						if ( distance < precision || distance < raycaster.getNear() || distance > raycaster.getFar() ) continue;
+						if ( distance < precision || distance < raycaster.getNear() || distance > raycaster.getFar() )
+							continue;
 
 						Raycaster.Intersect intersect = new Raycaster.Intersect();
 						intersect.distance = distance;
@@ -250,7 +252,8 @@ public class Mesh extends GeometryObject
 
 					} else {
 
-						intersectionPoint = _ray.intersectTriangle( _vA, _vB, _vC, material.getSides() != Material.SIDE.DOUBLE, null );
+						intersectionPoint = _ray.intersectTriangle( _vA, _vB, _vC,
+								material.getSides() != Material.SIDE.DOUBLE, null );
 
 					}
 
@@ -260,7 +263,8 @@ public class Mesh extends GeometryObject
 
 					double distance = raycaster.getRay().getOrigin().distanceTo( intersectionPoint );
 
-					if ( distance < precision || distance < raycaster.getNear() || distance > raycaster.getFar() ) continue;
+					if ( distance < precision || distance < raycaster.getNear() || distance > raycaster.getFar() )
+						continue;
 
 					Raycaster.Intersect intersect = new Raycaster.Intersect();
 					intersect.distance = distance;
@@ -276,7 +280,8 @@ public class Mesh extends GeometryObject
 		} else if ( geometry instanceof Geometry ) {
 
 			boolean isFaceMaterial = this.getMaterial() instanceof MeshFaceMaterial;
-			List<Material> objectMaterials = isFaceMaterial == true ? ((MeshFaceMaterial)this.getMaterial()).getMaterials() : null;
+			List<Material> objectMaterials = isFaceMaterial == true ?
+					((MeshFaceMaterial)this.getMaterial()).getMaterials() : null;
 
 			Geometry aGeometry = ((Geometry) geometry);
 			
@@ -286,7 +291,8 @@ public class Mesh extends GeometryObject
 
 				Face3 face = aGeometry.getFaces().get( f );
 
-				Material material = isFaceMaterial == true ? objectMaterials.get( face.getMaterialIndex() ) : this.getMaterial();
+				Material material = isFaceMaterial == true ?
+						objectMaterials.get( face.getMaterialIndex() ) : this.getMaterial();
 
 				if ( material == null ) continue;
 
@@ -423,11 +429,12 @@ public class Mesh extends GeometryObject
 	public void renderBuffer(WebGLRenderer renderer, WebGLGeometry geometryGroup, boolean updateBuffers)
 	{
 		WebGlRendererInfo info = renderer.getInfo();
+		GL20 gl = renderer.getGL();
 
 		// wireframe
 		if ( getMaterial() instanceof HasWireframe && ((HasWireframe)getMaterial()).isWireframe() ) 
 		{
-			setLineWidth( ((HasWireframe)getMaterial()).getWireframeLineWidth() );
+			setLineWidth( gl, ((HasWireframe)getMaterial()).getWireframeLineWidth() );
 
 			if ( updateBuffers ) 
 				gl.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, geometryGroup.__webglLineBuffer);
@@ -494,7 +501,7 @@ public class Mesh extends GeometryObject
 //	}
 //
 	// initMeshBuffers
-	public void initBuffers(GeometryGroup geometryGroup)
+	public void initBuffers(GL20 gl, GeometryGroup geometryGroup)
 	{
 		Geometry geometry = (Geometry) this.getGeometry();
 
@@ -530,7 +537,8 @@ public class Mesh extends GeometryObject
 
 		}
 
-//		Class UintArray = WebGLExtensions.get( gl, WebGLExtensions.Id.OES_element_index_uint ) != null && ntris > 21845 
+//		Class UintArray = WebGLExtensions.get( gl, WebGLExtensions.Id.OES_element_index_uint )
+// 						!= null && ntris > 21845
 //				? Uint32Array.class : Uint16Array; // 65535 / 3
 
 //		geometryGroup.__typeArray = UintArray;
@@ -604,7 +612,7 @@ public class Mesh extends GeometryObject
 
 					attribute.array = Float32Array.create(nvertices * size);
 
-					attribute.buffer = createBuffer();
+					attribute.buffer = gl.glGenBuffer();
 					attribute.belongsToAttribute = a;
 
 					originalAttribute.needsUpdate = true;
@@ -622,25 +630,26 @@ public class Mesh extends GeometryObject
 	public void createBuffers(WebGLRenderer renderer, GeometryGroup geometryGroup)
 	{
 		WebGlRendererInfo info = renderer.getInfo();
+		GL20 gl = renderer.getGL();
 
-		geometryGroup.__webglVertexBuffer = createBuffer();
-		geometryGroup.__webglNormalBuffer = createBuffer();
-		geometryGroup.__webglTangentBuffer = createBuffer();
-		geometryGroup.__webglColorBuffer = createBuffer();
-		geometryGroup.__webglUVBuffer = createBuffer();
-		geometryGroup.__webglUV2Buffer = createBuffer();
+		geometryGroup.__webglVertexBuffer = gl.glGenBuffer();
+		geometryGroup.__webglNormalBuffer = gl.glGenBuffer();
+		geometryGroup.__webglTangentBuffer = gl.glGenBuffer();
+		geometryGroup.__webglColorBuffer = gl.glGenBuffer();
+		geometryGroup.__webglUVBuffer = gl.glGenBuffer();
+		geometryGroup.__webglUV2Buffer = gl.glGenBuffer();
 
-		geometryGroup.__webglSkinIndicesBuffer = createBuffer();
-		geometryGroup.__webglSkinWeightsBuffer = createBuffer();
+		geometryGroup.__webglSkinIndicesBuffer = gl.glGenBuffer();
+		geometryGroup.__webglSkinWeightsBuffer = gl.glGenBuffer();
 
-		geometryGroup.__webglFaceBuffer = createBuffer();
-		geometryGroup.__webglLineBuffer = createBuffer();
+		geometryGroup.__webglFaceBuffer = gl.glGenBuffer();
+		geometryGroup.__webglLineBuffer = gl.glGenBuffer();
 
 		if (geometryGroup.getNumMorphTargets() != 0) {
 			geometryGroup.__webglMorphTargetsBuffers = new ArrayList<Integer>();
 
 			for (int m = 0; m < geometryGroup.getNumMorphTargets(); m++) {
-				geometryGroup.__webglMorphTargetsBuffers.add(createBuffer());
+				geometryGroup.__webglMorphTargetsBuffers.add(gl.glGenBuffer());
 			}
 		}
 
@@ -648,7 +657,7 @@ public class Mesh extends GeometryObject
 			geometryGroup.__webglMorphNormalsBuffers = new ArrayList<Integer>();
 
 			for (int m = 0; m < geometryGroup.getNumMorphNormals(); m++) {
-				geometryGroup.__webglMorphNormalsBuffers.add(createBuffer());
+				geometryGroup.__webglMorphNormalsBuffers.add(gl.glGenBuffer());
 			}
 		}
 		
@@ -666,7 +675,8 @@ public class Mesh extends GeometryObject
 //				geometryBuffer.isUvsNeedUpdate() || geometryBuffer.isNormalsNeedUpdate() ||
 //				geometryBuffer.isColorsNeedUpdate() || geometryBuffer.isTangentsNeedUpdate() ) 
 //			{
-//				((BufferGeometry)geometryBuffer).setDirectBuffers( renderer.getGL(), BufferUsage.DYNAMIC_DRAW, !geometryBuffer.isDynamic() );
+//				((BufferGeometry)geometryBuffer).setDirectBuffers( renderer.getGL(),
+// 						BufferUsage.DYNAMIC_DRAW, !geometryBuffer.isDynamic() );
 //			}
 //
 //			geometryBuffer.setVerticesNeedUpdate(false);
@@ -711,9 +721,11 @@ public class Mesh extends GeometryObject
 //	}
 
 	// setMeshBuffers
-	public void setBuffers(GeometryGroup geometryGroup, int bufferUsageHint, boolean dispose, Material material)
+	public void setBuffers(GL20 gl, GeometryGroup geometryGroup,
+						   int bufferUsageHint, boolean dispose, Material material)
 	{
-		//Log.debug("Called Mesh.setBuffers() - material=" + material.getId() + ", " + material.getClass().getName());
+		//Log.debug("Called Mesh.setBuffers() - material=" + material.getId() + ", " +
+		// 			material.getClass().getName());
 
 		if ( ! geometryGroup.__inittedArrays )
 			 return;
@@ -850,7 +862,8 @@ public class Mesh extends GeometryObject
 						 Vector3 n1, n2, n3;
 						 if ( needsSmoothNormals ) 
 						 {
-							 Geometry.VertextNormal faceVertexNormals = morphNormals.get( vk ).vertexNormals.get( chf );
+							 Geometry.VertextNormal faceVertexNormals =
+									 morphNormals.get( vk ).vertexNormals.get( chf );
 
 							 n1 = faceVertexNormals.a;
 							 n2 = faceVertexNormals.b;
@@ -974,7 +987,8 @@ public class Mesh extends GeometryObject
 				 Color faceColor = face.getColor();
 				 Color c1, c2, c3;
 
-				 if ( vertexColors.size() == 3 && ((HasVertexColors)material).isVertexColors() == Material.COLORS.VERTEX) 
+				 if ( vertexColors.size() == 3 &&
+						 ((HasVertexColors)material).isVertexColors() == Material.COLORS.VERTEX)
 				 {
 					 c1 = vertexColors.get(0);
 					 c2 = vertexColors.get(1);
@@ -1212,9 +1226,12 @@ public class Mesh extends GeometryObject
 						 {
 							 Face3 face = obj_faces.get(chunk_faces3.get(f));
 
-							 customAttribute.array.set(offset_custom, (Double)customAttribute.getValue().get(face.getA()));
-							 customAttribute.array.set(offset_custom + 1, (Double)customAttribute.getValue().get(face.getB()));
-							 customAttribute.array.set(offset_custom + 2, (Double)customAttribute.getValue().get(face.getC()));
+							 customAttribute.array.set(offset_custom,
+									 (Double)customAttribute.getValue().get(face.getA()));
+							 customAttribute.array.set(offset_custom + 1,
+									 (Double)customAttribute.getValue().get(face.getB()));
+							 customAttribute.array.set(offset_custom + 2,
+									 (Double)customAttribute.getValue().get(face.getC()));
 
 							 offset_custom += 3;
 						 }
@@ -1391,7 +1408,8 @@ public class Mesh extends GeometryObject
 						 {
 							 if(customAttribute.type == Attribute.TYPE.C) 
 							 {
-								 List<Color> value = (List<Color>) customAttribute.getValue().get(chunk_faces3.get(f));
+								 List<Color> value = (List<Color>)
+										 customAttribute.getValue().get(chunk_faces3.get(f));
 								 Color v1 = value.get(0);
 								 Color v2 = value.get(1);
 								 Color v3 = value.get(2);
@@ -1410,7 +1428,8 @@ public class Mesh extends GeometryObject
 							 }
 							 else
 							 {
-								 List<Vector3> value = (List<Vector3>) customAttribute.getValue().get(chunk_faces3.get(f));
+								 List<Vector3> value = (List<Vector3>)
+										 customAttribute.getValue().get(chunk_faces3.get(f));
 								 Vector3 v1 = value.get(0);
 								 Vector3 v2 = value.get(1);
 								 Vector3 v3 = value.get(2);
@@ -1610,7 +1629,8 @@ public class Mesh extends GeometryObject
 //			String groupHash = materialHash + '_' + hash_map.get(materialHash);
 //			
 //			if( ! geometry.getGeometryGroupsCache().containsKey(groupHash))
-//				geometry.getGeometryGroupsCache().put(groupHash, new GeometryGroup(materialIndex, numMorphTargets, numMorphNormals));
+//				geometry.getGeometryGroupsCache().put(groupHash,
+// 						new GeometryGroup(materialIndex, numMorphTargets, numMorphNormals));
 //
 //			int vertices = face.getClass() == Face3.class ? 3 : 4;
 //
@@ -1620,7 +1640,8 @@ public class Mesh extends GeometryObject
 //				groupHash = materialHash + '_' + hash_map.get( materialHash );
 //
 //				if ( ! geometry.getGeometryGroupsCache().containsKey(groupHash))
-//					geometry.getGeometryGroupsCache().put(groupHash, new GeometryGroup(materialIndex, numMorphTargets, numMorphNormals));
+//					geometry.getGeometryGroupsCache().put(groupHash,
+// 							new GeometryGroup(materialIndex, numMorphTargets, numMorphNormals));
 //			}
 //
 //			if ( face.getClass() == Face3.class )
@@ -1639,16 +1660,4 @@ public class Mesh extends GeometryObject
 //			geometry.getGeometryGroups().add( g );
 //		}
 //	}
-
-	private int createBuffer()
-	{
-		gl.glGenBuffers(1, workBufArray, 0);
-		return workBufArray[0];
-	}
-
-	private void deleteBuffer(int buffer)
-	{
-		workBufArray[0] = buffer;
-		gl.glDeleteBuffers(1, workBufArray, 0);
-	}
 }
