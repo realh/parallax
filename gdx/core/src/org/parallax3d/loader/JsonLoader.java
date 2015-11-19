@@ -163,7 +163,7 @@ public class JsonLoader
 		return true;
 	}
 		
-	private void parseMaterials()
+	private void parseMaterials() throws IOException
 	{
 		JsonValue materials;
 
@@ -182,7 +182,7 @@ public class JsonLoader
 //		geometry.setMaterials(this.materials);
 	}
 	
-	private Material createMaterial(JsonValue jsonMaterial)
+	private Material createMaterial(JsonValue jsonMaterial) throws IOException
 	{
 		// defaults
 		Material material;
@@ -446,7 +446,7 @@ public class JsonLoader
 		return material;
 	}
 	
-	private void parseModel(Geometry geometry) throws JSONException
+	private void parseModel(Geometry geometry)
 	{
 		List<Integer> faces = getArrayAsList("faces");
 
@@ -642,7 +642,6 @@ public class JsonLoader
 						List<Double> uvLayer = uvs.get( i );
 
 						ArrayList<Vector2> getFaceVertexUvs = new ArrayList<Vector2>();
-						int fi = geometry.getFaces().size();
 
 						for ( int j = 0; j < 3; j ++ ) {
 
@@ -718,14 +717,14 @@ public class JsonLoader
 		}
 	}
 
-	private <T> List<T> getArrayAsList(String name) throws JSONException
+	private <T> List<T> getArrayAsList(String name)
 	{
 		JsonValue jsonArray = object.get(name);
 
 		return (jsonArray != null) ? (List<T>) jsonArrayToList(jsonArray) : null;
 	}
 
-	private <T> List<List<T>> getNestedArrayAsLists(String name) throws JSONException
+	private <T> List<List<T>> getNestedArrayAsLists(String name)
 	{
 		JsonValue jsonArray = object.get(name);
 
@@ -744,9 +743,9 @@ public class JsonLoader
 		return nestedList;
 	}
 
-	private static <T> List<T> jsonArrayToList(JsonValue jsonArray) throws JSONException
+	private static <T> List<T> jsonArrayToList(JsonValue jsonArray)
 	{
-		int len = jsonArray.length();
+		int len = jsonArray.size;
 		List<T> list = new ArrayList<T>(len);
 
 		for (int i = 0; i < len; ++i)
@@ -757,7 +756,7 @@ public class JsonLoader
 		return list;
 	}
 	
-	private void parseSkin(Geometry geometry) throws JSONException
+	private void parseSkin(Geometry geometry)
 	{
 		int influencesPerVertex = object.getInt("influencesPerVertex");
 		if (influencesPerVertex <= 0)
@@ -799,7 +798,7 @@ public class JsonLoader
 //		geometry.animation = json.animation;
 	}
 
-	private void parseMorphing(Geometry geometry) throws JSONException
+	private void parseMorphing(Geometry geometry)
 	{
 		Log.debug("JSON parseMorphing()");
 
@@ -809,16 +808,16 @@ public class JsonLoader
 		JsonValue morphTargets = object.get("morphTargets");
 		if ( morphTargets != null)
 		{
-			for ( int i = 0, l = morphTargets.length(); i < l; i ++ )
+			for ( int i = 0, l = morphTargets.size; i < l; i ++ )
 			{
-				JSONObject jsonTarget = morphTargets.getJSONObject(i);
+				JsonValue jsonTarget = morphTargets.get(i);
 
 				Geometry.MorphTarget morphTarget = geometry.new MorphTarget();
 				morphTarget.name = jsonTarget.getString("name");
 				morphTarget.vertices = new ArrayList<Vector3>();
 
 				JsonValue srcVertices = jsonTarget.get("vertices");
-				for( int v = 0, vl = srcVertices.length(); v < vl; v += 3 )
+				for( int v = 0, vl = srcVertices.size; v < vl; v += 3 )
 				{
 					morphTarget.vertices.add( 
 							new Vector3(
@@ -834,15 +833,15 @@ public class JsonLoader
 		JsonValue morphColors = object.get("morphColors");
 		if ( morphColors != null )
 		{
-			for ( int i = 0, l = morphColors.length(); i < l; i++ )
+			for ( int i = 0, l = morphColors.size; i < l; i++ )
 			{
-				JSONObject jsonColor = morphColors.getJSONObject(i);
+				JsonValue jsonColor = morphColors.get(i);
 				Geometry.MorphColor morphColor = geometry.new MorphColor();
 				morphColor.name = jsonColor.getString("name");
 				morphColor.colors = new ArrayList<Color>();
 
 				JsonValue srcColors = jsonColor.get("colors");
-				for ( int c = 0, cl = srcColors.length(); c < cl; c += 3 )
+				for ( int c = 0, cl = srcColors.size; c < cl; c += 3 )
 				{
 					Color color = new Color( 0xffaa00 );
 					color.setRGB(srcColors.getDouble(c), srcColors.getDouble(c + 1), srcColors.getDouble(c + 2));
