@@ -24,8 +24,12 @@ using JNI extensively.
 ## How to use the code ###
 
 The repository basically adds an Android Studio app in the `android` folder,
-implementing the demo app, which is now being submitted to Google Play. To use
-the library you will probably just want to add
+implementing the demo app, which is [now available on Google
+Play](https://play.google.com/store/apps/details?id=realh.co.uk.parallax3d).
+Please note that some of the demos use a lot of GPU and system memory so may
+appear glitchy or crash even on fairly high end devices.
+
+To use the library you will probably just want to add
 `android/app/src/main/java/thothbot` to your own project. Please note the
 package namespace and its internal structure are highly likely to change in the
 near future.
