@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.parallax3d.math.Mathematics;
+import org.parallax3d.renderer.WebGLRenderer;
 
 public class RenderTargetCubeTexture extends RenderTargetTexture
 {
@@ -49,20 +50,20 @@ public class RenderTargetCubeTexture extends RenderTargetTexture
 	private int[] tmpArray = {0};
 
 	@Override
-	public void deallocate()
+	public void deallocate(WebGLRenderer renderer)
 	{
-		if (this.webglTexture[0] == 0)
+		if (this.webglTexture == 0)
 			return;
+
+		GL20 gl = renderer.getGL();
 	
-		gl.glDeleteTextures(1, this.webglTexture, 0);
-		this.webglTexture[0] = 0;
+		gl.glDeleteTexture(this.webglTexture);
+		this.webglTexture = 0;
 		
 		for (int i = 0; i < 6; i++) 
 		{
-			tmpArray[0] = this.webglFramebuffer.get(i);
-			gl.glDeleteFramebuffers(1, tmpArray, 0);
-			tmpArray[0] = this.webglRenderbuffer.get(i);
-			gl.glDeleteRenderbuffers(1, tmpArray, 0);
+			gl.glDeleteFramebuffer(this.webglFramebuffer.get(i));
+			gl.glDeleteRenderbuffer(this.webglRenderbuffer.get(i));
 		}
 		
 		this.webglFramebuffer = null;
@@ -76,12 +77,14 @@ public class RenderTargetCubeTexture extends RenderTargetTexture
 	}
 	
 	@Override
-	public void setRenderTarget()
+	public void setRenderTarget(WebGLRenderer renderer)
 	{
 		if (this.webglFramebuffer != null)
 			return;
 
-		gl.glGenTextures(1, webglTexture, 0);
+		GL20 gl = renderer.getGL();
+
+		webglTexture = gl.glGenTexture();
 
 		// Setup texture, create render and frame buffers
 		boolean isTargetPowerOfTwo = Mathematics.isPowerOfTwo(getWidth())
@@ -90,23 +93,21 @@ public class RenderTargetCubeTexture extends RenderTargetTexture
 		this.webglFramebuffer = new ArrayList<Integer>();
 		this.webglRenderbuffer = new ArrayList<Integer>();
 
-		gl.glBindTexture( GL20.GL_TEXTURE_CUBE_MAP, webglTexture[0] );
+		gl.glBindTexture( GL20.GL_TEXTURE_CUBE_MAP, webglTexture );
 
-		setTextureParameters( GL20.GL_TEXTURE_CUBE_MAP, isTargetPowerOfTwo );
+		setTextureParameters( gl, GL20.GL_TEXTURE_CUBE_MAP, isTargetPowerOfTwo );
 
 		for ( int i = 0; i < 6; i ++ ) 
 		{
-			gl.glGenFramebuffers(1, tmpArray, 0);
-			this.webglFramebuffer.add( tmpArray[0] );
-			gl.glGenRenderbuffers(1, tmpArray, 0);
-			this.webglRenderbuffer.add( tmpArray[0] );
+			this.webglFramebuffer.add( gl.glGenFramebuffer() );
+			this.webglRenderbuffer.add( gl.glGenRenderbuffer() );
 
-			gl.glTexImage2D( GL20.GL_TEXTURE_CUBE_MAP_POSITIVE_X, i, 0, getWidth(), getHeight(), 0,
-					getFormat(), getType(), null );
+			gl.glTexImage2D(GL20.GL_TEXTURE_CUBE_MAP_POSITIVE_X, i, 0, getWidth(), getHeight(), 0,
+					getFormat(), getType(), null);
 
-			this.setupFrameBuffer(this.webglFramebuffer.get( i ),
+			this.setupFrameBuffer(gl, this.webglFramebuffer.get( i ),
 					GL20.GL_TEXTURE_CUBE_MAP_POSITIVE_X, i);
-			this.setupRenderBuffer(this.webglRenderbuffer.get( i ));
+			this.setupRenderBuffer(gl, this.webglRenderbuffer.get( i ));
 		}
 
 		if ( isTargetPowerOfTwo ) 
@@ -118,17 +119,17 @@ public class RenderTargetCubeTexture extends RenderTargetTexture
 		gl.glBindFramebuffer(GL20.GL_FRAMEBUFFER, 0);
 	}
 	
-	public void setupFrameBuffer(int framebuffer, int textureTarget, int slot)
+	public void setupFrameBuffer(GL20 gl, int framebuffer, int textureTarget, int slot)
 	{	
 		gl.glBindFramebuffer(GL20.GL_FRAMEBUFFER, framebuffer);
 		gl.glFramebufferTexture2D(GL20.GL_COLOR_ATTACHMENT0, textureTarget,
-				slot, this.webglTexture[0], 0);
+				slot, this.webglTexture, 0);
 	}
 	
 	@Override
-	public void updateRenderTargetMipmap()
+	public void updateRenderTargetMipmap(GL20 gl)
 	{	
-		gl.glBindTexture( GL20.GL_TEXTURE_CUBE_MAP, this.webglTexture[0] );
+		gl.glBindTexture( GL20.GL_TEXTURE_CUBE_MAP, this.webglTexture );
 		gl.glGenerateMipmap( GL20.GL_TEXTURE_CUBE_MAP );
 		gl.glBindTexture( GL20.GL_TEXTURE_CUBE_MAP, 0 );
 	}

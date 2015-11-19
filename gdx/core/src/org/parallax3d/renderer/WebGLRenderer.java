@@ -268,18 +268,18 @@ public class WebGLRenderer extends AbstractRenderer
                 WebGLExtensions.get(WebGLExtensions.Id.OES_texture_float);
 		
 		this._vertexShaderPrecisionHighpFloat = new
-                WebGLShaderPrecisionFormat(GL20.GL_VERTEX_SHADER, GL20.GL_HIGH_FLOAT);
+                WebGLShaderPrecisionFormat(gl, GL20.GL_VERTEX_SHADER, GL20.GL_HIGH_FLOAT);
 		this._vertexShaderPrecisionMediumpFloat = new
-                WebGLShaderPrecisionFormat(GL20.GL_VERTEX_SHADER, GL20.GL_MEDIUM_FLOAT);
+                WebGLShaderPrecisionFormat(gl, GL20.GL_VERTEX_SHADER, GL20.GL_MEDIUM_FLOAT);
 		this._vertexShaderPrecisionLowpFloat = new
-                WebGLShaderPrecisionFormat(GL20.GL_VERTEX_SHADER, GL20.GL_LOW_FLOAT);
+                WebGLShaderPrecisionFormat(gl, GL20.GL_VERTEX_SHADER, GL20.GL_LOW_FLOAT);
 
 		this._fragmentShaderPrecisionHighpFloat = new
-                WebGLShaderPrecisionFormat(GL20.GL_FRAGMENT_SHADER, GL20.GL_HIGH_FLOAT);
+                WebGLShaderPrecisionFormat(gl, GL20.GL_FRAGMENT_SHADER, GL20.GL_HIGH_FLOAT);
 		this._fragmentShaderPrecisionMediumpFloat =
-                new WebGLShaderPrecisionFormat(GL20.GL_FRAGMENT_SHADER, GL20.GL_MEDIUM_FLOAT);
+                new WebGLShaderPrecisionFormat(gl, GL20.GL_FRAGMENT_SHADER, GL20.GL_MEDIUM_FLOAT);
 		this._fragmentShaderPrecisionLowpFloat = new
-                WebGLShaderPrecisionFormat(GL20.GL_FRAGMENT_SHADER, GL20.GL_LOW_FLOAT);
+                WebGLShaderPrecisionFormat(gl, GL20.GL_FRAGMENT_SHADER, GL20.GL_LOW_FLOAT);
 		
 		this.highpAvailable = _vertexShaderPrecisionHighpFloat.getPrecision() > 0 &&
                 _fragmentShaderPrecisionHighpFloat.getPrecision() > 0;
@@ -1894,7 +1894,7 @@ public class WebGLRenderer extends AbstractRenderer
 				&& renderTarget.getMinFilter() != GL20.GL_NEAREST
 				&& renderTarget.getMinFilter() != GL20.GL_LINEAR)
 		{
-			renderTarget.updateRenderTargetMipmap();
+			renderTarget.updateRenderTargetMipmap(gl);
 		}
 
 		// Ensure depth buffer writing is enabled so it can be cleared on next render
@@ -2979,7 +2979,7 @@ public class WebGLRenderer extends AbstractRenderer
 			boolean isImagePowerOfTwo = Mathematics.isPowerOfTwo( image.getWidth() )
 					&& Mathematics.isPowerOfTwo( image.getHeight() );
 
-			texture.setTextureParameters( getMaxAnisotropy(),
+			texture.setTextureParameters( gl, getMaxAnisotropy(),
                     GL20.GL_TEXTURE_2D, isImagePowerOfTwo );
 
 			if ( texture instanceof CompressedTexture ) 
@@ -3100,7 +3100,7 @@ public class WebGLRenderer extends AbstractRenderer
 			boolean isImagePowerOfTwo = Mathematics.isPowerOfTwo( image.getWidth() )
 					&& Mathematics.isPowerOfTwo( image.getHeight() );
 
-			texture.setTextureParameters( getMaxAnisotropy(), GL20.GL_TEXTURE_CUBE_MAP,
+			texture.setTextureParameters( gl, getMaxAnisotropy(), GL20.GL_TEXTURE_CUBE_MAP,
 					true /*power of two*/ );
 
 			for ( int i = 0; i < 6; i ++ ) 
@@ -3147,7 +3147,7 @@ public class WebGLRenderer extends AbstractRenderer
 		
 		if(renderTarget != null) 
 		{
-			renderTarget.setRenderTarget();
+			renderTarget.setRenderTarget(this);
 		    framebuffer = renderTarget.getWebGLFramebuffer();
 
 		    width = renderTarget.getWidth();

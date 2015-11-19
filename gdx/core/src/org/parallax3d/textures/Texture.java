@@ -87,7 +87,7 @@ public class Texture
 
 	private boolean isNeedsUpdate = true;
 	
-	protected int[] webglTexture = { 0 };
+	protected int webglTexture;
 	
 	private int anisotropy;
 	
@@ -393,19 +393,19 @@ public class Texture
 	}
 
 	public int getWebGlTexture() {
-		return webglTexture[0];
+		return webglTexture;
 	}
 
 	public void setWebGlTexture(int webglTexture) {
-		this.webglTexture[0] = webglTexture;
+		this.webglTexture = webglTexture;
 	}
 
-	public void setTextureParameters (int textureType, boolean isImagePowerOfTwo )
+	public void setTextureParameters (GL20 gl, int textureType, boolean isImagePowerOfTwo )
 	{
-		setTextureParameters(0, textureType, isImagePowerOfTwo);
+		setTextureParameters(gl, 0, textureType, isImagePowerOfTwo);
 	}
 
-	public void setTextureParameters (int maxAnisotropy, int textureType, boolean isImagePowerOfTwo )
+	public void setTextureParameters (GL20 gl, int maxAnisotropy, int textureType, boolean isImagePowerOfTwo )
 	{	
 		if ( isImagePowerOfTwo ) 
 		{
@@ -450,9 +450,9 @@ public class Texture
 	 */
 	public void deallocate(WebGLRenderer renderer)
 	{
-		if ( webglTexture[0] == 0 ) return;
+		if ( webglTexture == 0 ) return;
 
-		gl.glDeleteTextures(1, webglTexture, 0);
+		renderer.getGL().glDeleteTexture(webglTexture);
 
 		renderer.getInfo().getMemory().textures--;
 	}
