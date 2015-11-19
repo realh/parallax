@@ -8,9 +8,9 @@ import android.os.Handler;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import thothbot.parallax.core.client.renderers.Duration;
-import thothbot.parallax.core.client.renderers.WebGLRenderer;
-import thothbot.parallax.core.shared.scenes.Scene;
+import org.parallax3d.renderer.Duration;
+import org.parallax3d.renderer.WebGLRenderer;
+import org.parallax3d.scenes.Scene;
 
 public abstract class DemoActivity extends Activity
 {

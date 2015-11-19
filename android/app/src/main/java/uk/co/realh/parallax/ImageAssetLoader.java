@@ -27,7 +27,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 
-import thothbot.parallax.core.client.android.AndroidImage;
+import org.parallax3d.android.AndroidImage;
 
 public class ImageAssetLoader
 {

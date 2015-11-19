@@ -3,20 +3,20 @@ package uk.co.realh.parallax;
 import android.app.Activity;
 import android.util.Log;
 
-import thothbot.parallax.core.client.android.AndroidAssetLoader;
-import thothbot.parallax.core.client.gl2.Image;
-import thothbot.parallax.core.client.gl2.enums.TextureWrapMode;
-import thothbot.parallax.core.client.renderers.Duration;
-import thothbot.parallax.core.client.textures.Texture;
-import thothbot.parallax.core.shared.cameras.PerspectiveCamera;
-import thothbot.parallax.core.shared.geometries.PlaneGeometry;
-import thothbot.parallax.core.shared.materials.MeshBasicMaterial;
-import thothbot.parallax.core.shared.math.Color;
-import thothbot.parallax.core.shared.math.Matrix4;
-import thothbot.parallax.core.shared.math.Vector3;
-import thothbot.parallax.core.shared.math.Vector4;
-import thothbot.parallax.core.shared.objects.Mesh;
-import thothbot.parallax.core.shared.scenes.FogExp2;
+import org.parallax3d.android.AndroidAssetLoader;
+import org.parallax3d.renderer.Image;
+import org.parallax3d.renderer.TextureWrapMode;
+import org.parallax3d.renderer.Duration;
+import org.parallax3d.textures.Texture;
+import org.parallax3d.cameras.PerspectiveCamera;
+import org.parallax3d.geometries.PlaneGeometry;
+import org.parallax3d.materials.MeshBasicMaterial;
+import org.parallax3d.math.Color;
+import org.parallax3d.math.Matrix4;
+import org.parallax3d.math.Vector3;
+import org.parallax3d.math.Vector4;
+import org.parallax3d.objects.Mesh;
+import org.parallax3d.scenes.FogExp2;
 
 public class MovingVerticesActivity extends DemoActivity
 {

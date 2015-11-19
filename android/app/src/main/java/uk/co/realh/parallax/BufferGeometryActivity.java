@@ -1,18 +1,18 @@
 package uk.co.realh.parallax;
 
-import thothbot.parallax.core.client.gl2.arrays.Float32Array;
-import thothbot.parallax.core.client.gl2.arrays.Uint16Array;
-import thothbot.parallax.core.shared.cameras.PerspectiveCamera;
-import thothbot.parallax.core.shared.core.BufferAttribute;
-import thothbot.parallax.core.shared.core.BufferGeometry;
-import thothbot.parallax.core.shared.lights.AmbientLight;
-import thothbot.parallax.core.shared.lights.DirectionalLight;
-import thothbot.parallax.core.shared.materials.Material;
-import thothbot.parallax.core.shared.materials.MeshPhongMaterial;
-import thothbot.parallax.core.shared.math.Color;
-import thothbot.parallax.core.shared.math.Vector3;
-import thothbot.parallax.core.shared.objects.Mesh;
-import thothbot.parallax.core.shared.scenes.Fog;
+import org.parallax3d.renderer.Float32Array;
+import org.parallax3d.renderer.Uint16Array;
+import org.parallax3d.cameras.PerspectiveCamera;
+import org.parallax3d.core.BufferAttribute;
+import org.parallax3d.core.BufferGeometry;
+import org.parallax3d.lights.AmbientLight;
+import org.parallax3d.lights.DirectionalLight;
+import org.parallax3d.materials.Material;
+import org.parallax3d.materials.MeshPhongMaterial;
+import org.parallax3d.math.Color;
+import org.parallax3d.math.Vector3;
+import org.parallax3d.objects.Mesh;
+import org.parallax3d.scenes.Fog;
 
 public class BufferGeometryActivity extends DemoActivity {
 

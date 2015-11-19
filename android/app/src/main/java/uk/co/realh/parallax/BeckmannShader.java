@@ -19,7 +19,7 @@
 
 package uk.co.realh.parallax;
 
-import thothbot.parallax.core.client.shaders.Shader;
+import org.parallax3d.shaders.Shader;
 import uk.co.realh.parallax.shaders.beckmann;
 
 

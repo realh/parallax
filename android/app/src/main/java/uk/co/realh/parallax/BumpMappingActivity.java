@@ -4,23 +4,23 @@ import android.app.Activity;
 import android.opengl.GLES20;
 import android.util.Log;
 
-import thothbot.parallax.core.client.android.AndroidAssetLoader;
-import thothbot.parallax.core.client.gl2.Image;
-import thothbot.parallax.core.client.gl2.enums.TextureWrapMode;
-import thothbot.parallax.core.client.renderers.ShadowMap;
-import thothbot.parallax.core.client.textures.Texture;
-import thothbot.parallax.core.shared.cameras.PerspectiveCamera;
-import thothbot.parallax.core.shared.core.AbstractGeometry;
-import thothbot.parallax.core.shared.core.Geometry;
-import thothbot.parallax.core.shared.lights.AmbientLight;
-import thothbot.parallax.core.shared.lights.DirectionalLight;
-import thothbot.parallax.core.shared.lights.PointLight;
-import thothbot.parallax.core.shared.lights.SpotLight;
-import thothbot.parallax.core.shared.materials.Material;
-import thothbot.parallax.core.shared.materials.MeshPhongMaterial;
-import thothbot.parallax.core.shared.math.Color;
-import thothbot.parallax.core.shared.objects.Mesh;
-import thothbot.parallax.loader.shared.JsonLoader;
+import org.parallax3d.android.AndroidAssetLoader;
+import org.parallax3d.renderer.Image;
+import org.parallax3d.renderer.TextureWrapMode;
+import org.parallax3d.renderer.ShadowMap;
+import org.parallax3d.textures.Texture;
+import org.parallax3d.cameras.PerspectiveCamera;
+import org.parallax3d.core.AbstractGeometry;
+import org.parallax3d.core.Geometry;
+import org.parallax3d.lights.AmbientLight;
+import org.parallax3d.lights.DirectionalLight;
+import org.parallax3d.lights.PointLight;
+import org.parallax3d.lights.SpotLight;
+import org.parallax3d.materials.Material;
+import org.parallax3d.materials.MeshPhongMaterial;
+import org.parallax3d.math.Color;
+import org.parallax3d.objects.Mesh;
+import org.parallax3d.loader.JsonLoader;
 
 public class BumpMappingActivity extends DemoActivity
 {

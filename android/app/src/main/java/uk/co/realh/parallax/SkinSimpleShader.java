@@ -22,14 +22,14 @@ package uk.co.realh.parallax;
 import java.util.Arrays;
 import java.util.List;
 
-import thothbot.parallax.core.client.shaders.ChunksFragmentShader;
-import thothbot.parallax.core.client.shaders.ChunksVertexShader;
-import thothbot.parallax.core.client.shaders.Shader;
-import thothbot.parallax.core.client.shaders.Uniform;
-import thothbot.parallax.core.client.shaders.UniformsLib;
-import thothbot.parallax.core.shared.math.Color;
-import thothbot.parallax.core.shared.math.Vector3;
-import thothbot.parallax.core.shared.math.Vector4;
+import org.parallax3d.shaders.ChunksFragmentShader;
+import org.parallax3d.shaders.ChunksVertexShader;
+import org.parallax3d.shaders.Shader;
+import org.parallax3d.shaders.Uniform;
+import org.parallax3d.shaders.UniformsLib;
+import org.parallax3d.math.Color;
+import org.parallax3d.math.Vector3;
+import org.parallax3d.math.Vector4;
 
 
 /**

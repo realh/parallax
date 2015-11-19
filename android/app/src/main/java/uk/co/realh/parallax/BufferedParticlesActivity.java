@@ -18,15 +18,15 @@
 
 package uk.co.realh.parallax;
 
-import thothbot.parallax.core.client.gl2.arrays.Float32Array;
-import thothbot.parallax.core.shared.cameras.PerspectiveCamera;
-import thothbot.parallax.core.shared.core.BufferAttribute;
-import thothbot.parallax.core.shared.core.BufferGeometry;
-import thothbot.parallax.core.shared.materials.Material;
-import thothbot.parallax.core.shared.materials.PointCloudMaterial;
-import thothbot.parallax.core.shared.math.Color;
-import thothbot.parallax.core.shared.objects.PointCloud;
-import thothbot.parallax.core.shared.scenes.Fog;
+import org.parallax3d.renderer.Float32Array;
+import org.parallax3d.cameras.PerspectiveCamera;
+import org.parallax3d.core.BufferAttribute;
+import org.parallax3d.core.BufferGeometry;
+import org.parallax3d.materials.Material;
+import org.parallax3d.materials.PointCloudMaterial;
+import org.parallax3d.math.Color;
+import org.parallax3d.objects.PointCloud;
+import org.parallax3d.scenes.Fog;
 
 public class BufferedParticlesActivity extends DemoActivity {
 

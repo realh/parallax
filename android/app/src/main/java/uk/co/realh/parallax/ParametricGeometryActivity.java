@@ -6,22 +6,22 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import thothbot.parallax.core.client.android.AndroidAssetLoader;
-import thothbot.parallax.core.client.gl2.Image;
-import thothbot.parallax.core.client.gl2.enums.TextureWrapMode;
-import thothbot.parallax.core.client.textures.Texture;
-import thothbot.parallax.core.shared.cameras.PerspectiveCamera;
-import thothbot.parallax.core.shared.core.Object3D;
-import thothbot.parallax.core.shared.geometries.parametric.KleinParametricGeometry;
-import thothbot.parallax.core.shared.geometries.parametric.MobiusParametricGeometry;
-import thothbot.parallax.core.shared.geometries.parametric.PlaneParametricGeometry;
-import thothbot.parallax.core.shared.lights.AmbientLight;
-import thothbot.parallax.core.shared.lights.DirectionalLight;
-import thothbot.parallax.core.shared.materials.Material;
-import thothbot.parallax.core.shared.materials.MeshBasicMaterial;
-import thothbot.parallax.core.shared.materials.MeshLambertMaterial;
-import thothbot.parallax.core.shared.math.Color;
-import thothbot.parallax.core.shared.utils.SceneUtils;
+import org.parallax3d.android.AndroidAssetLoader;
+import org.parallax3d.renderer.Image;
+import org.parallax3d.renderer.TextureWrapMode;
+import org.parallax3d.textures.Texture;
+import org.parallax3d.cameras.PerspectiveCamera;
+import org.parallax3d.core.Object3D;
+import org.parallax3d.geometries.parametric.KleinParametricGeometry;
+import org.parallax3d.geometries.parametric.MobiusParametricGeometry;
+import org.parallax3d.geometries.parametric.PlaneParametricGeometry;
+import org.parallax3d.lights.AmbientLight;
+import org.parallax3d.lights.DirectionalLight;
+import org.parallax3d.materials.Material;
+import org.parallax3d.materials.MeshBasicMaterial;
+import org.parallax3d.materials.MeshLambertMaterial;
+import org.parallax3d.math.Color;
+import org.parallax3d.utils.SceneUtils;
 
 public class ParametricGeometryActivity extends DemoActivity {
 

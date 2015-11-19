@@ -3,15 +3,14 @@ package uk.co.realh.parallax;
 import android.app.Activity;
 import android.util.Log;
 
-import thothbot.parallax.core.client.android.AndroidAssetLoader;
-import thothbot.parallax.core.client.android.AndroidImage;
-import thothbot.parallax.core.client.gl2.Image;
-import thothbot.parallax.core.client.textures.Texture;
-import thothbot.parallax.core.shared.cameras.PerspectiveCamera;
-import thothbot.parallax.core.shared.geometries.BoxGeometry;
-import thothbot.parallax.core.shared.materials.MeshBasicMaterial;
-import thothbot.parallax.core.shared.math.Color;
-import thothbot.parallax.core.shared.objects.Mesh;
+import org.parallax3d.android.AndroidAssetLoader;
+import org.parallax3d.renderer.Image;
+import org.parallax3d.textures.Texture;
+import org.parallax3d.cameras.PerspectiveCamera;
+import org.parallax3d.geometries.BoxGeometry;
+import org.parallax3d.materials.MeshBasicMaterial;
+import org.parallax3d.math.Color;
+import org.parallax3d.objects.Mesh;
 
 public class CubeTextureActivity extends DemoActivity {
 
