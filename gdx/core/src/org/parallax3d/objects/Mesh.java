@@ -430,9 +430,9 @@ public class Mesh extends GeometryObject
 			setLineWidth( ((HasWireframe)getMaterial()).getWireframeLineWidth() );
 
 			if ( updateBuffers ) 
-				GL20.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, geometryGroup.__webglLineBuffer);
+				gl.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, geometryGroup.__webglLineBuffer);
 			
-			GL20.glDrawElements(GL20.GL_LINES, geometryGroup.__webglLineCount, GL20.GL_UNSIGNED_SHORT, 0);
+			gl.glDrawElements(GL20.GL_LINES, geometryGroup.__webglLineCount, GL20.GL_UNSIGNED_SHORT, 0);
 
 			// triangles
 
@@ -440,9 +440,9 @@ public class Mesh extends GeometryObject
 		else 
 		{
 			if ( updateBuffers ) 
-				GL20.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, geometryGroup.__webglFaceBuffer);
+				gl.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, geometryGroup.__webglFaceBuffer);
 			
-			GL20.glDrawElements(GL20.GL_TRIANGLES, geometryGroup.__webglFaceCount, GL20.GL_UNSIGNED_SHORT, 0);
+			gl.glDrawElements(GL20.GL_TRIANGLES, geometryGroup.__webglFaceCount, GL20.GL_UNSIGNED_SHORT, 0);
 		}
 		
 		info.getRender().calls ++;
@@ -806,8 +806,8 @@ public class Mesh extends GeometryObject
 				 offset += 9;
 			 }
 			 
-			 GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryGroup.__webglVertexBuffer);
-			 GL20.glBufferData(GL20.GL_ARRAY_BUFFER, vertexArray.getByteLength(),
+			 gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryGroup.__webglVertexBuffer);
+			 gl.glBufferData(GL20.GL_ARRAY_BUFFER, vertexArray.getByteLength(),
 					 vertexArray.getBuffer(), bufferUsageHint);
 		}
 		 
@@ -886,15 +886,15 @@ public class Mesh extends GeometryObject
 
                  TypeArray morphBuffer = morphTargetsArrays.get(vk);
 
-				 GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryGroup.__webglMorphTargetsBuffers.get(vk));
-				 GL20.glBufferData(GL20.GL_ARRAY_BUFFER, morphBuffer.getByteLength(),
+				 gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryGroup.__webglMorphTargetsBuffers.get(vk));
+				 gl.glBufferData(GL20.GL_ARRAY_BUFFER, morphBuffer.getByteLength(),
                          morphBuffer.getBuffer(), bufferUsageHint);
 
 				 if ( material instanceof HasSkinning && ((HasSkinning)material).isMorphNormals() ) 
 				 {
-					 GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryGroup.__webglMorphNormalsBuffers.get(vk));
+					 gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryGroup.__webglMorphNormalsBuffers.get(vk));
                      morphBuffer = morphNormalsArrays.get(vk);
-					 GL20.glBufferData(GL20.GL_ARRAY_BUFFER, morphBuffer.getByteLength(),
+					 gl.glBufferData(GL20.GL_ARRAY_BUFFER, morphBuffer.getByteLength(),
                              morphBuffer.getBuffer(), bufferUsageHint);
 				 }
 			 }
@@ -954,12 +954,12 @@ public class Mesh extends GeometryObject
 
 			 if ( offset_skin > 0 ) 
 			 {
-				 GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryGroup.__webglSkinIndicesBuffer);
-				 GL20.glBufferData(GL20.GL_ARRAY_BUFFER, skinIndexArray.getByteLength(),
+				 gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryGroup.__webglSkinIndicesBuffer);
+				 gl.glBufferData(GL20.GL_ARRAY_BUFFER, skinIndexArray.getByteLength(),
                          skinIndexArray.getBuffer(), bufferUsageHint);
 
-				 GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryGroup.__webglSkinWeightsBuffer);
-				 GL20.glBufferData(GL20.GL_ARRAY_BUFFER, skinWeightArray.getByteLength(),
+				 gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryGroup.__webglSkinWeightsBuffer);
+				 gl.glBufferData(GL20.GL_ARRAY_BUFFER, skinWeightArray.getByteLength(),
                          skinWeightArray.getBuffer(), bufferUsageHint);
 			 }
 		 }
@@ -1005,8 +1005,8 @@ public class Mesh extends GeometryObject
 
 			 if ( offset_color > 0 ) 
 			 {
-				 GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryGroup.__webglColorBuffer);
-				 GL20.glBufferData(GL20.GL_ARRAY_BUFFER, colorArray.getByteLength(),
+				 gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryGroup.__webglColorBuffer);
+				 gl.glBufferData(GL20.GL_ARRAY_BUFFER, colorArray.getByteLength(),
                          colorArray.getBuffer(), bufferUsageHint);
 			 }
 		 }
@@ -1043,8 +1043,8 @@ public class Mesh extends GeometryObject
 
 			 }
 
-			 GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryGroup.__webglTangentBuffer);
-			 GL20.glBufferData(GL20.GL_ARRAY_BUFFER, tangentArray.getByteLength(),
+			 gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryGroup.__webglTangentBuffer);
+			 gl.glBufferData(GL20.GL_ARRAY_BUFFER, tangentArray.getByteLength(),
                      tangentArray.getBuffer(), bufferUsageHint);
 
 		 }
@@ -1090,8 +1090,8 @@ public class Mesh extends GeometryObject
 				 }
 			 }
 
-			 GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryGroup.__webglNormalBuffer);
-			 GL20.glBufferData(GL20.GL_ARRAY_BUFFER, normalArray.getByteLength(),
+			 gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryGroup.__webglNormalBuffer);
+			 gl.glBufferData(GL20.GL_ARRAY_BUFFER, normalArray.getByteLength(),
                      normalArray.getBuffer(), bufferUsageHint);
 
 		 }
@@ -1122,8 +1122,8 @@ public class Mesh extends GeometryObject
 
 			 if ( offset_uv > 0 ) 
 			 {
-				 GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryGroup.__webglUVBuffer);
-				 GL20.glBufferData(GL20.GL_ARRAY_BUFFER, uvArray.getByteLength(),
+				 gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryGroup.__webglUVBuffer);
+				 gl.glBufferData(GL20.GL_ARRAY_BUFFER, uvArray.getByteLength(),
                          uvArray.getBuffer(), bufferUsageHint);
 			 }
 		 }
@@ -1152,8 +1152,8 @@ public class Mesh extends GeometryObject
 
 			 if ( offset_uv2 > 0 ) 
 			 {
-				 GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryGroup.__webglUV2Buffer);
-				 GL20.glBufferData(GL20.GL_ARRAY_BUFFER, uv2Array.getByteLength(),
+				 gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, geometryGroup.__webglUV2Buffer);
+				 gl.glBufferData(GL20.GL_ARRAY_BUFFER, uv2Array.getByteLength(),
                          uv2Array.getBuffer(), bufferUsageHint);
 			 }
 		 }
@@ -1182,12 +1182,12 @@ public class Mesh extends GeometryObject
 				 vertexIndex += 3;
 			 }
 			 
-			 GL20.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, geometryGroup.__webglFaceBuffer);
-			 GL20.glBufferData(GL20.GL_ELEMENT_ARRAY_BUFFER, faceArray.getByteLength(),
+			 gl.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, geometryGroup.__webglFaceBuffer);
+			 gl.glBufferData(GL20.GL_ELEMENT_ARRAY_BUFFER, faceArray.getByteLength(),
                      faceArray.getBuffer(), bufferUsageHint);
 
-			 GL20.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, geometryGroup.__webglLineBuffer);
-			 GL20.glBufferData(GL20.GL_ELEMENT_ARRAY_BUFFER, lineArray.getByteLength(),
+			 gl.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, geometryGroup.__webglLineBuffer);
+			 gl.glBufferData(GL20.GL_ELEMENT_ARRAY_BUFFER, lineArray.getByteLength(),
                      lineArray.getBuffer(), bufferUsageHint);
 
 		 }
@@ -1525,8 +1525,8 @@ public class Mesh extends GeometryObject
 					 }
 				 }
 
-				 GL20.glBindBuffer(GL20.GL_ARRAY_BUFFER, customAttribute.buffer);
-				 GL20.glBufferData(GL20.GL_ARRAY_BUFFER, customAttribute.array.getByteLength(),
+				 gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, customAttribute.buffer);
+				 gl.glBufferData(GL20.GL_ARRAY_BUFFER, customAttribute.array.getByteLength(),
                          customAttribute.array.getBuffer(), bufferUsageHint);
 			 }
 		 }
@@ -1642,13 +1642,13 @@ public class Mesh extends GeometryObject
 
 	private int createBuffer()
 	{
-		GL20.glGenBuffers(1, workBufArray, 0);
+		gl.glGenBuffers(1, workBufArray, 0);
 		return workBufArray[0];
 	}
 
 	private void deleteBuffer(int buffer)
 	{
 		workBufArray[0] = buffer;
-		GL20.glDeleteBuffers(1, workBufArray, 0);
+		gl.glDeleteBuffers(1, workBufArray, 0);
 	}
 }

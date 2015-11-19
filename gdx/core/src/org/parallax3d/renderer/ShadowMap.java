@@ -161,19 +161,19 @@ public final class ShadowMap extends Plugin
 
 		// set GL state for depth map
 
-		GL20.glClearColor(1, 1, 1, 1);
-		GL20.glDisable( GL20.GL_BLEND );
+		gl.glClearColor(1, 1, 1, 1);
+		gl.glDisable( GL20.GL_BLEND );
 
-		GL20.glEnable( GL20.GL_CULL_FACE );
-		GL20.glFrontFace( GL20.GL_CCW );
+		gl.glEnable( GL20.GL_CULL_FACE );
+		gl.glFrontFace( GL20.GL_CCW );
 
 		if ( isCullFrontFaces() ) 
 		{
-			GL20.glCullFace(GL20.GL_FRONT);
+			gl.glCullFace(GL20.GL_FRONT);
 		} 
 		else 
 		{
-			GL20.glCullFace(GL20.GL_BACK);
+			gl.glCullFace(GL20.GL_BACK);
 		}
 
 		getRenderer().setDepthTest( true );
@@ -428,13 +428,13 @@ public final class ShadowMap extends Plugin
 		Color clearColor = getRenderer().getClearColor();
 		double clearAlpha = getRenderer().getClearAlpha();
 
-		GL20.glClearColor((float) clearColor.getR(), (float) clearColor.getG(),
+		gl.glClearColor((float) clearColor.getR(), (float) clearColor.getG(),
 				(float) clearColor.getB(), (float) clearAlpha);
-		GL20.glEnable( GL20.GL_BLEND );
+		gl.glEnable( GL20.GL_BLEND );
 
 		if ( isCullFrontFaces() ) 
 		{
-			GL20.glCullFace(GL20.GL_BACK);
+			gl.glCullFace(GL20.GL_BACK);
 		}
 		
 		getRenderer().resetGLState();

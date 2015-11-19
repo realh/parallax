@@ -210,7 +210,7 @@ public class PointCloud extends GeometryObject
 	{
 		WebGlRendererInfo info = renderer.getInfo();
 
-		GL20.glDrawArrays(GL20.GL_POINTS, 0, geometryBuffer.__webglParticleCount);
+		gl.glDrawArrays(GL20.GL_POINTS, 0, geometryBuffer.__webglParticleCount);
 
 		info.getRender().calls ++;
 		info.getRender().points += geometryBuffer.__webglParticleCount;
@@ -234,7 +234,7 @@ public class PointCloud extends GeometryObject
 		Geometry geometry = (Geometry)getGeometry();
 		WebGlRendererInfo info = renderer.getInfo();
 
-		GL20.glGenBuffers(2, workBufArray, 0);
+		gl.glGenBuffers(2, workBufArray, 0);
 		geometry.__webglVertexBuffer = workBufArray[0];
 		geometry.__webglColorBuffer = workBufArray[1];
 
@@ -535,16 +535,16 @@ public class PointCloud extends GeometryObject
 
 		if ( dirtyVertices || this.sortParticles ) {
 
-			GL20.glBindBuffer( GL20.GL_ARRAY_BUFFER, geometry.__webglVertexBuffer );
-			GL20.glBufferData( GL20.GL_ARRAY_BUFFER, vertexArray.getByteLength(),
+			gl.glBindBuffer( GL20.GL_ARRAY_BUFFER, geometry.__webglVertexBuffer );
+			gl.glBufferData( GL20.GL_ARRAY_BUFFER, vertexArray.getByteLength(),
 					vertexArray.getBuffer(), bufferUsageHint);
 
 		}
 
 		if ( dirtyColors || this.sortParticles ) {
 
-			GL20.glBindBuffer( GL20.GL_ARRAY_BUFFER, geometry.__webglColorBuffer );
-			GL20.glBufferData( GL20.GL_ARRAY_BUFFER, colorArray.getByteLength(),
+			gl.glBindBuffer( GL20.GL_ARRAY_BUFFER, geometry.__webglColorBuffer );
+			gl.glBufferData( GL20.GL_ARRAY_BUFFER, colorArray.getByteLength(),
 					colorArray.getBuffer(), bufferUsageHint);
 
 		}
@@ -557,8 +557,8 @@ public class PointCloud extends GeometryObject
 
 				if ( customAttribute.needsUpdate || this.sortParticles ) {
 
-					GL20.glBindBuffer( GL20.GL_ARRAY_BUFFER, customAttribute.buffer );
-					GL20.glBufferData( GL20.GL_ARRAY_BUFFER, customAttribute.array.getByteLength(),
+					gl.glBindBuffer( GL20.GL_ARRAY_BUFFER, customAttribute.buffer );
+					gl.glBufferData( GL20.GL_ARRAY_BUFFER, customAttribute.array.getByteLength(),
 							customAttribute.array.getBuffer(), bufferUsageHint);
 
 				}

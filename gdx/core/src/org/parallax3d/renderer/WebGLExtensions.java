@@ -43,7 +43,7 @@ public final class WebGLExtensions {
 
         if (allExtensions == null)
 		{
-			allExtensions = GL20.glGetString(GL20.GL_EXTENSIONS);
+			allExtensions = gl.glGetString(GL20.GL_EXTENSIONS);
 			Log.debug("OpenGL ES Extensions: " + allExtensions);
 		}
 

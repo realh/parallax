@@ -89,7 +89,7 @@ public class BloomPass extends Pass
 	public void render(Postprocessing postprocessing, double delta, boolean maskActive)
 	{
 		if ( maskActive ) 
-			GL20.glDisable(GL20.GL_STENCIL_TEST);
+			gl.glDisable(GL20.GL_STENCIL_TEST);
 
 		// Render quad with blured scene into texture (convolution pass 1)
 		postprocessing.getQuad().setMaterial(this.materialConvolution);
@@ -114,7 +114,7 @@ public class BloomPass extends Pass
 		this.materialScreen.getShader().getUniforms().get("tDiffuse").setValue(this.renderTargetY);
 
 		if ( maskActive ) 
-			GL20.glEnable( GL20.GL_STENCIL_TEST );
+			gl.glEnable( GL20.GL_STENCIL_TEST );
 
 		postprocessing.getRenderer().render( 
 				postprocessing.getScene(), postprocessing.getCamera(), postprocessing.getReadBuffer(), this.clear );

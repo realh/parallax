@@ -31,6 +31,6 @@ public class ClearMaskPass extends Pass
 	@Override
 	public void render(Postprocessing postprocessing, double delta, boolean maskActive ) 
 	{
-		GL20.glDisable( GL20.GL_STENCIL_TEST );
+		gl.glDisable( GL20.GL_STENCIL_TEST );
 	}
 }

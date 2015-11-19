@@ -164,11 +164,11 @@ public class Postprocessing extends Plugin
 			{
 				if ( maskActive ) 
 				{
-					GL20.glStencilFunc(GL20.GL_NOTEQUAL, 1, 0xffffffff);
+					gl.glStencilFunc(GL20.GL_NOTEQUAL, 1, 0xffffffff);
 
 					this.copyPass.render( this, delta, true );
 
-					GL20.glStencilFunc( GL20.GL_EQUAL, 1, 0xffffffff );
+					gl.glStencilFunc( GL20.GL_EQUAL, 1, 0xffffffff );
 				}
 
 				this.swapBuffers();

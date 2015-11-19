@@ -26,7 +26,7 @@ public final class WebGLShaderPrecisionFormat {
 	private int[] precision = new int[3];
 
 	public WebGLShaderPrecisionFormat(int shaderType, int precisionType) {
-		GL20.glGetShaderPrecisionFormat(shaderType, precisionType,
+		gl.glGetShaderPrecisionFormat(shaderType, precisionType,
 				precision, 0, precision, 2);
 	}
 	

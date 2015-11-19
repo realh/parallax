@@ -102,9 +102,9 @@ public abstract class GeometryObject extends Object3D
 	public void deleteBuffers(WebGLRenderer renderer) 
 	{
 		tmpBufArray[0] = geometry.__webglVertexBuffer;
-		GL20.glDeleteBuffers(1, tmpBufArray, 0);
+		gl.glDeleteBuffers(1, tmpBufArray, 0);
 		tmpBufArray[0] = geometry.__webglColorBuffer ;
-		GL20.glDeleteBuffers(1, tmpBufArray, 0);
+		gl.glDeleteBuffers(1, tmpBufArray, 0);
 
 		renderer.getInfo().getMemory().geometries --;
 	}
@@ -113,7 +113,7 @@ public abstract class GeometryObject extends Object3D
 	{
 		if ( width != this._oldLineWidth ) 
 		{
-			GL20.glLineWidth(width);
+			gl.glLineWidth(width);
 			this._oldLineWidth = width;
 		}
 	}
@@ -148,7 +148,7 @@ public abstract class GeometryObject extends Object3D
 
 					attribute.array = Float32Array.create( nvertices * size );
 
-					GL20.glGenBuffers(1, tmpBufArray, 0);
+					gl.glGenBuffers(1, tmpBufArray, 0);
 					attribute.buffer = tmpBufArray[0];
 					attribute.belongsToAttribute = a;
 

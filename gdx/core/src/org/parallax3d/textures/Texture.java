@@ -409,24 +409,24 @@ public class Texture
 	{	
 		if ( isImagePowerOfTwo ) 
 		{
-			GL20.glTexParameteri(textureType, GL20.GL_TEXTURE_WRAP_S, this.wrapS);
-			GL20.glTexParameteri(textureType, GL20.GL_TEXTURE_WRAP_T, this.wrapT);
-			GL20.glTexParameteri(textureType, GL20.GL_TEXTURE_MAG_FILTER, this.magFilter);
-			GL20.glTexParameteri(textureType, GL20.GL_TEXTURE_MIN_FILTER, this.minFilter);
+			gl.glTexParameteri(textureType, GL20.GL_TEXTURE_WRAP_S, this.wrapS);
+			gl.glTexParameteri(textureType, GL20.GL_TEXTURE_WRAP_T, this.wrapT);
+			gl.glTexParameteri(textureType, GL20.GL_TEXTURE_MAG_FILTER, this.magFilter);
+			gl.glTexParameteri(textureType, GL20.GL_TEXTURE_MIN_FILTER, this.minFilter);
 		} 
 		else 
 		{
-			GL20.glTexParameteri( textureType, GL20.GL_TEXTURE_WRAP_S, GL20.GL_CLAMP_TO_EDGE );
-			GL20.glTexParameteri( textureType, GL20.GL_TEXTURE_WRAP_T, GL20.GL_CLAMP_TO_EDGE );
-			GL20.glTexParameteri( textureType, GL20.GL_TEXTURE_MAG_FILTER, filterFallback( this.magFilter ) );
-			GL20.glTexParameteri( textureType, GL20.GL_TEXTURE_MIN_FILTER, filterFallback( this.minFilter ) );
+			gl.glTexParameteri( textureType, GL20.GL_TEXTURE_WRAP_S, GL20.GL_CLAMP_TO_EDGE );
+			gl.glTexParameteri( textureType, GL20.GL_TEXTURE_WRAP_T, GL20.GL_CLAMP_TO_EDGE );
+			gl.glTexParameteri( textureType, GL20.GL_TEXTURE_MAG_FILTER, filterFallback( this.magFilter ) );
+			gl.glTexParameteri( textureType, GL20.GL_TEXTURE_MIN_FILTER, filterFallback( this.minFilter ) );
 		}
 		
 		if ( maxAnisotropy > 0 ) 
 		{
 			if ( this.anisotropy > 1 || this.cache_oldAnisotropy > 1 ) 
 			{
-				GL20.glTexParameterf( textureType,
+				gl.glTexParameterf( textureType,
 						GL20Ext.GL_TEXTURE_MAX_ANISOTROPY_EXT,
 						Math.min( this.anisotropy, maxAnisotropy ) );
 				this.cache_oldAnisotropy = this.anisotropy;
@@ -452,7 +452,7 @@ public class Texture
 	{
 		if ( webglTexture[0] == 0 ) return;
 
-		GL20.glDeleteTextures(1, webglTexture, 0);
+		gl.glDeleteTextures(1, webglTexture, 0);
 
 		renderer.getInfo().getMemory().textures--;
 	}

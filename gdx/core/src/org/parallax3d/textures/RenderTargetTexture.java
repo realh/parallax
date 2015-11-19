@@ -116,9 +116,9 @@ public class RenderTargetTexture extends Texture
 		if (this.webglTexture[0] == 0)
 			return;
 
-		GL20.glDeleteTextures(1, this.webglTexture, 0);
-		GL20.glDeleteFramebuffers(1, this.webglFramebuffer, 0);
-		GL20.glDeleteRenderbuffers(1, this.webglRenderbuffer, 0);
+		gl.glDeleteTextures(1, this.webglTexture, 0);
+		gl.glDeleteFramebuffers(1, this.webglFramebuffer, 0);
+		gl.glDeleteRenderbuffers(1, this.webglRenderbuffer, 0);
 
 		this.webglTexture[0] = 0;
 		this.webglFramebuffer[0] = 0;
@@ -155,14 +155,14 @@ public class RenderTargetTexture extends Texture
 			return;
 
 		this.deallocate();
-		GL20.glGenTextures(1, webglTexture, 0);
+		gl.glGenTextures(1, webglTexture, 0);
 
 		// Setup texture, create render and frame buffers
 
 		boolean isTargetPowerOfTwo = Mathematics.isPowerOfTwo(this.width)
 				&& Mathematics.isPowerOfTwo(this.height);
 
-		GL20.glGenFramebuffers(1, webglFramebuffer, 0);
+		gl.glGenFramebuffers(1, webglFramebuffer, 0);
 
 		if ( this.shareDepthFrom != null ) 
 		{
@@ -170,13 +170,13 @@ public class RenderTargetTexture extends Texture
 		} 
 		else 
 		{
-			GL20.glGenRenderbuffers(1, webglRenderbuffer, 0);
+			gl.glGenRenderbuffers(1, webglRenderbuffer, 0);
 		}
 
-		GL20.glBindTexture(GL20.GL_TEXTURE_2D, webglTexture[0]);
+		gl.glBindTexture(GL20.GL_TEXTURE_2D, webglTexture[0]);
 		setTextureParameters(GL20.GL_TEXTURE_2D, isTargetPowerOfTwo);
 
-		GL20.glTexImage2D(GL20.GL_TEXTURE_2D, 0, getFormat(),
+		gl.glTexImage2D(GL20.GL_TEXTURE_2D, 0, getFormat(),
 				this.width, this.height, 0, getFormat(), getType(), null);
 
 		setupFrameBuffer(this.webglFramebuffer[0], GL20.GL_TEXTURE_2D);
@@ -186,13 +186,13 @@ public class RenderTargetTexture extends Texture
 
 			if ( this.isDepthBuffer && ! this.isStencilBuffer ) {
 
-				GL20.glFramebufferRenderbuffer( GL20.GL_FRAMEBUFFER, GL20.GL_DEPTH_ATTACHMENT,
+				gl.glFramebufferRenderbuffer( GL20.GL_FRAMEBUFFER, GL20.GL_DEPTH_ATTACHMENT,
 						GL20.GL_RENDERBUFFER, this.webglRenderbuffer[0] );
 
 			} else if ( this.isDepthBuffer && this.isStencilBuffer ) {
 
                 // Not actually supported in OpenGL ES 2.0?
-				GL20.glFramebufferRenderbuffer( GL20.GL_FRAMEBUFFER,
+				gl.glFramebufferRenderbuffer( GL20.GL_FRAMEBUFFER,
                         GL20Ext.GL_DEPTH_STENCIL_ATTACHMENT,
 						GL20.GL_RENDERBUFFER, this.webglRenderbuffer[0] );
 
@@ -205,36 +205,36 @@ public class RenderTargetTexture extends Texture
 		}
 
 		if (isTargetPowerOfTwo)
-			GL20.glGenerateMipmap(GL20.GL_TEXTURE_2D);
+			gl.glGenerateMipmap(GL20.GL_TEXTURE_2D);
 
 		// Release everything
-		GL20.glBindRenderbuffer(GL20.GL_RENDERBUFFER, 0);
-		GL20.glBindFramebuffer(GL20.GL_FRAMEBUFFER, 0);
+		gl.glBindRenderbuffer(GL20.GL_RENDERBUFFER, 0);
+		gl.glBindFramebuffer(GL20.GL_FRAMEBUFFER, 0);
 	}
 
 	public void updateRenderTargetMipmap()
 	{	
-		GL20.glBindTexture(GL20.GL_TEXTURE_2D, this.webglTexture[0]);
-		GL20.glGenerateMipmap(GL20.GL_TEXTURE_2D);
-		GL20.glBindTexture(GL20.GL_TEXTURE_2D, 0);
+		gl.glBindTexture(GL20.GL_TEXTURE_2D, this.webglTexture[0]);
+		gl.glGenerateMipmap(GL20.GL_TEXTURE_2D);
+		gl.glBindTexture(GL20.GL_TEXTURE_2D, 0);
 	}
 
 	public void setupFrameBuffer(int framebuffer, int textureTarget)
 	{	
-		GL20.glBindFramebuffer(GL20.GL_FRAMEBUFFER, framebuffer);
-		GL20.glFramebufferTexture2D(GL20.GL_FRAMEBUFFER, GL20.GL_COLOR_ATTACHMENT0,
+		gl.glBindFramebuffer(GL20.GL_FRAMEBUFFER, framebuffer);
+		gl.glFramebufferTexture2D(GL20.GL_FRAMEBUFFER, GL20.GL_COLOR_ATTACHMENT0,
                 textureTarget, this.webglTexture[0], 0);
 	}
 
 	public void setupRenderBuffer(int renderbuffer)
 	{	
-		GL20.glBindRenderbuffer(GL20.GL_RENDERBUFFER, renderbuffer);
+		gl.glBindRenderbuffer(GL20.GL_RENDERBUFFER, renderbuffer);
 
 		if (this.isDepthBuffer && !this.isStencilBuffer) 
 		{
-			GL20.glRenderbufferStorage(GL20.GL_RENDERBUFFER, GL20.GL_DEPTH_COMPONENT16,
+			gl.glRenderbufferStorage(GL20.GL_RENDERBUFFER, GL20.GL_DEPTH_COMPONENT16,
                     this.width, this.height);
-			GL20.glFramebufferRenderbuffer(GL20.GL_FRAMEBUFFER, GL20.GL_DEPTH_ATTACHMENT,
+			gl.glFramebufferRenderbuffer(GL20.GL_FRAMEBUFFER, GL20.GL_DEPTH_ATTACHMENT,
                     GL20.GL_RENDERBUFFER, renderbuffer);
 
 			/*
@@ -251,15 +251,15 @@ public class RenderTargetTexture extends Texture
 		else if (this.isDepthBuffer && this.isStencilBuffer) 
 		{
             // Not actually supported in OpenGL ES 2.0?
-			GL20.glRenderbufferStorage(GL20.GL_RENDERBUFFER,
+			gl.glRenderbufferStorage(GL20.GL_RENDERBUFFER,
                     GL20Ext.GL_DEPTH_STENCIL, this.width, this.height);
-			GL20.glFramebufferRenderbuffer(GL20.GL_FRAMEBUFFER,
+			gl.glFramebufferRenderbuffer(GL20.GL_FRAMEBUFFER,
                     GL20Ext.GL_DEPTH_STENCIL_ATTACHMENT,
                     GL20.GL_RENDERBUFFER, renderbuffer);
 		} 
 		else 
 		{
-			GL20.glRenderbufferStorage(GL20.GL_RENDERBUFFER, GL20.GL_RGBA4,
+			gl.glRenderbufferStorage(GL20.GL_RENDERBUFFER, GL20.GL_RGBA4,
                     this.width, this.height);
 		}
 	}
