@@ -21,25 +21,32 @@ package org.parallax3d.renderer;
 
 import com.badlogic.gdx.graphics.GL20;
 
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+
 public final class WebGLShaderPrecisionFormat {
 
-	private int[] precision = new int[3];
+	private int min, max, precision;
 
-	public WebGLShaderPrecisionFormat(int shaderType, int precisionType) {
-		gl.glGetShaderPrecisionFormat(shaderType, precisionType,
-				precision, 0, precision, 2);
+	public WebGLShaderPrecisionFormat(GL20 gl, int shaderType, int precisionType) {
+		IntBuffer range = ByteBuffer.allocateDirect(2).asIntBuffer();
+		IntBuffer precision = ByteBuffer.allocateDirect(1).asIntBuffer();
+		gl.glGetShaderPrecisionFormat(shaderType, precisionType, range, precision);
+		this.min = range.get(0);
+		this.max = range.get(1);
+		this.precision = precision.get(0);
 	}
 	
 	public int getRangeMin() {
-		return this.precision[0];
+		return min;
 	}
 	
 	public int getRangeMax() {
-		return this.precision[1];
+		return max;
 	}
 
 	public int getPrecision() {
-		return this.precision[2];
+		return precision;
 	}
 
 }
