@@ -89,7 +89,7 @@ public abstract class Shader
 
 	private static int shaderCounter;
 
-	private IntBuffer tmpBuf = ByteBuffer.allocateDirect(1).asIntBuffer();
+	private IntBuffer tmpBuf = ByteBuffer.allocateDirect(4).asIntBuffer();
 
 	/**
 	 * This constructor will create new Shader instance. 

@@ -29,8 +29,8 @@ public final class WebGLShaderPrecisionFormat {
 	private int min, max, precision;
 
 	public WebGLShaderPrecisionFormat(GL20 gl, int shaderType, int precisionType) {
-		IntBuffer range = ByteBuffer.allocateDirect(2).asIntBuffer();
-		IntBuffer precision = ByteBuffer.allocateDirect(1).asIntBuffer();
+		IntBuffer range = ByteBuffer.allocateDirect(8).asIntBuffer();
+		IntBuffer precision = ByteBuffer.allocateDirect(4).asIntBuffer();
 		gl.glGetShaderPrecisionFormat(shaderType, precisionType, range, precision);
 		this.min = range.get(0);
 		this.max = range.get(1);
