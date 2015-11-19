@@ -16,11 +16,7 @@
  * If not, see http://creativecommons.org/licenses/by/3.0/.
  */
 
-package org.parallax3d.android;
-
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
+package org.parallax3d.gdx;
 
 import org.parallax3d.core.Log;
 
@@ -31,15 +27,13 @@ import org.parallax3d.renderer.Image;
 import org.parallax3d.loader.AssetLoader;
 import org.parallax3d.loader.ImageLoader;
 
-public abstract class AndroidLoader extends AssetLoader implements ImageLoader
+public abstract class GdxLoader extends AssetLoader implements ImageLoader
 {
-	private static Matrix flipYMatrix;
-
 	/**
 	 * @param dirName Use a trailing / if this is a directory, otherwise
 	 *                the directory containing the named file is used.
 	 */
-	public AndroidLoader(String dirName)
+	public GdxLoader(String dirName)
 	{
 		super(dirName);
 	}
@@ -91,7 +85,7 @@ public abstract class AndroidLoader extends AssetLoader implements ImageLoader
 					bmp.getWidth(), bmp.getHeight(), flipYMatrix, false);
 		}
 
-		return new AndroidImage(bmp);
+		return new GdxImage(bmp);
 	}
 
 	@Override

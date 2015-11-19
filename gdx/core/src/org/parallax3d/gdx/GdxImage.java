@@ -16,58 +16,52 @@
  * If not, see http://creativecommons.org/licenses/by/3.0/.
  */
 
-package org.parallax3d.android;
+package org.parallax3d.gdx;
 
-import android.graphics.Bitmap;
-import android.opengl.GLUtils;
-import android.util.Log;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Pixmap;
 
 import org.parallax3d.renderer.Image;
 
-public class AndroidImage implements Image
+public class GdxImage implements Image
 {
-    private Bitmap bitmap;
+    private Pixmap pixmap;
 
-    public AndroidImage(Bitmap bitmap)
+    public GdxImage(Pixmap pixmap)
     {
-        this.bitmap = bitmap;
+        this.pixmap = pixmap;
     }
 
     @Override
     public void glTexImage2D(int target)
     {
-        Log.d("Parallax", "Calling texImage2D on AndroidImage");
-        GLUtils.texImage2D(target, 0, bitmap, 0);
+        Gdx.gl.glTexImage2D(target, 0, pixmap.getGLInternalFormat(),
+                pixmap.getWidth(), pixmap.getHeight(), 0,
+                pixmap.getGLFormat(), pixmap.getGLType(), pixmap.getPixels());
     }
 
     @Override
     public int getWidth() {
-        return bitmap.getWidth();
+        return pixmap.getWidth();
     }
 
     @Override
     public int getHeight() {
-        return bitmap.getHeight();
+        return pixmap.getHeight();
     }
 
     @Override
     public Image createScaledCopy(int width, int height) {
-        return new AndroidImage(Bitmap.createScaledBitmap(this.bitmap, width, height, true));
+        Pixmap pixmap = new Pixmap(width, height, this.pixmap.getFormat());
+        Pixmap.setFilter(Pixmap.Filter.BiLinear);
+        pixmap.drawPixmap(this.pixmap,
+                0, 0, this.pixmap.getWidth(), this.pixmap.getHeight(),
+                0, 0, width, height);
+        return new GdxImage(pixmap);
     }
 
     @Override
     public void recycle()
     {
-        if (bitmap != null)
-        {
-            bitmap.recycle();
-            bitmap = null;
-        }
-    }
-
-    @Override
-    public void finalize()
-    {
-        recycle();
     }
 }

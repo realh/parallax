@@ -20,28 +20,30 @@
 package org.parallax3d.core;
 
 
+import com.badlogic.gdx.Gdx;
+
 public class Log
 {
 	private static final String TAG = "Parallax";
 
 	public static void debug(String msg)
 	{
-		android.util.Log.d(TAG, msg);
+		Gdx.app.debug(TAG, msg);
 	}
 
 	public static void info(String msg)
 	{
-		android.util.Log.i(TAG, msg);
+		Gdx.app.log(TAG, msg);
 	}
 	
 	public static void warn(String msg)
 	{
-		android.util.Log.w(TAG, msg);
+		Gdx.app.error(TAG, msg);
 	}
 	
 	public static void error(String msg)
 	{
-		android.util.Log.e(TAG, msg);
+		Gdx.app.error(TAG, msg);
 	}
 	
 	public static void error(Object ... all)
@@ -52,11 +54,11 @@ public class Log
 			result.append(mods + " ");
 		}
 
-		android.util.Log.e(TAG, result.toString());
+		Gdx.app.error(TAG, result.toString());
 	}
 	
 	public static void error(String msg, Throwable thrown)
 	{
-		android.util.Log.e(TAG, msg, thrown);
+		Gdx.app.error(TAG, msg, thrown);
 	}
 }

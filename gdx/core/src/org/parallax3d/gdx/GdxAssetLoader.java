@@ -16,14 +16,14 @@
  * If not, see http://creativecommons.org/licenses/by/3.0/.
  */
 
-package org.parallax3d.android;
+package org.parallax3d.gdx;
 
 import android.content.res.AssetManager;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public class AndroidAssetLoader extends AndroidLoader
+public class GdxAssetLoader extends GdxLoader
 {
 
 	protected AssetManager assets;
@@ -32,7 +32,7 @@ public class AndroidAssetLoader extends AndroidLoader
 	 * @param dirName Use a trailing / if this is a directory, otherwise
 	 *                the directory containing the named file is used.
 	 */
-	public AndroidAssetLoader(AssetManager assets, String dirName)
+	public GdxAssetLoader(AssetManager assets, String dirName)
 	{
 		super(dirName);
 		this.assets = assets;
