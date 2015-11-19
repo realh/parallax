@@ -26,18 +26,13 @@ import org.parallax3d.core.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Arrays;
 
 import org.parallax3d.renderer.Image;
-//import org.parallax3d.renderers.Duration;
 import org.parallax3d.loader.AssetLoader;
 import org.parallax3d.loader.ImageLoader;
 
 public abstract class AndroidLoader extends AssetLoader implements ImageLoader
 {
-	private static final int CHUNK_SIZE = 8192;
-
 	private static Matrix flipYMatrix;
 
 	/**
@@ -102,48 +97,14 @@ public abstract class AndroidLoader extends AssetLoader implements ImageLoader
 	@Override
 	public byte[] loadData(String leafname) throws IOException
 	{
-		// AssetManager doesn't provide a reliable way to find the length of an
-		// asset, so just keep reading from an InputStream until we get -1.
 		InputStream strm = null;
 
 		byte[] buf = null;
-		int offset = 0;
-
-		//Duration dur = new Duration();
 
 		try
 		{
-			int numRead = 0;
-
 			strm = openInputStream(leafname);
-
-			do
-			{
-				// At least we can try to make a good guess at size
-				int available = strm.available();
-				if (available < CHUNK_SIZE)
-					available = CHUNK_SIZE;
-				if (buf == null)
-				{
-					buf = new byte[available];
-				} else if (available <= buf.length - offset)
-				{
-					available = buf.length - offset;
-				} else
-				{
-					byte[] oldBuf = buf;
-
-					available -= oldBuf.length - offset;
-					if (available < CHUNK_SIZE)
-						available = CHUNK_SIZE;
-					offset = oldBuf.length;
-					buf = new byte[offset + available];
-					System.arraycopy(oldBuf, 0, buf, 0, offset);
-				}
-				numRead = strm.read(buf, offset, available);
-				if (numRead != -1)
-					offset += numRead;
-			} while (numRead != -1);
+			buf = loadData(strm);
 		}
 		finally
 		{
@@ -151,120 +112,22 @@ public abstract class AndroidLoader extends AssetLoader implements ImageLoader
 				strm.close();
 		}
 
-		//Log.debug("Loaded data '" + leafname + "' in " +
-		//		((double) dur.elapsedMillis() / 1000) + "s");
-
-		if (offset < buf.length)
-		{
-			//dur.reset();
-			buf = Arrays.copyOf(buf, offset);
-			//Log.debug("Took another " +
-			//		((double) dur.elapsedMillis() / 1000) + "s" +
-			//		" to truncate array");
-		}
-
 		return buf;
 	}
 
-	/*
-	 * This is the most efficient way I can think of to load a String with
-	 * the API available.
-	 */
 	public String loadText(String leafname) throws IOException
 	{
 		InputStream strm = null;
-		InputStreamReader reader = null;
-		StringBuilder builder = null;
-		String result = null;
 
 		try
 		{
 			strm = openInputStream(leafname);
-			reader = new InputStreamReader(strm);
-
-			int numRead = 0;
-
-			char[] buf = null;
-			int bufLen = 0;
-
-			do
-			{
-				// If we're lucky available() might return the total size
-				// of the file
-				int available = strm.available();
-
-				//Log.debug("" + available + " bytes available");
-
-				if (available < CHUNK_SIZE)
-					available = CHUNK_SIZE;
-
-				// Create new buffer if necessary
-				if (buf == null)
-				{
-					buf = new char[bufLen = available];
-				}
-
-				// Try to fill the buffer
-				numRead = reader.read(buf);
-
-				//Log.debug("Read " + numRead + " chars");
-
-				if (numRead > 0)
-				{
-					// We've read something, make/add to string
-					if (builder == null)
-					{
-						if (result == null)
-						{
-							// On first pass make a plain String, we can return
-							// this without making a StringBuilder if there is
-							// no second pass
-							result = new String(buf, 0, numRead);
-						}
-						else
-						{
-							// This is second pass, make a StringBuilder with
-							// contents of first pass, then current and
-							// further passes will be added to the builder
-							builder = new StringBuilder(result);
-							result = null;
-						}
-					}
-					// If we already had a builder or a new one was just
-					// created we need to add the just-read buffer to it
-					if (builder != null)
-						builder.append(buf, 0, numRead);
-				}
-			} while (numRead != -1);
 		} finally
 		{
-			if (reader != null)
-				reader.close();
-			else if (strm != null)
+			if (strm != null)
 				strm.close();
 		}
 
-		if (result == null && builder != null)
-		{
-			builder.trimToSize();
-			result = builder.toString();
-		}
-		return result;
+		return loadText(strm);
 	}
-
-	/*
-	public String loadText(String leafname) throws IOException
-	{
-		byte[] buf = loadData(leafname);
-
-		//Duration dur = new Duration();
-
-		String text = new String(buf);
-
-		//Log.debug("Converted '" + leafname + "' to text in " +
-		//		((double) dur.elapsedMillis() / 1000) + "s");
-
-		return text;
-	}
-	*/
 }
