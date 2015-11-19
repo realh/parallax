@@ -18,11 +18,10 @@
 
 package org.parallax3d.loader;
 
-import org.parallax3d.core.Log;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.parallax3d.core.Log;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -62,7 +61,7 @@ import org.parallax3d.math.Vector4;
 public class JsonLoader
 {
 
-	private JSONObject object;
+	private JsonValue object;
 	
 	private List<Material> materials;
 
@@ -143,45 +142,52 @@ public class JsonLoader
 	}
 	
 	private boolean isThisJsonStringValid(String iJSonString) 
-	{ 
+	{
 		try
 		{
-			object = new JSONObject(iJSonString);
+			object = new JsonReader().parse(iJSonString);
 		}
-		catch ( JSONException e)
+		catch ( Throwable e)
+		{
+			object = null;
+			Log.error("Could not parse JSON data", e);
+			return false;
+		}
+
+		if (object == null)
 		{
 			Log.error("Could not parse JSON data");
 			return false;
-		}  
+		}
 
 		return true;
 	}
 		
-	private void parseMaterials() throws JSONException, IOException
+	private void parseMaterials()
 	{
-		JSONArray materials;
+		JsonValue materials;
 
-		materials = object.optJSONArray("materials");
+		materials = object.get("materials");
 
-		if (materials == null)
+		if (materials == null || !materials.isArray())
 			return;
 
 		Log.debug("JSON parseMaterials()");
 		
 		this.materials = new ArrayList<Material>(); 
-		for ( int i = 0; i < materials.length(); ++i)
+		for ( int i = 0; i < materials.size; ++i)
 		{
-			this.materials.add( createMaterial( materials.getJSONObject(i) ) );
+			this.materials.add( createMaterial( materials.get(i) ) );
 		}
 //		geometry.setMaterials(this.materials);
 	}
 	
-	private Material createMaterial(JSONObject jsonMaterial) throws JSONException, IOException
+	private Material createMaterial(JsonValue jsonMaterial)
 	{
 		// defaults
 		Material material;
 
-		String shading = jsonMaterial.optString("shading");
+		String shading = jsonMaterial.getString("shading");
 		if (shading.compareToIgnoreCase("phong") == 0)
 		{
 			material = new MeshPhongMaterial();
@@ -207,7 +213,7 @@ public class JsonLoader
 
 		// parameters from model file
 
-		String blending = jsonMaterial.optString("blending");
+		String blending = jsonMaterial.getString("blending");
 		for (JsoBlending bev: JsoBlending.values())
 		{
 			if (blending.compareToIgnoreCase(bev.toString()) == 0)
@@ -216,11 +222,11 @@ public class JsonLoader
 			}
 		}
 
-		material.setTransparent(jsonMaterial.optBoolean("transparent"));
-		material.setDepthTest(jsonMaterial.optBoolean("depthTest"));
-		material.setDepthWrite(jsonMaterial.optBoolean("epthWrite"));
+		material.setTransparent(jsonMaterial.getBoolean("transparent"));
+		material.setDepthTest(jsonMaterial.getBoolean("depthTest"));
+		material.setDepthWrite(jsonMaterial.getBoolean("epthWrite"));
 		
-		if(jsonMaterial.optBoolean("vertexColors") && material instanceof HasVertexColors)
+		if(jsonMaterial.getBoolean("vertexColors") && material instanceof HasVertexColors)
 		{
 			((HasVertexColors) material).setVertexColors(COLORS.VERTEX);
 		}
@@ -229,7 +235,7 @@ public class JsonLoader
 
 		if (color == null)
 		{
-			int dbgColor = jsonMaterial.optInt("dbgColor");
+			int dbgColor = jsonMaterial.getInt("dbgColor");
 			if (dbgColor > 0)
 				color = new Color(dbgColor);
 		}
@@ -288,7 +294,7 @@ public class JsonLoader
 			}
 		}
 		
-		if(jsonMaterial.optBoolean("transparent"))
+		if(jsonMaterial.getBoolean("transparent"))
 		{
 			double transparency = jsonMaterial.getDouble("transparency");
 			if(material instanceof ShaderMaterial)
@@ -302,7 +308,7 @@ public class JsonLoader
 			}
 		}
 
-		double specularCoef = jsonMaterial.optDouble("specularCoef", 0);
+		double specularCoef = jsonMaterial.getDouble("specularCoef", 0);
 		if(specularCoef > 0)
 		{
 			if(material instanceof ShaderMaterial)
@@ -318,14 +324,14 @@ public class JsonLoader
 
 		// textures
 
-		String map = jsonMaterial.optString("mapDiffuse", null);
+		String map = jsonMaterial.getString("mapDiffuse", null);
 		if (map  != null )
 		{
 			Texture texture = create_texture(map,
-					jsonMaterial.optJSONArray("mapDiffuseRepeat"),
-					jsonMaterial.optJSONArray("mapDiffuseOffset"),
-					jsonMaterial.optJSONArray("mapDiffuseWrap"),
-					jsonMaterial.optInt("mapDiffuseAnisotropy"));
+					jsonMaterial.get("mapDiffuseRepeat"),
+					jsonMaterial.get("mapDiffuseOffset"),
+					jsonMaterial.get("mapDiffuseWrap"),
+					jsonMaterial.getInt("mapDiffuseAnisotropy"));
 
 			if(material instanceof ShaderMaterial)
 			{
@@ -339,14 +345,14 @@ public class JsonLoader
 			}
 		}
 
-		map = jsonMaterial.optString("mapLight", null);
+		map = jsonMaterial.getString("mapLight", null);
 		if (map  != null )
 		{
 			Texture texture = create_texture(map,
-					jsonMaterial.optJSONArray("mapLightRepeat"),
-					jsonMaterial.optJSONArray("mapLightOffset"),
-					jsonMaterial.optJSONArray("mapLightWrap"),
-					jsonMaterial.optInt("mapLightAnisotropy"));
+					jsonMaterial.get("mapLightRepeat"),
+					jsonMaterial.get("mapLightOffset"),
+					jsonMaterial.get("mapLightWrap"),
+					jsonMaterial.getInt("mapLightAnisotropy"));
 
 			if(material instanceof ShaderMaterial)
 			{
@@ -360,52 +366,52 @@ public class JsonLoader
 			}
 		}
 
-		map = jsonMaterial.optString("mapBump", null);
+		map = jsonMaterial.getString("mapBump", null);
 		if (map  != null  && material instanceof HasBumpMap)
 		{
 			Texture texture = create_texture(map,
-					jsonMaterial.optJSONArray("mapBumpRepeat"),
-					jsonMaterial.optJSONArray("mapBumpOffset"),
-					jsonMaterial.optJSONArray("mapBumpWrap"),
-					jsonMaterial.optInt("mapBumpAnisotropy"));
+					jsonMaterial.get("mapBumpRepeat"),
+					jsonMaterial.get("mapBumpOffset"),
+					jsonMaterial.get("mapBumpWrap"),
+					jsonMaterial.getInt("mapBumpAnisotropy"));
 
 			((HasBumpMap)material).setBumpMap(texture);
 
-			double scale = jsonMaterial.optDouble("mapBumpScale", 0);
+			double scale = jsonMaterial.getDouble("mapBumpScale", 0);
 			if (scale  > 0)
 			{
 				((HasBumpMap)material).setBumpScale(scale);
 			}
 		}
 
-		map = jsonMaterial.optString("mapNormal", null);
+		map = jsonMaterial.getString("mapNormal", null);
 		if (map  != null  && material instanceof HasNormalMap)
 		{
 			Map<String, Uniform> uniforms = material.getShader().getUniforms();
 
 			Texture texture = create_texture(map,
-					jsonMaterial.optJSONArray("mapNormalRepeat"),
-					jsonMaterial.optJSONArray("mapNormalOffset"),
-					jsonMaterial.optJSONArray("mapNormalWrap"),
-					jsonMaterial.optInt("mapNormalAnisotropy"));
+					jsonMaterial.get("mapNormalRepeat"),
+					jsonMaterial.get("mapNormalOffset"),
+					jsonMaterial.get("mapNormalWrap"),
+					jsonMaterial.getInt("mapNormalAnisotropy"));
 
 			uniforms.get( "tNormal" ).setValue( texture );
 
-			double factor = jsonMaterial.optDouble("mapNormalFactor", 0);
+			double factor = jsonMaterial.getDouble("mapNormalFactor", 0);
 			if ( factor > 0 )
 			{
 				((Vector2)uniforms.get( "uNormalScale" ).getValue()).set( factor, factor );
 			}
 		}
 
-		map = jsonMaterial.optString("mapSpecular", null);
+		map = jsonMaterial.getString("mapSpecular", null);
 		if (map  != null )
 		{
 			Texture texture = create_texture(map,
-					jsonMaterial.optJSONArray("mapSpecularRepeat"),
-					jsonMaterial.optJSONArray("mapSpecularOffset"),
-					jsonMaterial.optJSONArray("mapSpecularWrap"),
-					jsonMaterial.optInt("mapSpecularAnisotropy"));
+					jsonMaterial.get("mapSpecularRepeat"),
+					jsonMaterial.get("mapSpecularOffset"),
+					jsonMaterial.get("mapSpecularWrap"),
+					jsonMaterial.getInt("mapSpecularAnisotropy"));
 
 			if(material instanceof ShaderMaterial)
 			{
@@ -419,19 +425,19 @@ public class JsonLoader
 			}
 		}
 
-		map = jsonMaterial.optString("mapAlpha", null);
+		map = jsonMaterial.getString("mapAlpha", null);
 		if (map != null && material instanceof HasAlphaMap)
 		{
 			Texture texture = create_texture(map,
-					jsonMaterial.optJSONArray("mapAlphaRepeat"),
-					jsonMaterial.optJSONArray("mapAlphaOffset"),
-					jsonMaterial.optJSONArray("mapAlphaWrap"),
-					jsonMaterial.optInt("mapAlphaAnisotropy"));
+					jsonMaterial.get("mapAlphaRepeat"),
+					jsonMaterial.get("mapAlphaOffset"),
+					jsonMaterial.get("mapAlphaWrap"),
+					jsonMaterial.getInt("mapAlphaAnisotropy"));
 			((HasAlphaMap)material).setAlphaMap(texture);
 
 		}
 
-		String name = jsonMaterial.optString("dbgName", null);
+		String name = jsonMaterial.getString("dbgName", null);
 		if(name != null)
 		{
 			material.setName(name);
@@ -449,7 +455,7 @@ public class JsonLoader
 
 		Log.debug("JSON parseFaces()");
 
-		double scale = object.optDouble("scale", 0);
+		double scale = object.getDouble("scale", 0);
 		scale = scale > 0 ? 1 / scale : 1;
 
 		List<Double> vertices = getArrayAsList("vertices");
@@ -714,19 +720,19 @@ public class JsonLoader
 
 	private <T> List<T> getArrayAsList(String name) throws JSONException
 	{
-		JSONArray jsonArray = object.optJSONArray(name);
+		JsonValue jsonArray = object.get(name);
 
 		return (jsonArray != null) ? (List<T>) jsonArrayToList(jsonArray) : null;
 	}
 
 	private <T> List<List<T>> getNestedArrayAsLists(String name) throws JSONException
 	{
-		JSONArray jsonArray = object.optJSONArray(name);
+		JsonValue jsonArray = object.get(name);
 
 		if (jsonArray == null)
 			return null;
 
-		List<JSONArray> outerList = getArrayAsList(name);
+		List<JsonValue> outerList = getArrayAsList(name);
 		int len = outerList.size();
 		List<List<T>> nestedList = new ArrayList<List<T>>(len);
 
@@ -738,7 +744,7 @@ public class JsonLoader
 		return nestedList;
 	}
 
-	private static <T> List<T> jsonArrayToList(JSONArray jsonArray) throws JSONException
+	private static <T> List<T> jsonArrayToList(JsonValue jsonArray) throws JSONException
 	{
 		int len = jsonArray.length();
 		List<T> list = new ArrayList<T>(len);
@@ -753,7 +759,7 @@ public class JsonLoader
 	
 	private void parseSkin(Geometry geometry) throws JSONException
 	{
-		int influencesPerVertex = object.optInt("influencesPerVertex");
+		int influencesPerVertex = object.getInt("influencesPerVertex");
 		if (influencesPerVertex <= 0)
 			influencesPerVertex = 2;
 
@@ -797,10 +803,10 @@ public class JsonLoader
 	{
 		Log.debug("JSON parseMorphing()");
 
-		double scale = object.optDouble("scale", 0);
+		double scale = object.getDouble("scale", 0);
 		scale = scale > 0 ? 1 / scale : 1;
 
-		JSONArray morphTargets = object.optJSONArray("morphTargets");
+		JsonValue morphTargets = object.get("morphTargets");
 		if ( morphTargets != null)
 		{
 			for ( int i = 0, l = morphTargets.length(); i < l; i ++ )
@@ -811,7 +817,7 @@ public class JsonLoader
 				morphTarget.name = jsonTarget.getString("name");
 				morphTarget.vertices = new ArrayList<Vector3>();
 
-				JSONArray srcVertices = jsonTarget.getJSONArray("vertices");
+				JsonValue srcVertices = jsonTarget.get("vertices");
 				for( int v = 0, vl = srcVertices.length(); v < vl; v += 3 )
 				{
 					morphTarget.vertices.add( 
@@ -825,7 +831,7 @@ public class JsonLoader
 			}
 		}
 
-		JSONArray morphColors = object.optJSONArray("morphColors");
+		JsonValue morphColors = object.get("morphColors");
 		if ( morphColors != null )
 		{
 			for ( int i = 0, l = morphColors.length(); i < l; i++ )
@@ -835,7 +841,7 @@ public class JsonLoader
 				morphColor.name = jsonColor.getString("name");
 				morphColor.colors = new ArrayList<Color>();
 
-				JSONArray srcColors = jsonColor.getJSONArray("colors");
+				JsonValue srcColors = jsonColor.get("colors");
 				for ( int c = 0, cl = srcColors.length(); c < cl; c += 3 )
 				{
 					Color color = new Color( 0xffaa00 );
@@ -853,8 +859,8 @@ public class JsonLoader
 		return (value & ( 1 << position )) > 0;
 	}
 
-	private Texture create_texture( String sourceFile, JSONArray repeat, JSONArray offset, JSONArray wrap, int anisotropy )
-			throws IOException, JSONException
+	private Texture create_texture( String sourceFile, JsonValue repeat, JsonValue offset, JsonValue wrap, int anisotropy )
+			throws IOException
 	{
 		boolean isCompressed = sourceFile.toLowerCase().endsWith(".dds");
 
@@ -894,12 +900,12 @@ public class JsonLoader
 
 		if ( wrap != null) 
 		{
-			String w = wrap.optString(0, null);
+			String w = wrap.getString(0);
 			if (w != null && w.compareToIgnoreCase("repeat") == 0)
 				texture.setWrapS(TextureWrapMode.REPEAT);
 			else if (w != null && w.compareToIgnoreCase("mirror") == 0)
 				texture.setWrapS(TextureWrapMode.MIRRORED_REPEAT);
-			w = wrap.optString(0, null);
+			w = wrap.getString(1);
 			if (w != null && w.compareToIgnoreCase("repeat") == 0)
 				texture.setWrapT(TextureWrapMode.REPEAT);
 			else if (w != null && w.compareToIgnoreCase("mirror") == 0)
@@ -913,17 +919,19 @@ public class JsonLoader
 		return texture;
 	}
 
-	private Color getColor(JSONArray rgb ) throws JSONException
+	private Color getColor(JsonValue rgb )
 	{
+		if (!rgb.isArray() || rgb.size < 3)
+			return null;
 		return new Color(
 				  ((int)(rgb.getDouble(0) * 255) << 16 )
 				+ ((int)(rgb.getDouble(1) * 255) << 8 )
 				+  (int)(rgb.getDouble(2) * 255));
 	}
 
-	private Color getColor(JSONObject jsonMaterial, String name ) throws JSONException
+	private Color getColor(JsonValue jsonMaterial, String name )
 	{
-		JSONArray color = jsonMaterial.optJSONArray(name);
+		JsonValue color = jsonMaterial.get(name);
 		return (color != null) ? getColor(color) : null;
 	}
 
