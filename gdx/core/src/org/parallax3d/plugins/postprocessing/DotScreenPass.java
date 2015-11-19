@@ -18,6 +18,8 @@
 
 package org.parallax3d.plugins.postprocessing;
 
+import com.badlogic.gdx.graphics.GL20;
+
 import org.parallax3d.materials.ShaderMaterial;
 import org.parallax3d.math.Vector2;
 import org.parallax3d.plugins.postprocessing.shaders.DotScreenShader;
@@ -47,7 +49,7 @@ public class DotScreenPass extends Pass
 	}
 	
 	@Override
-	public void render(Postprocessing effectCocmposer, double delta, boolean maskActive)
+	public void render(GL20 gl, Postprocessing effectCocmposer, double delta, boolean maskActive)
 	{
 		this.material.getShader().getUniforms().get("tDiffuse").setValue( effectCocmposer.getReadBuffer() );
 		((Vector2) this.material.getShader().getUniforms().get("tSize").getValue()).set( 

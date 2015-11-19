@@ -18,6 +18,8 @@
 
 package org.parallax3d.plugins.postprocessing;
 
+import com.badlogic.gdx.graphics.GL20;
+
 import org.parallax3d.textures.Texture;
 import org.parallax3d.materials.ShaderMaterial;
 import org.parallax3d.plugins.postprocessing.shaders.CopyShader;
@@ -46,7 +48,7 @@ public class TexturePass extends Pass
 	}
 
 	@Override
-	public void render(Postprocessing postprocessing, double delta, boolean maskActive)
+	public void render(GL20 gl, Postprocessing postprocessing, double delta, boolean maskActive)
 	{
 		postprocessing.getQuad().setMaterial(this.material);
 

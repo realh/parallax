@@ -18,6 +18,8 @@
 
 package org.parallax3d.plugins.postprocessing;
 
+import com.badlogic.gdx.graphics.GL20;
+
 import org.parallax3d.materials.ShaderMaterial;
 import org.parallax3d.plugins.postprocessing.shaders.FilmShader;
 
@@ -48,7 +50,7 @@ public class FilmPass extends Pass
 	}
 	
 	@Override
-	public void render(Postprocessing effectCocmposer, double delta, boolean maskActive)
+	public void render(GL20 gl, Postprocessing effectCocmposer, double delta, boolean maskActive)
 	{
 		this.material.getShader().getUniforms().get("tDiffuse").setValue( effectCocmposer.getReadBuffer() );
 		this.material.getShader().getUniforms().get( "time" ).setValue( (Double)this.material.getShader().getUniforms().get( "time" ).getValue() + delta );

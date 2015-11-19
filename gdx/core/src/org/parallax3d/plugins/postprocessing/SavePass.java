@@ -54,7 +54,7 @@ public class SavePass extends Pass
 		this.setNeedsSwap(false);
 	}
 	@Override
-	public void render(Postprocessing postprocessing, double delta, boolean maskActive)
+	public void render(GL20 gl, Postprocessing postprocessing, double delta, boolean maskActive)
 	{
 		if ( this.material.getShader().getUniforms().containsKey(this.textureID))
 			this.material.getShader().getUniforms().get("this.textureID").setValue( postprocessing.getReadBuffer() );

@@ -43,7 +43,7 @@ public class MaskPass extends Pass
 	}
 			
 	@Override
-	public void render (Postprocessing effectComposer, double delta, boolean maskActive)
+	public void render (GL20 gl, Postprocessing effectComposer, double delta, boolean maskActive)
 	{
 		// don't update color or depth
 		gl.glColorMask(false, false, false, false);

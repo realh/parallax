@@ -141,7 +141,7 @@ public class Postprocessing extends Plugin
 	}
 
 	@Override
-	public void render( Camera camera, List<Light> lights, int currentWidth, int currentHeight ) 
+	public void render( GL20 gl, Camera camera, List<Light> lights, int currentWidth, int currentHeight )
 	{
 		this.writeBuffer = this.renderTarget1;
 		this.readBuffer = this.renderTarget2;
@@ -158,7 +158,7 @@ public class Postprocessing extends Plugin
 					+ (pass.getClass().equals(ShaderPass.class) ?
 					"(" + ((ShaderPass) pass).getMaterial().getShader().getClass().getSimpleName() + ")" : ""));
 
-			pass.render( this, delta, maskActive );
+			pass.render( gl, this, delta, maskActive );
 
 			if ( pass.isNeedsSwap() ) 
 			{
@@ -166,7 +166,7 @@ public class Postprocessing extends Plugin
 				{
 					gl.glStencilFunc(GL20.GL_NOTEQUAL, 1, 0xffffffff);
 
-					this.copyPass.render( this, delta, true );
+					this.copyPass.render( gl, this, delta, true );
 
 					gl.glStencilFunc( GL20.GL_EQUAL, 1, 0xffffffff );
 				}

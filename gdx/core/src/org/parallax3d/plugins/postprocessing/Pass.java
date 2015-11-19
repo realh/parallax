@@ -18,6 +18,8 @@
 
 package org.parallax3d.plugins.postprocessing;
 
+import com.badlogic.gdx.graphics.GL20;
+
 public abstract class Pass
 {
 	private boolean enabled = true;
@@ -25,7 +27,7 @@ public abstract class Pass
 
 	public Pass(){}
 		
-	public abstract void render( Postprocessing postprocessing, double delta, boolean maskActive );
+	public abstract void render( GL20 gl, Postprocessing postprocessing, double delta, boolean maskActive );
 		
 	public boolean isEnabled()
 	{

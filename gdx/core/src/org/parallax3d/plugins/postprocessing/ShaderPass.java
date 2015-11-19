@@ -18,6 +18,8 @@
 
 package org.parallax3d.plugins.postprocessing;
 
+import com.badlogic.gdx.graphics.GL20;
+
 import java.util.Map;
 
 import org.parallax3d.shaders.Shader;
@@ -62,7 +64,7 @@ public class ShaderPass extends Pass
 	}
 	
 	@Override
-	public void render( Postprocessing postprocessing, double delta, boolean maskActive) 
+	public void render( GL20 gl, Postprocessing postprocessing, double delta, boolean maskActive)
 	{
 		if ( getUniforms().containsKey(this.textureID))
 			getUniforms().get( this.textureID ).setValue( postprocessing.getReadBuffer() );

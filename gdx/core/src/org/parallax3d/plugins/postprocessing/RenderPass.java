@@ -18,6 +18,8 @@
 
 package org.parallax3d.plugins.postprocessing;
 
+import com.badlogic.gdx.graphics.GL20;
+
 import org.parallax3d.cameras.Camera;
 import org.parallax3d.materials.Material;
 import org.parallax3d.math.Color;
@@ -69,7 +71,7 @@ public class RenderPass extends Pass
 	}
 
 	@Override
-	public void render(Postprocessing postprocessing, double delta, boolean maskActive)
+	public void render(GL20 gl, Postprocessing postprocessing, double delta, boolean maskActive)
 	{
 //		this.scene.overrideMaterial = this.overrideMaterial;
 
