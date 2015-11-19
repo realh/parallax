@@ -39,7 +39,7 @@ public final class WebGLExtensions {
 
 	private static String allExtensions = null;
 
-	public static boolean get(Id id) {
+	public static boolean get(GL20 gl, Id id) {
 
         if (allExtensions == null)
 		{
