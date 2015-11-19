@@ -2339,7 +2339,7 @@ public class WebGLRenderer extends AbstractRenderer
 		}
 		else
 		{
-			Shader shader = material.buildShader(parameters);
+			Shader shader = material.buildShader(gl, parameters);
 
 			this._programs.put(cashKey, shader);
 

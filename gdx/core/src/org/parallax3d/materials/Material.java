@@ -508,7 +508,7 @@ public abstract class Material
 		parameters.flipSided = this.getSides() == Material.SIDE.BACK;
 	}
 
-	public Shader buildShader(ProgramParameters parameters)
+	public Shader buildShader(GL20 gl, ProgramParameters parameters)
 	{
 		Shader shader = getShader();
 
@@ -518,7 +518,7 @@ public abstract class Material
 		shader.setVertexSource(getPrefixVertex(parameters) + "\n" + shader.getVertexSource());
 		shader.setFragmentSource(getPrefixFragment(parameters) + "\n" + shader.getFragmentSource());
 
-		this.shader = shader.buildProgram( parameters.useVertexTexture, parameters.maxMorphTargets, parameters.maxMorphNormals);
+		this.shader = shader.buildProgram( gl, parameters.useVertexTexture, parameters.maxMorphTargets, parameters.maxMorphNormals);
 
 		return this.shader;
 	}

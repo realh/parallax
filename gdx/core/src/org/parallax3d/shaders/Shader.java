@@ -22,6 +22,8 @@ package org.parallax3d.shaders;
 import com.badlogic.gdx.graphics.GL20;
 import org.parallax3d.core.Log;
 
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -87,7 +89,7 @@ public abstract class Shader
 
 	private static int shaderCounter;
 
-	private int[] tmpArray = {0};
+	private IntBuffer tmpBuf = ByteBuffer.allocateDirect(1).asIntBuffer();
 
 	/**
 	 * This constructor will create new Shader instance. 
@@ -132,16 +134,16 @@ public abstract class Shader
 	}
 	
 	// Called in renderer org.parallax3d.plugins
-	public Shader buildProgram()
+	public Shader buildProgram(GL20 gl)
 	{
-		return buildProgram(false, 0, 0);
+		return buildProgram(gl, false, 0, 0);
 	}
 	
-	public Shader buildProgram(boolean useVertexTexture, int maxMorphTargets, int maxMorphNormals)
+	public Shader buildProgram(GL20 gl, boolean useVertexTexture, int maxMorphTargets, int maxMorphNormals)
 	{
 		Log.debug("Building new program...");
 
-		initShaderProgram();
+		initShaderProgram(gl);
 
 		// Adds default uniforms
 		addUniform("viewMatrix",            new Uniform(Uniform.TYPE.FV1 ));
@@ -193,7 +195,7 @@ public abstract class Shader
 	}
 	
 
-	private void initShaderProgram()
+	private void initShaderProgram(GL20 gl)
 	{
 		Log.debug("Called initProgram()");
 
@@ -202,16 +204,17 @@ public abstract class Shader
 		String vertex = vertexExtensions + getShaderPrecisionDefinition() + "\n" + getVertexSource();
 		String fragment = fragmentExtensions + getShaderPrecisionDefinition() + "\n" + getFragmentSource();
 		
-		int glVertexShader = getShaderProgram(ChunksVertexShader.class, vertex);
-		int glFragmentShader = getShaderProgram(ChunksFragmentShader.class, fragment);
+		int glVertexShader = getShaderProgram(gl, ChunksVertexShader.class, vertex);
+		int glFragmentShader = getShaderProgram(gl, ChunksFragmentShader.class, fragment);
 		gl.glAttachShader(this.program, glVertexShader);
 		gl.glAttachShader(this.program, glFragmentShader);
 
 		gl.glLinkProgram(this.program);
 
-		gl.glGetProgramiv(this.program, GL20.GL_LINK_STATUS, tmpArray, 0);
+		tmpBuf.reset();
+		gl.glGetProgramiv(this.program, GL20.GL_LINK_STATUS, tmpBuf);
 
-		if (tmpArray[0] == GL20.GL_FALSE)
+		if (tmpBuf.get(0) == GL20.GL_FALSE)
 			logMultiline("Could not initialise shader\n"
 							+ "GL error: " + gl.glGetProgramInfoLog(program)
 							+ "\nShader: " + this.getClass().getName()
@@ -238,7 +241,7 @@ public abstract class Shader
 	/**
 	 * Gets the shader.
 	 */
-	private int getShaderProgram(Class<?> type, String string)
+	private int getShaderProgram(GL20 gl, Class<?> type, String string)
 	{
 		int shader = 0;
 
@@ -251,8 +254,9 @@ public abstract class Shader
 		gl.glShaderSource(shader, string);
 		gl.glCompileShader(shader);
 
-		gl.glGetShaderiv(shader, GL20.GL_COMPILE_STATUS, tmpArray, 0);
-		if (tmpArray[0] == GL20.GL_FALSE)
+		tmpBuf.reset();
+		gl.glGetShaderiv(shader, GL20.GL_COMPILE_STATUS, tmpBuf);
+		if (tmpBuf.get(0) == GL20.GL_FALSE)
 		{
 			logMultiline(gl.glGetShaderInfoLog(shader));
 			return 0;
