@@ -43,7 +43,7 @@ public abstract class GdxLoader extends AssetLoader implements ImageLoader
 	@Override
 	public Image loadImage(String leafname) throws IOException
 	{
-		return new GdxImage(new Pixmap(openFileHandle(getPathname(leafname))));
+		return new GdxImage(new Pixmap(openFileHandle(leafname)));
 	}
 
 	@Override
