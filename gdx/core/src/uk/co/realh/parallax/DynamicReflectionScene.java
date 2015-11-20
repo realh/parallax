@@ -37,8 +37,6 @@ import java.io.IOException;
 
 class DynamicReflectionScene extends DemoAnimatedScene
 {
-	private static final String texture = "./static/textures/ruins.jpg";
-
 	PerspectiveCamera camera;
 
 	public int onMouseDownMouseX = 0;

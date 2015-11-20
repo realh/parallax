@@ -3,7 +3,6 @@ package uk.co.realh.parallax.client;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
-import uk.co.realh.parallax.DynamicReflectionDemo;
 
 public class HtmlLauncher extends GwtApplication {
 
@@ -14,6 +13,6 @@ public class HtmlLauncher extends GwtApplication {
 
         @Override
         public ApplicationListener getApplicationListener () {
-                return new DynamicReflectionDemo();
+                return new ParallaxDemo();
         }
 }

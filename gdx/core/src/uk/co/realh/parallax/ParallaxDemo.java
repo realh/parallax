@@ -2,7 +2,7 @@ package uk.co.realh.parallax;
 
 import com.badlogic.gdx.ApplicationAdapter;
 
-public class DynamicReflectionDemo extends ApplicationAdapter
+public class ParallaxDemo extends ApplicationAdapter
 {
 	private DemoAnimatedScene demo;
 
