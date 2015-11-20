@@ -240,8 +240,7 @@ public abstract class Shader
 	}
 
 	private String getShaderPrecisionDefinition() {
-		return precision == null ? "" :
-				"precision " + precision.name().toLowerCase() + " float;";
+		return "precision " + precision.name().toLowerCase() + " float;";
 	}
 
 	/**
