@@ -235,8 +235,10 @@ public abstract class Shader
 	}
 
 	private String getShaderPrecisionDefinition() {
-		return precision == null ? "" :
-				"precision " + precision.name().toLowerCase() + " float;\n";
+		String s = "#ifdef GL_ES\n";
+		if (precision != null)
+			s += "precision " + precision.name().toLowerCase() + " float;\n";
+		return s + "#else\n#define lowp\n#define mediump\n#define highp\n#endif";
 	}
 
 	/**
