@@ -201,8 +201,8 @@ public abstract class Shader
 
 		this.program = gl.glCreateProgram();
 
-		String vertex = vertexExtensions + getShaderPrecisionDefinition() + "\n" + getVertexSource();
-		String fragment = fragmentExtensions + getShaderPrecisionDefinition() + "\n" + getFragmentSource();
+		String vertex = vertexExtensions + getShaderPrecisionDefinition() + getVertexSource();
+		String fragment = fragmentExtensions + getShaderPrecisionDefinition() + getFragmentSource();
 		
 		int glVertexShader = getShaderProgram(gl, ChunksVertexShader.class, vertex);
 		int glFragmentShader = getShaderProgram(gl, ChunksFragmentShader.class, fragment);
@@ -211,7 +211,7 @@ public abstract class Shader
 
 		gl.glLinkProgram(this.program);
 
-		tmpBuf.reset();
+		tmpBuf.rewind();
 		gl.glGetProgramiv(this.program, GL20.GL_LINK_STATUS, tmpBuf);
 
 		if (tmpBuf.get(0) == GL20.GL_FALSE)
@@ -235,7 +235,8 @@ public abstract class Shader
 	}
 
 	private String getShaderPrecisionDefinition() {
-		return "precision " + precision.name().toLowerCase() + " float;";
+		return precision == null ? "" :
+				"precision " + precision.name().toLowerCase() + " float;\n";
 	}
 
 	/**
@@ -254,7 +255,7 @@ public abstract class Shader
 		gl.glShaderSource(shader, string);
 		gl.glCompileShader(shader);
 
-		tmpBuf.reset();
+		tmpBuf.rewind();
 		gl.glGetShaderiv(shader, GL20.GL_COMPILE_STATUS, tmpBuf);
 		if (tmpBuf.get(0) == GL20.GL_FALSE)
 		{

@@ -236,7 +236,8 @@ public class WebGLRenderer extends AbstractRenderer
 	private boolean isAutoUpdateObjects = true;
 	private boolean isAutoUpdateScene = true;
 
-    private IntBuffer tmpGLResult = ByteBuffer.allocateDirect(4).asIntBuffer();
+	// glGetIntegerv needs enough space for up to 16 ints
+    private IntBuffer tmpGLResult = ByteBuffer.allocateDirect(64).asIntBuffer();
 
 	private final WebGLExtensions extensions;
 
@@ -257,62 +258,71 @@ public class WebGLRenderer extends AbstractRenderer
 		this._lights           = new RendererLights();
 		this._programs         = new HashMap<String, Shader>();
 
-		tmpGLResult.reset();
+		tmpGLResult.rewind();
         gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_IMAGE_UNITS, tmpGLResult);
 		this._maxTextures       = tmpGLResult.get(0);
-		tmpGLResult.reset();
+		tmpGLResult.rewind();
         gl.glGetIntegerv(GL20.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, tmpGLResult);
 		this._maxVertexTextures = tmpGLResult.get(0);
-		tmpGLResult.reset();
+		tmpGLResult.rewind();
         gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_SIZE, tmpGLResult);
 		this._maxTextureSize    = tmpGLResult.get(0);
-		tmpGLResult.reset();
+		tmpGLResult.rewind();
         gl.glGetIntegerv(GL20.GL_MAX_CUBE_MAP_TEXTURE_SIZE, tmpGLResult);
 		this._maxCubemapSize    = tmpGLResult.get(0);
 
 		this._supportsVertexTextures = ( this._maxVertexTextures > 0 ); 
 		this._supportsBoneTextures = this._supportsVertexTextures &&
                 extensions.get(WebGLExtensions.Id.OES_texture_float);
-		
-		this._vertexShaderPrecisionHighpFloat = new
-                WebGLShaderPrecisionFormat(gl, GL20.GL_VERTEX_SHADER, GL20.GL_HIGH_FLOAT);
-		this._vertexShaderPrecisionMediumpFloat = new
-                WebGLShaderPrecisionFormat(gl, GL20.GL_VERTEX_SHADER, GL20.GL_MEDIUM_FLOAT);
-		this._vertexShaderPrecisionLowpFloat = new
-                WebGLShaderPrecisionFormat(gl, GL20.GL_VERTEX_SHADER, GL20.GL_LOW_FLOAT);
 
-		this._fragmentShaderPrecisionHighpFloat = new
-                WebGLShaderPrecisionFormat(gl, GL20.GL_FRAGMENT_SHADER, GL20.GL_HIGH_FLOAT);
-		this._fragmentShaderPrecisionMediumpFloat =
-                new WebGLShaderPrecisionFormat(gl, GL20.GL_FRAGMENT_SHADER, GL20.GL_MEDIUM_FLOAT);
-		this._fragmentShaderPrecisionLowpFloat = new
-                WebGLShaderPrecisionFormat(gl, GL20.GL_FRAGMENT_SHADER, GL20.GL_LOW_FLOAT);
-		
-		this.highpAvailable = _vertexShaderPrecisionHighpFloat.getPrecision() > 0 &&
-                _fragmentShaderPrecisionHighpFloat.getPrecision() > 0;
-		this.mediumpAvailable = _vertexShaderPrecisionMediumpFloat.getPrecision() > 0 &&
-                _fragmentShaderPrecisionMediumpFloat.getPrecision() > 0;
-		
-		if ( this._precision == Shader.PRECISION.HIGHP && ! highpAvailable ) {
+		// Non-ES GLSL doesn't support precision; this causes an exception,
+		// which seems to be the easiest, albeit quick & dirty, way of detecting
+		// whether we should use them
+		try
+		{
+			this._vertexShaderPrecisionHighpFloat = new
+					WebGLShaderPrecisionFormat(gl, GL20.GL_VERTEX_SHADER, GL20.GL_HIGH_FLOAT);
+			this._vertexShaderPrecisionMediumpFloat = new
+					WebGLShaderPrecisionFormat(gl, GL20.GL_VERTEX_SHADER, GL20.GL_MEDIUM_FLOAT);
+			this._vertexShaderPrecisionLowpFloat = new
+					WebGLShaderPrecisionFormat(gl, GL20.GL_VERTEX_SHADER, GL20.GL_LOW_FLOAT);
 
-			if ( mediumpAvailable ) {
+			this._fragmentShaderPrecisionHighpFloat = new
+					WebGLShaderPrecisionFormat(gl, GL20.GL_FRAGMENT_SHADER, GL20.GL_HIGH_FLOAT);
+			this._fragmentShaderPrecisionMediumpFloat =
+					new WebGLShaderPrecisionFormat(gl, GL20.GL_FRAGMENT_SHADER, GL20.GL_MEDIUM_FLOAT);
+			this._fragmentShaderPrecisionLowpFloat = new
+					WebGLShaderPrecisionFormat(gl, GL20.GL_FRAGMENT_SHADER, GL20.GL_LOW_FLOAT);
 
-				this._precision = Shader.PRECISION.MEDIUMP;
-				Log.warn("WebGLRenderer: highp not supported, using mediump.");
+			this.highpAvailable = _vertexShaderPrecisionHighpFloat.getPrecision() > 0 &&
+					_fragmentShaderPrecisionHighpFloat.getPrecision() > 0;
+			this.mediumpAvailable = _vertexShaderPrecisionMediumpFloat.getPrecision() > 0 &&
+					_fragmentShaderPrecisionMediumpFloat.getPrecision() > 0;
 
-			} else {
+			if ( this._precision == Shader.PRECISION.HIGHP && ! highpAvailable ) {
 
-				this._precision = Shader.PRECISION.LOWP;
-				Log.warn("WebGLRenderer: highp and mediump not supported, using lowp.");
+				if ( mediumpAvailable ) {
+
+					this._precision = Shader.PRECISION.MEDIUMP;
+					Log.warn("WebGLRenderer: highp not supported, using mediump.");
+
+				} else {
+
+					this._precision = Shader.PRECISION.LOWP;
+					Log.warn("WebGLRenderer: highp and mediump not supported, using lowp.");
+
+				}
 
 			}
 
-		}
+			if ( this._precision == Shader.PRECISION.MEDIUMP && ! mediumpAvailable ) {
 
-		if ( this._precision == Shader.PRECISION.MEDIUMP && ! mediumpAvailable ) {
-
-			this._precision = Shader.PRECISION.LOWP;
-			Log.warn("THREE.WebGLRenderer: mediump not supported, using lowp.");
+				this._precision = Shader.PRECISION.LOWP;
+				Log.warn("THREE.WebGLRenderer: mediump not supported, using lowp.");
+			}
+		} catch (UnsupportedOperationException e)
+		{
+			this._precision = null;
 		}
 
 				
@@ -390,7 +400,7 @@ public class WebGLRenderer extends AbstractRenderer
 	public int getMaxAnisotropy()
 	{
 		if (extensions.get( WebGLExtensions.Id.EXT_texture_filter_anisotropic )) {
-			tmpGLResult.reset();
+			tmpGLResult.rewind();
             gl.glGetIntegerv(GL20Ext.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT,
                     tmpGLResult);
             return tmpGLResult.get(0);
@@ -3220,7 +3230,7 @@ public class WebGLRenderer extends AbstractRenderer
 			//  - limit here is ANGLE's 254 max uniform vectors
 			//    (up to 54 should be safe)
 
-			tmpGLResult.reset();
+			tmpGLResult.rewind();
             gl.glGetIntegerv(GL20.GL_MAX_VERTEX_UNIFORM_VECTORS, tmpGLResult);
 			int nVertexUniforms = tmpGLResult.get(0);
 			int nVertexMatrices = (int) Math.floor( ( nVertexUniforms - 20 ) / 4 );
