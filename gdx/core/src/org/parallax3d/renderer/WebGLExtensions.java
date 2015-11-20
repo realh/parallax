@@ -49,7 +49,7 @@ public final class WebGLExtensions {
 
 	public boolean get(Id id) {
 
-        boolean result = allExtensions.contains(id.toString());
+        boolean result = allExtensions == null ? false : allExtensions.contains(id.toString());
 
 		if ( !result ) {
 

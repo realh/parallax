@@ -193,7 +193,18 @@ public abstract class Shader
 		
 		return this;
 	}
-	
+
+	/**
+	 * A bit of a kludge: if there is no precision gl must be !GL_ES and
+	 * we should add version header; not needed with WebGL/GL_ES
+	 */
+	private String getVersionHeader()
+	{
+		if (precision == null)
+			return "#version 120\n\n";
+		else
+			return "";
+	}
 
 	private void initShaderProgram(GL20 gl)
 	{
@@ -201,9 +212,12 @@ public abstract class Shader
 
 		this.program = gl.glCreateProgram();
 
-		String vertex = vertexExtensions + getShaderPrecisionDefinition() + getVertexSource();
-		String fragment = fragmentExtensions + getShaderPrecisionDefinition() + getFragmentSource();
-		
+		String version = getVersionHeader();
+		String vertex = version + vertexExtensions +
+				getShaderPrecisionDefinition() + getVertexSource();
+		String fragment = version + fragmentExtensions +
+				getShaderPrecisionDefinition() + getFragmentSource();
+
 		int glVertexShader = getShaderProgram(gl, ChunksVertexShader.class, vertex);
 		int glFragmentShader = getShaderProgram(gl, ChunksFragmentShader.class, fragment);
 		gl.glAttachShader(this.program, glVertexShader);
@@ -237,7 +251,9 @@ public abstract class Shader
 	private String getShaderPrecisionDefinition() {
 		String s = "#ifdef GL_ES\n";
 		if (precision != null)
+		{
 			s += "precision " + precision.name().toLowerCase() + " float;\n";
+		}
 		return s + "#else\n#define lowp\n#define mediump\n#define highp\n#endif";
 	}
 
