@@ -30,5 +30,14 @@ public interface ImageLoader
 {
 	public Image loadImage(String leafname) throws IOException;
 
+	/**
+	 *
+	 * @param leafname
+	 * @param flipY		Indicates image needs inverting for OpenGL coordinates
+	 * @return
+	 * @throws IOException
+	 */
+	public Image loadImage(String leafname, boolean flipY) throws IOException;
+
 	public byte[] loadData(String leafname) throws IOException;
 }
