@@ -38,9 +38,7 @@ the android app, so this may cause some difficulty on MS Windows.
 
 The 'gdx' branch for libGDX is similar, except the gdx folder hierarchy contains
 a libGDX demo app. Unfortunately I seem to have chosen a demo that doesn't work
-properly with most desktop OpenGL drivers at 2.x level. The texture is also
-upside-down, but that I hope to fix without forcing users to flip all their
-image assets.
+properly with at least some desktop OpenGL drivers at 2.x profile.
 
 ### Upstream Documentation ###
 

@@ -47,6 +47,12 @@ public abstract class GdxLoader extends AssetLoader implements ImageLoader
 	}
 
 	@Override
+	public Image loadImage(String leafname, boolean flipY) throws IOException
+	{
+		return new GdxImage(new Pixmap(openFileHandle(leafname)), flipY);
+	}
+
+	@Override
 	public byte[] loadData(String leafname) throws IOException
 	{
 		return openFileHandle(getPathname(leafname)).readBytes();
