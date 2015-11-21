@@ -33,6 +33,8 @@ import org.parallax3d.loader.ImageLoader;
 
 public abstract class AndroidLoader extends AssetLoader implements ImageLoader
 {
+	public static boolean flipYByDefault = true;
+
 	private static Matrix flipYMatrix;
 
 	/**
@@ -49,7 +51,7 @@ public abstract class AndroidLoader extends AssetLoader implements ImageLoader
 	@Override
 	public Image loadImage(String leafname) throws IOException
 	{
-		return loadImage(leafname, true);
+		return loadImage(leafname, flipYByDefault);
 	}
 
 	public Image loadImage(String leafname, boolean flipY) throws IOException
