@@ -8,3 +8,6 @@
 /www-test
 /gwt-unitCache
 .*.swp
+/.idea
+/target
+*.iml
