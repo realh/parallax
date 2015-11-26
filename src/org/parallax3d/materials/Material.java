@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.parallax3d.renderer.WebGLExtensions;
 import org.parallax3d.renderer.WebGLRenderer;
 import org.parallax3d.shaders.ProgramParameters;
 import org.parallax3d.shaders.Shader;
@@ -508,24 +509,25 @@ public abstract class Material
 		parameters.flipSided = this.getSides() == Material.SIDE.BACK;
 	}
 
-	public Shader buildShader(GL20 gl, ProgramParameters parameters)
+	public Shader buildShader(WebGLRenderer renderer, ProgramParameters parameters)
 	{
 		Shader shader = getShader();
 
 		shader.setPrecision(parameters.precision);
 
-		shader.setVertexExtensions(getExtensionsVertex(parameters));
-		shader.setFragmentExtensions(getExtensionsFragment(parameters));
+		shader.setVertexExtensions(getExtensionsVertex(renderer.getExtensions(), parameters));
+		shader.setFragmentExtensions(getExtensionsFragment(renderer.getExtensions(), parameters));
 
 		shader.setVertexSource(getPrefixVertex(parameters) + "\n" + shader.getVertexSource());
 		shader.setFragmentSource(getPrefixFragment(parameters) + "\n" + shader.getFragmentSource());
 
-		this.shader = shader.buildProgram( gl, parameters.useVertexTexture, parameters.maxMorphTargets, parameters.maxMorphNormals);
+		this.shader = shader.buildProgram( renderer.getGL(),
+				parameters.useVertexTexture, parameters.maxMorphTargets, parameters.maxMorphNormals);
 
 		return this.shader;
 	}
 
-	protected String getExtensionsVertex(ProgramParameters parameters)
+	protected String getExtensionsVertex(WebGLExtensions extensions, ProgramParameters parameters)
 	{
 		return "";
 	}
@@ -668,13 +670,14 @@ public abstract class Material
 		return retval;
 	}
 
-	protected String getExtensionsFragment(ProgramParameters parameters)
+	protected String getExtensionsFragment(WebGLExtensions extensions,
+										   ProgramParameters parameters)
 	{
 		String s = "";
 		if (parameters.logarithmicDepthBuffer)
-			s += "#extension GL_EXT_frag_depth : enable\n\n";
+			s += extensions.getGLSLHeader(WebGLExtensions.Id.EXT_frag_depth);
 		if (parameters.bumpMap || parameters.normalMap)
-			s += "#extension GL_OES_standard_derivatives : enable\n\n";
+			s += extensions.getGLSLHeader(WebGLExtensions.Id.OES_standard_derivatives);
 		return s;
 	}
 

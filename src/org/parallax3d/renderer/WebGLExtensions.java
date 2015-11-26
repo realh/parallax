@@ -40,25 +40,68 @@ public final class WebGLExtensions {
 
 	private GL20 gl;
 
-	public WebGLExtensions(GL20 gl)
+	private final boolean isOpenGLES;
+
+	public WebGLExtensions(GL20 gl, boolean isOpenGLES)
 	{
 		this.gl = gl;
+		this.isOpenGLES = isOpenGLES;
 		allExtensions = gl.glGetString(GL20.GL_EXTENSIONS);
-		Log.debug("OpenGL Extensions: " + allExtensions);
+		Log.debug("OpenGL " + (isOpenGLES ? "ES " : "") + "Extensions: " + allExtensions);
 	}
 
-	public boolean get(Id id) {
+	public boolean get(Id id)
+	{
+        boolean result;
 
-        boolean result = allExtensions == null ? false : allExtensions.contains(id.toString());
+		if (isBuiltIn(id))
+		{
+			return true;
+		}
 
-		if ( !result ) {
+		result = allExtensions == null ? false : allExtensions.contains(getName(id));
 
+		if ( !result )
+		{
 			Log.warn("WebGLRenderer: " + id.toString() + " extension not supported.");
-
 		}
 		
 		return result;
 
 	}
-	
+
+	public boolean isBuiltIn(Id id)
+	{
+		if (isOpenGLES)
+			return false;
+		switch (id)
+		{
+			case OES_standard_derivatives:
+			case OES_element_index_uint:
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	public String getGLSLHeader(Id id)
+	{
+		if (!get(id) || isBuiltIn(id))
+			return "";
+		else
+			return "#extension " + getName(id) + ": enable\n\n";
+	}
+
+	private String getName(Id id)
+	{
+		String name = id.toString();
+
+		if (!isOpenGLES)
+		{
+			if (name.substring(0, 3).equals("OES"))
+				name = "ARB" + name.substring(3);
+		}
+
+		return "GL_" + name;
+	}
 }

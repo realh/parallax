@@ -89,14 +89,17 @@ import org.parallax3d.scenes.FogExp2;
 import org.parallax3d.scenes.Scene;
 
 /**
- * The WebGL renderer displays your beautifully crafted {@link Scene}s using WebGL, if your device supports it.
+ * The WebGL renderer displays your beautifully crafted {@link Scene}s using WebGL,
+ * if your device supports it.
  */
 public class WebGLRenderer extends AbstractRenderer
 {
 	private GL20 gl;
 
 	private WebGlRendererInfo info;
-					
+
+	private final boolean _isOpenGLES;
+
 	private List<Light> lights = new ArrayList<Light>();
 	
 	public Map<String, List<WebGLObject>> _webglObjects =  new HashMap<String, List<WebGLObject>>();
@@ -251,33 +254,12 @@ public class WebGLRenderer extends AbstractRenderer
 	{
 		this.gl = gl;
 
-		this.extensions = new WebGLExtensions(gl);
-
-		this.setInfo(new WebGlRendererInfo());
-		
-		this._lights           = new RendererLights();
-		this._programs         = new HashMap<String, Shader>();
-
-		tmpGLResult.rewind();
-        gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_IMAGE_UNITS, tmpGLResult);
-		this._maxTextures       = tmpGLResult.get(0);
-		tmpGLResult.rewind();
-        gl.glGetIntegerv(GL20.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, tmpGLResult);
-		this._maxVertexTextures = tmpGLResult.get(0);
-		tmpGLResult.rewind();
-        gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_SIZE, tmpGLResult);
-		this._maxTextureSize    = tmpGLResult.get(0);
-		tmpGLResult.rewind();
-        gl.glGetIntegerv(GL20.GL_MAX_CUBE_MAP_TEXTURE_SIZE, tmpGLResult);
-		this._maxCubemapSize    = tmpGLResult.get(0);
-
-		this._supportsVertexTextures = ( this._maxVertexTextures > 0 ); 
-		this._supportsBoneTextures = this._supportsVertexTextures &&
-                extensions.get(WebGLExtensions.Id.OES_texture_float);
-
-		// Non-ES GLSL doesn't support precision; this causes an exception,
+		// Non-ES GLSL version 1xx doesn't support precision; this causes an exception,
 		// which seems to be the easiest, albeit quick & dirty, way of detecting
 		// whether we should use them
+
+		boolean isOpenGLES = true;
+
 		try
 		{
 			this._vertexShaderPrecisionHighpFloat = new
@@ -323,9 +305,36 @@ public class WebGLRenderer extends AbstractRenderer
 		} catch (UnsupportedOperationException e)
 		{
 			this._precision = null;
+			isOpenGLES = false;
 		}
 
-				
+		this._isOpenGLES = isOpenGLES;
+
+		this.extensions = new WebGLExtensions(gl, isOpenGLES);
+
+		this.setInfo(new WebGlRendererInfo());
+		
+		this._lights           = new RendererLights();
+		this._programs         = new HashMap<String, Shader>();
+
+		tmpGLResult.rewind();
+        gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_IMAGE_UNITS, tmpGLResult);
+		this._maxTextures       = tmpGLResult.get(0);
+		tmpGLResult.rewind();
+        gl.glGetIntegerv(GL20.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, tmpGLResult);
+		this._maxVertexTextures = tmpGLResult.get(0);
+		tmpGLResult.rewind();
+        gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_SIZE, tmpGLResult);
+		this._maxTextureSize    = tmpGLResult.get(0);
+		tmpGLResult.rewind();
+        gl.glGetIntegerv(GL20.GL_MAX_CUBE_MAP_TEXTURE_SIZE, tmpGLResult);
+		this._maxCubemapSize    = tmpGLResult.get(0);
+
+		this._supportsVertexTextures = ( this._maxVertexTextures > 0 ); 
+		this._supportsBoneTextures = this._supportsVertexTextures &&
+                extensions.get(WebGLExtensions.Id.OES_texture_float);
+
+
 		extensions.get(WebGLExtensions.Id.OES_texture_float);
 		extensions.get(WebGLExtensions.Id.OES_texture_float_linear);
 		extensions.get(WebGLExtensions.Id.OES_standard_derivatives);
@@ -358,6 +367,11 @@ public class WebGLRenderer extends AbstractRenderer
 		if(this.plugins.remove( plugin )) {
 			plugin.deallocate();
 		}
+	}
+
+	public WebGLExtensions getExtensions()
+	{
+		return extensions;
 	}
 
 	@SuppressWarnings("unused")
@@ -829,7 +843,9 @@ public class WebGLRenderer extends AbstractRenderer
 
 			}
 			
-			if ( activeInfluenceIndices.size() > ((HasSkinning)material).getNumSupportedMorphTargets() ) {
+			if ( activeInfluenceIndices.size() >
+					((HasSkinning)material).getNumSupportedMorphTargets() )
+			{
 			
 				Collections.sort(activeInfluenceIndices, new Comparator<Double[]>() {
 					   public int compare(Double[] a, Double[] b) {
@@ -838,7 +854,9 @@ public class WebGLRenderer extends AbstractRenderer
 					});
 
 
-			} else if ( activeInfluenceIndices.size() > ((HasSkinning)material).getNumSupportedMorphNormals() ) {
+			} else if ( activeInfluenceIndices.size() >
+					((HasSkinning)material).getNumSupportedMorphNormals() )
+			{
 			
 				Collections.sort(activeInfluenceIndices, new Comparator<Double[]>() {
 					   public int compare(Double[] a, Double[] b) {
@@ -917,14 +935,19 @@ public class WebGLRenderer extends AbstractRenderer
 		}
 	}
 	
-	public void renderBufferImmediate( GeometryObject object, Shader program, Material material ) {
+	public void renderBufferImmediate( GeometryObject object, Shader program, Material material )
+	{
 
 		initAttributes();
 //
-//		if ( object.hasPositions && ! object.__webglVertexBuffer ) object.__webglVertexBuffer = gl.glCreateBuffer();
-//		if ( object.hasNormals && ! object.__webglNormalBuffer ) object.__webglNormalBuffer = gl.glCreateBuffer();
-//		if ( object.hasUvs && ! object.__webglUvBuffer ) object.__webglUvBuffer = gl.glCreateBuffer();
-//		if ( object.hasColors && ! object.__webglColorBuffer ) object.__webglColorBuffer = gl.glCreateBuffer();
+//		if ( object.hasPositions && ! object.__webglVertexBuffer )
+// 			object.__webglVertexBuffer = gl.glCreateBuffer();
+//		if ( object.hasNormals && ! object.__webglNormalBuffer )
+// 			object.__webglNormalBuffer = gl.glCreateBuffer();
+//		if ( object.hasUvs && ! object.__webglUvBuffer )
+// 			object.__webglUvBuffer = gl.glCreateBuffer();
+//		if ( object.hasColors && ! object.__webglColorBuffer )
+// 			object.__webglColorBuffer = gl.glCreateBuffer();
 //
 //		if ( object.hasPositions )
 //		{
@@ -1015,7 +1038,9 @@ public class WebGLRenderer extends AbstractRenderer
 
 	}
 	
-	private void setupVertexAttributes( Material material, Shader program, BufferGeometry geometry, int startIndex ) {
+	private void setupVertexAttributes( Material material, Shader program,
+										BufferGeometry geometry, int startIndex )
+	{
 
 		Map<String, BufferAttribute> geometryAttributes = geometry.getAttributes();
 
@@ -1045,11 +1070,13 @@ public class WebGLRenderer extends AbstractRenderer
 //
 //					if ( material.defaultAttributeValues[ key ].length === 2 ) {
 //
-//						gl.glVertexAttrib2fv( programAttribute, material.defaultAttributeValues[ key ] );
+//						gl.glVertexAttrib2fv( programAttribute,
+// 							material.defaultAttributeValues[ key ] );
 //
 //					} else if ( material.defaultAttributeValues[ key ].length === 3 ) {
 //
-//						gl.glVertexAttrib3fv( programAttribute, material.defaultAttributeValues[ key ] );
+//						gl.glVertexAttrib3fv( programAttribute,
+// 							material.defaultAttributeValues[ key ] );
 //
 //					}
 //
@@ -1126,7 +1153,8 @@ public class WebGLRenderer extends AbstractRenderer
 
 					this.info.getRender().calls ++;
 					this.info.getRender().vertices +=
-                            index.getArray().getLength(); // not really true, here vertices can be shared
+                            index.getArray().getLength();
+					// not really true, here vertices can be shared
 					this.info.getRender().faces += index.getArray().getLength() / 3;
 
 				} else {
@@ -1153,7 +1181,8 @@ public class WebGLRenderer extends AbstractRenderer
 
 						getInfo().getRender().calls ++;
 						getInfo().getRender().vertices +=
-                                offsets.get( i ).count; // not really true, here vertices can be shared
+                                offsets.get( i ).count;
+						// not really true, here vertices can be shared
 						getInfo().getRender().faces += offsets.get( i ).count / 3;
 					}
 
@@ -1246,7 +1275,8 @@ public class WebGLRenderer extends AbstractRenderer
 
 					this.info.getRender().calls ++;
 					this.info.getRender().vertices +=
-                            index.getArray().getLength(); // not really true, here vertices can be shared
+                            index.getArray().getLength();
+					// not really true, here vertices can be shared
 
 				} else {
 
@@ -1274,7 +1304,8 @@ public class WebGLRenderer extends AbstractRenderer
 
 						this.info.getRender().calls ++;
 						this.info.getRender().vertices +=
-                                drawcalls.get( i ).count; // not really true, here vertices can be shared
+                                drawcalls.get( i ).count;
+						// not really true, here vertices can be shared
 
 					}
 
@@ -1617,7 +1648,8 @@ public class WebGLRenderer extends AbstractRenderer
 	{
 
 		return object.getMaterial() instanceof MeshFaceMaterial
-			 ? ((MeshFaceMaterial)object.getMaterial()).getMaterials().get( geometryGroup.getMaterialIndex() )
+			 ? ((MeshFaceMaterial)object.getMaterial()).getMaterials().
+				get( geometryGroup.getMaterialIndex() )
 			 : object.getMaterial();
 
 	}
@@ -1893,7 +1925,8 @@ public class WebGLRenderer extends AbstractRenderer
 
 			renderObjects( opaqueObjects, camera, lights, fog, true, material );
 			renderObjects( transparentObjects, camera, lights, fog, true, material );
-			renderObjectsImmediate( _webglObjectsImmediate, null, camera, lights, fog, false, material );
+			renderObjectsImmediate( _webglObjectsImmediate, null, camera,
+					lights, fog, false, material );
 		} 
 		else 
 		{		
@@ -1903,11 +1936,13 @@ public class WebGLRenderer extends AbstractRenderer
 			setBlending( Material.BLENDING.NO );
 
 			renderObjects( opaqueObjects, camera, lights, fog, false, material );
-			renderObjectsImmediate( _webglObjectsImmediate, false, camera, lights, fog, false, material );
+			renderObjectsImmediate( _webglObjectsImmediate, false, camera,
+					lights, fog, false, material );
 
 			// transparent pass (back-to-front order)
 			renderObjects( transparentObjects, camera, lights, fog, true, material );
-			renderObjectsImmediate( _webglObjectsImmediate, true, camera, lights, fog, true, material );
+			renderObjectsImmediate( _webglObjectsImmediate, true, camera,
+					lights, fog, true, material );
 		}
 
 		// custom render org.parallax3d.plugins (post pass)
@@ -1991,7 +2026,10 @@ public class WebGLRenderer extends AbstractRenderer
 //
 //		} else {
 
-//			object.render( function ( object ) { _this.renderBufferImmediate( object, program, material ); } );
+//			object.render( function ( object )
+// 			{
+// 				_this.renderBufferImmediate( object, program, material );
+// 			} );
 		renderBufferImmediate( object, program, material );
 
 //		}
@@ -2363,7 +2401,7 @@ public class WebGLRenderer extends AbstractRenderer
 		}
 		else
 		{
-			Shader shader = material.buildShader(gl, parameters);
+			Shader shader = material.buildShader(this, parameters);
 
 			this._programs.put(cashKey, shader);
 
@@ -2427,7 +2465,8 @@ public class WebGLRenderer extends AbstractRenderer
 		{
 			if ( object instanceof Mesh && ((Mesh)object).__webglMorphTargetInfluences == null ) 
 			{
-				((Mesh)object).__webglMorphTargetInfluences = Float32Array.create( this.maxMorphTargets );
+				((Mesh)object).__webglMorphTargetInfluences =
+						Float32Array.create( this.maxMorphTargets );
 			}
 		}
 

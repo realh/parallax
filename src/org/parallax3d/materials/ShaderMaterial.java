@@ -18,6 +18,7 @@
 
 package org.parallax3d.materials;
 
+import org.parallax3d.renderer.WebGLExtensions;
 import org.parallax3d.shaders.ProgramParameters;
 import org.parallax3d.shaders.Shader;
 import org.parallax3d.math.Color;
@@ -252,17 +253,17 @@ public class ShaderMaterial extends Material
 	}
 
 	@Override
-	protected String getExtensionsVertex(ProgramParameters params)
+	protected String getExtensionsVertex(WebGLExtensions extensions, ProgramParameters params)
 	{
 		return vertexExtensions == null ?
-				super.getExtensionsVertex(params) : vertexExtensions;
+				super.getExtensionsVertex(extensions, params) : vertexExtensions;
 	}
 
 	@Override
-	protected String getExtensionsFragment(ProgramParameters params)
+	protected String getExtensionsFragment(WebGLExtensions extensions, ProgramParameters params)
 	{
 		return fragmentExtensions == null ?
-				super.getExtensionsFragment(params) : fragmentExtensions;
+				super.getExtensionsFragment(extensions, params) : fragmentExtensions;
 	}
 
 	public ShaderMaterial clone() {
